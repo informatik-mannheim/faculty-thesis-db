@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+	<h1>Hallo, {{ user.first_name }} {{ user.last_name }}!</h1>
+	<p>
+		Ich werde mal ein Thesispool.
+	<p>
+
+	<form method="get" action="/accounts/logout/">
+	{% csrf_token %}
+		<input type="submit" value="logout" />
+	</form>
+{% endblock content %}

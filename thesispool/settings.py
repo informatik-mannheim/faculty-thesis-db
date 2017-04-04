@@ -1,4 +1,6 @@
+import ldap
 import os
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -52,6 +54,13 @@ TEMPLATES = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    # authenticate employees and students (frontend)
+    'django_auth_ldap.backend.LDAPBackend',
+    # authenticate superuser (backend)
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 WSGI_APPLICATION = 'thesispool.wsgi.application'
 
 
@@ -84,6 +93,20 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# LDAP-specific settings
+AUTH_LDAP_CONNECTION_OPTIONS = {
+    ldap.OPT_DEBUG_LEVEL: 0,
+    ldap.OPT_REFERRALS: 0,
+}
+
+AUTH_LDAP_START_TLS = True
+
+# LDAP connection data
+AUTH_LDAP_SERVER_URI = "ldap://ldap-master.sv.hs-mannheim.de"
+AUTH_LDAP_USER_DN_TEMPLATE = "uid=%(user)s,ou=Users,dc=informatik,dc=hs-mannheim,dc=de"
+AUTH_LDAP_USER_ATTR_MAP = {"first_name": "givenName", "last_name": "sn"}
+
+LOGIN_REDIRECT_URL = '/overview/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
