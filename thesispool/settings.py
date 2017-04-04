@@ -8,7 +8,7 @@ SECRET_KEY = 'e^#66y^5qnn))b0py#%lcpw!lvvpndbx9%7(l&fpg+17m)9pj)'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'aphrodite.hs-mannheim.de',
+    'aphrodite.informatik.hs-mannheim.de',
     'localhost',
     '127.0.0.1',
 ]
@@ -39,7 +39,7 @@ ROOT_URLCONF = 'thesispool.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'website/templates/website')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
