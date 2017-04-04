@@ -1,0 +1,20 @@
+#!/bin/bash
+
+echo "Installiere Thesispool..."
+echo
+
+# root check
+if [[ $(id -u) -ne 0 ]]
+then 
+	echo "Please run as root";
+	exit 1; 
+fi
+
+# install packages
+apt-get install -y python3 apache2 python3-setuptools python3-pip libsasl2-dev ibapache2-mod-wsgi-py3
+
+# update pip
+pip3 install -U pip
+
+#install django and the LDAP backend
+pip3 install django django_auth_ldap
