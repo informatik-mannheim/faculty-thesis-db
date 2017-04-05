@@ -1,0 +1,264 @@
+---
+FieldType: Text
+FieldName: DatumAnnahme
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: DatumPA
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Button
+FieldName: StudienzeitJa
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+FieldStateOption: Ja
+FieldStateOption: Off
+---
+FieldType: Button
+FieldName: StudienzeitNein
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+FieldStateOption: Ja
+FieldStateOption: Off
+---
+FieldType: Button
+FieldName: Nachfrist
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: On
+---
+FieldType: Text
+FieldName: DatumPr&#252;fungsamt
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Name
+FieldFlags: 0
+FieldValue: sandjlkasdlkas
+FieldJustification: Left
+---
+FieldType: Button
+FieldName: AbgabeTermingerecht
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: On
+---
+FieldType: Button
+FieldName: AbgabeMitVerl&#228;ngerung
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: On
+---
+FieldType: Button
+FieldName: AbgabeVersp&#228;tet
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: On
+---
+FieldType: Text
+FieldName: Vorname
+FieldFlags: 0
+FieldValue: ajldaskdj
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: MatrNr
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: EMail
+FieldFlags: 4096
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Button
+FieldName: IB
+FieldFlags: 0
+FieldValue: Ja
+FieldJustification: Left
+FieldStateOption: Ja
+FieldStateOption: Off
+---
+FieldType: Button
+FieldName: IMB
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+FieldStateOption: Ja
+FieldStateOption: Off
+---
+FieldType: Button
+FieldName: UIB
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+FieldStateOption: Ja
+FieldStateOption: Off
+---
+FieldType: Text
+FieldName: Titel
+FieldFlags: 4096
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: BeginnDerArbeit
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: AbgabeDerArbeit
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Note
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Center
+---
+FieldType: Text
+FieldName: DatumAbgabe
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: K&#252;rzelErstkorrektor
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: K&#252;rzelZweitkorrektor
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Button
+FieldName: AnfertigungHS
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+FieldStateOption: Ja
+FieldStateOption: Off
+---
+FieldType: Button
+FieldName: AnfertigungAusland
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+FieldStateOption: Ja
+FieldStateOption: Off
+---
+FieldType: Button
+FieldName: AnfertigungFirma
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+FieldStateOption: Ja
+FieldStateOption: Off
+---
+FieldType: Text
+FieldName: Firma
+FieldFlags: 4096
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Verl&#228;ngerungUmWochen
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Begr&#252;ndungVerl&#228;ngerung
+FieldFlags: 4096
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: DatumAntragVerl&#228;ngerung
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: DatumAbgabeNeu
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: DatumVerl&#228;ngerungBerf&#252;rwortetErst
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: DatumVerl&#228;ngerungBerf&#252;rwortetPA
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: K&#252;rzelPA
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Bemerkungen
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: DatumKolloquium
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: DatumKolloquiumsantragErstkorrektor
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: DatumKolloquiumsantragZweitkorrektor
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: UhrzeitKolloquium
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: OrtKolloquium
+FieldFlags: 0
+FieldValue: 
+FieldJustification: Left
