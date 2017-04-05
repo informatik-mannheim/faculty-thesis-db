@@ -9,4 +9,5 @@ urlpatterns = [
         name='login'),
     url(r'^accounts/logout/$', logout, {'next_page': 'login'}, name='logout'),
     url(r'^overview/$', views.overview, name='overview'),
+    url(r'^create/$', views.create, name='create'),
 ]

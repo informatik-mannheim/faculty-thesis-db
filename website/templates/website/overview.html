@@ -3,16 +3,23 @@
 
 {% block content %}
 	<h1>Hallo, {{ user.first_name }} {{ user.last_name }}!</h1>
-	<p>
-		Ich werde mal ein Thesispool.
-	<p>
+	<div>
+		<strong>Aktuelle Abschlussarbeiten:</strong>
+	</div>
 	<ul>
 		{% for thesis in theses %}
 			<li>{{thesis.title}} (Assessor: {{thesis.assessor}})</li>
 		{% endfor %}
 	</ul>
-	<form method="get" action="/accounts/logout/">
-	{% csrf_token %}
-		<input type="submit" value="logout" />
-	</form>
+
+	<a href="{% url 'create' %}">Create New</a>
+	<br />
+	<br />
+	<br />
+
+		<form method="get" action="/accounts/logout/">
+		{% csrf_token %}
+			<input type="submit" value="logout" />
+		</form>
+
 {% endblock content %}

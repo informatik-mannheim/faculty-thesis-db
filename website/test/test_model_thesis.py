@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.test.utils import setup_test_environment
+from datetime import datetime
 
 from website.models import *
 
@@ -25,7 +26,10 @@ class ThesisModelTests(TestCase):
         thesis = Thesis(student=student,
                         assessor=assessor,
                         supervisor=supervisor,
-                        title=title)
+                        title=title,
+                        begin_date=datetime.now().date(),
+                        due_date=datetime(2019, 1, 30))
+
         thesis.save()
 
         self.assertEqual(1, Thesis.objects.count())
@@ -50,7 +54,9 @@ class ThesisModelTests(TestCase):
         thesis = Thesis(assessor=assessor,
                         supervisor=supervisor,
                         student=student,
-                        title=title)
+                        title=title,
+                        begin_date=datetime.now().date(),
+                        due_date=datetime(2019, 1, 30))
         thesis.save()
 
         self.assertEqual(1, Thesis.objects.count())
@@ -75,7 +81,9 @@ class ThesisModelTests(TestCase):
         thesis = Thesis(student=student,
                         assessor=assessor,
                         supervisor=supervisor,
-                        title=title)
+                        title=title,
+                        begin_date=datetime.now().date(),
+                        due_date=datetime(2019, 1, 30))
         thesis.save()
 
         self.assertEqual(1, Thesis.objects.count())

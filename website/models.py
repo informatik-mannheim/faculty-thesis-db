@@ -6,6 +6,8 @@ class Thesis(models.Model):
     supervisor = models.ForeignKey('Supervisor', on_delete=models.CASCADE)
     assessor = models.ForeignKey('Assessor', on_delete=models.CASCADE)
     student = models.ForeignKey('Student', on_delete=models.CASCADE)
+    begin_date = models.DateField()
+    due_date = models.DateField()
 
     def __str__(self):
         return "{0}".format(self.title)

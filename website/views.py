@@ -13,3 +13,8 @@ def overview(request):
     theses = Thesis.objects.filter(supervisor__id=request.user.username)
 
     return render(request, 'website/overview.html', {"theses": theses})
+
+
+@login_required
+def create(request):
+    return render(request, 'website/create_thesis.html')
