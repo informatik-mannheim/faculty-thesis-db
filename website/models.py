@@ -25,9 +25,9 @@ class Supervisor(models.Model):
 
 
 class Assessor(models.Model):
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
-    email = models.CharField(max_length=80)
+    first_name = models.CharField(max_length=30, verbose_name="Vorname")
+    last_name = models.CharField(max_length=30, verbose_name="Nachname")
+    email = models.EmailField(max_length=80, verbose_name="E-Mail")
 
     def __str__(self):
         return "{0} {1} ({2})".format(self.first_name,

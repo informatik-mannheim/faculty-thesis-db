@@ -4,12 +4,29 @@
 {% block content %}
 	<h1>Hallo, {{ user.first_name }} {{ user.last_name }}!</h1>
 	<div>
-		<strong>Aktuelle Abschlussarbeiten:</strong>
+		<h2>Aktuelle Abschlussarbeiten:</h2>
 	</div>
-	<ul>
+<table>
+<thead>
+</thead>
+<tr>
+	<th>Thema</th>
+	<th>Student</th>
+	<th>Zweitkorrektor</th>
+</tr>
+<tbody>
 		{% for thesis in theses %}
-			<li>{{thesis.title}} (Assessor: {{thesis.assessor}})</li>
+		<tr>
+			<td>{{thesis.title}} <a href="/delete/{{thesis.id}}">X</a></td>
+			<td>{{thesis.student}}</td>
+			<td>{{thesis.assessor.first_name}} {{thesis.assessor.last_name}}</td>
+		</th>
 		{% endfor %}
+</tbody>
+</table>
+
+	<ul>
+		
 	</ul>
 
 	<a href="{% url 'create' %}">Create New</a>

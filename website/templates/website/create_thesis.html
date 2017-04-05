@@ -2,6 +2,25 @@
 
 {% block content %}
 
-Wird erstellt
+Neue Bachelorthesis anlegen
+
+<form action="" method="post">{% csrf_token %}
+    {{ form.as_p }}
+
+    <strong>Erstkorrektor</strong>
+    <p>
+    {{user.first_name}} {{user.last_name}}
+	</p>
+    
+    <strong>Zweitkorrektor</strong>
+    <p>
+    	{{ a_form.as_p }}
+    </p>
+    
+    <input type="submit" value="Send message" />
+    
+</form>
+
+{{student}}
 
 {% endblock %}
