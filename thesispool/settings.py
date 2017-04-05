@@ -115,7 +115,7 @@ LANGUAGE_CODE = 'de-DE'
 
 TIME_ZONE = 'CET'
 
-USE_I18N = False
+USE_I18N = True
 
 USE_L10N = True
 
