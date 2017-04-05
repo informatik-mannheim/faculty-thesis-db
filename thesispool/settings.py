@@ -99,7 +99,7 @@ AUTH_LDAP_CONNECTION_OPTIONS = {
     ldap.OPT_REFERRALS: 0,
 }
 
-AUTH_LDAP_START_TLS = True
+AUTH_LDAP_START_TLS = False
 
 # LDAP connection data
 AUTH_LDAP_SERVER_URI = "ldap://ldap-master.sv.hs-mannheim.de"
