@@ -1,3 +1,7 @@
 from django.contrib import admin
+from website.models import Thesis, Assessor, Supervisor
 
-# Register your models here.
+
+admin.site.register(Thesis)
+admin.site.register(Assessor)
+admin.site.register(Supervisor)

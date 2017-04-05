@@ -6,7 +6,11 @@
 	<p>
 		Ich werde mal ein Thesispool.
 	<p>
-
+	<ul>
+		{% for thesis in theses %}
+			<li>{{thesis.title}} (Assessor: {{thesis.assessor}})</li>
+		{% endfor %}
+	</ul>
 	<form method="get" action="/accounts/logout/">
 	{% csrf_token %}
 		<input type="submit" value="logout" />

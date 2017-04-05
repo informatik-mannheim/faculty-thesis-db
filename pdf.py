@@ -118,15 +118,12 @@ fdf.add_field("AbgabeDerArbeit", "01.04.2019")
 fdf.add_field("MatrNr", "123456")
 fdf.add_field("EMail", "123456@stud.hs-mannheim.de")
 fdf.add_field("KürzelErstkorrektor", "  SMI")
-
 fdf.add_field("KürzelZweitkorrektor", "  IME")
 fdf.add_field("Firma", "Krauss-Maffei Wegmann")
-
 fdf.add_field("Nachfrist", "On") # this should be "Ja"
 fdf.add_field("Titel", "\nEinsatz eines Flux-Kompensators für Zeitreisen mit einer maximalen Höchstgeschwindigkeit von WARP 7")
 fdf.uncheck("IB")
 fdf.check("StudienzeitNein")
-
 fdf.check("IMB")
 fdf.check("AnfertigungFirma")
 fdf.uncheck("UIB")
