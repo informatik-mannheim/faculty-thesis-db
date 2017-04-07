@@ -6,7 +6,7 @@ class StudentManager(models.Manager):
 
     def find(self, matnr):
         """
-        Fetch student from external database, return None if id is invalid.
+        Fetch student from external database, return None if matnr is invalid.
         """
         cursor = connections['faculty'].cursor()
         cursor.execute("select * from student where id = %s", [matnr],)
