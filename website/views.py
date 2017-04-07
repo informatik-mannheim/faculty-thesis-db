@@ -1,13 +1,29 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse
+from sendfile import sendfile
+
 
 from website.models import *
 from website.forms import *
 
+from pdf import BachelorForms
+
 
 def index(request):
     return redirect(reverse('overview'))
+
+
+@login_required
+def download(request, pk):
+    thesis = Thesis.objects.get(pk=pk)
+
+    pdf = BachelorForms(thesis).bewertung()
+
+    return sendfile(request,
+                    pdf.path,
+                    attachment=True,
+                    attachment_filename=pdf.filename)
 
 
 @login_required

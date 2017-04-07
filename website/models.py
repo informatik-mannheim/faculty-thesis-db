@@ -29,6 +29,10 @@ class Student(models.Model):
 
     objects = StudentManager()
 
+    @property
+    def email(self):
+        return "{0}@stud.hs-mannheim.de".format(self.id)
+
     def __str__(self):
         return "{0} {1} ({2})".format(self.first_name,
                                       self.last_name,

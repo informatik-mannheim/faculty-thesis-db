@@ -17,7 +17,15 @@ pip3 install -U pip
 pip3 install pyldap
 
 #install django and the LDAP backend
-pip3 install django django_auth_ldap
+pip3 install django django_auth_ldap 
+
+# used for pdf sending
+pip3 install django_sendfile
 
 # make db and folder above it owned by www-data
 # collectstatic
+# apt-get install libmysqlclient-dev
+# apt-get install mysqlclient
+
+# for pdf sending
+# sudo apt-get install libapache2-mod-xsendfile

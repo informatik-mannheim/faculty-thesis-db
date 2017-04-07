@@ -20,6 +20,7 @@
 			<td>{{thesis.title}} <a href="/delete/{{thesis.id}}">X</a></td>
 			<td>{{thesis.student}}</td>
 			<td>{{thesis.assessor.first_name}} {{thesis.assessor.last_name}}</td>
+			<td><a target="_blank" href="/download/{{thesis.id}}">PDF</a></td>
 		</tr>
 		{% endfor %}
 </tbody>

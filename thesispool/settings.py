@@ -16,6 +16,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
 ]
 
+# Used for sending PDF files
+SENDFILE_BACKEND = 'sendfile.backends.xsendfile'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
