@@ -14,8 +14,8 @@ class Thesis(models.Model):
 
 
 class Supervisor(models.Model):
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
+    first_name = models.CharField(max_length=30, verbose_name="Vorname")
+    last_name = models.CharField(max_length=30, verbose_name="Nachname")
     id = models.CharField(max_length=30, primary_key=True)
 
     def __str__(self):

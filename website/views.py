@@ -13,6 +13,7 @@ def index(request):
 @login_required
 def delete_thesis(request, pk):
     Thesis.objects.get(pk=pk).delete()
+
     return HttpResponseRedirect('/overview/')
 
 

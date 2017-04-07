@@ -20,7 +20,7 @@
 			<td>{{thesis.title}} <a href="/delete/{{thesis.id}}">X</a></td>
 			<td>{{thesis.student}}</td>
 			<td>{{thesis.assessor.first_name}} {{thesis.assessor.last_name}}</td>
-		</th>
+		</tr>
 		{% endfor %}
 </tbody>
 </table>
@@ -35,7 +35,7 @@
 	<br />
 
 		<form method="get" action="/accounts/logout/">
-		{% csrf_token %}
+			{% csrf_token %}
 			<input type="submit" value="logout" />
 		</form>
 
