@@ -67,6 +67,12 @@ class PDFInfo(object):
 
 
 class BachelorForms(object):
+    """Class to interact with all PDF forms related to bachelor theses.
+
+    Needs to be instantiated with a Thesis instance and provides several
+    filled out forms (ausgabe, bewertung...). PDFs will be created on first
+    call to any of the API methods and is cached for subsequent calls.
+    """
     TMP_DIR = "/tmp/thesispool"
     BASE_PDF = os.path.join(BASE_DIR, 'website/pdf/formulare.pdf')
 
@@ -81,6 +87,20 @@ class BachelorForms(object):
     def bewertung(self):
         """Return PDFInfo for filled out pdf for Bachelorarbeit Bewertung"""
         return self.__generate_pdf()[1]
+
+    def verlaengerung(self):
+        """Return PDFInfo for filled out pdf for Bachelorarbeit Verlängerung"""
+        return self.__generate_pdf()[2]
+
+    def termin_kolloquium(self):
+        """Return PDFInfo for filled out pdf for Bachelorarbeit Termin
+        Kolloquium
+        """
+        return self.__generate_pdf()[3]
+
+    def kolloquium(self):
+        """Return PDFInfo for filled out pdf for Bachelorarbeit Kolloquium"""
+        return self.__generate_pdf()[4]
 
     def __generate_pdf(self):
         """Generate PDF file from Thesis instance.

@@ -18,7 +18,7 @@ def index(request):
 def download(request, pk):
     thesis = Thesis.objects.get(pk=pk)
 
-    pdf = BachelorForms(thesis).bewertung()
+    pdf = BachelorForms(thesis).ausgabe()
 
     return sendfile(request,
                     pdf.path,
