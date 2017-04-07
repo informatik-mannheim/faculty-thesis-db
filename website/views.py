@@ -27,32 +27,23 @@ def overview(request):
 @login_required
 def create(request):
     if request.method == 'POST':
-
         form = ThesisApplicationForm(request.POST)
         a_form = AssessorForm(request.POST)
 
         if form.is_valid() and a_form.is_valid():
-            begin_date = form.cleaned_data['begin_date']
-            due_date = form.cleaned_data['due_date']
-            title = form.cleaned_data['title']
-
-            student = Student(id=123456,
-                              first_name="Larry",
-                              last_name="Langzeitstudent")
+            assessor = a_form.save()
+            student = form.cleaned_data['student']
 
             supervisor = Supervisor(first_name=request.user.first_name,
                                     last_name=request.user.last_name,
                                     id=request.user.username)
 
-            assessor = a_form.save()
-
             student.save()
-            assessor.save()
             supervisor.save()
 
-            Thesis(title=title,
-                   begin_date=begin_date,
-                   due_date=due_date,
+            Thesis(title=form.cleaned_data['title'],
+                   begin_date=form.cleaned_data['begin_date'],
+                   due_date=form.cleaned_data['due_date'],
                    assessor=assessor,
                    student=student,
                    supervisor=supervisor).save()

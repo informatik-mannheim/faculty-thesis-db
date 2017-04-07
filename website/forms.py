@@ -22,16 +22,8 @@ class AssessorForm(ModelForm):
 
 
 class ThesisApplicationForm(forms.Form):
-    studiengang_choices = (('IB', 'IB'), ('MIB', 'MIB'), ('UIB', 'UIB'))
-
-    title = forms.CharField(label="Titel", max_length=100)
-    student_id = forms.CharField(label="Matrikelnummer")
-
-    studiengang = forms.ChoiceField(
-        label="Studiengang",
-        required=True,
-        widget=forms.RadioSelect,
-        choices=studiengang_choices)
+    title = forms.CharField(label="Titel", max_length=300)
+    student_id = forms.IntegerField(label="Matrikelnummer")
 
     begin_date = forms.DateField(
         widget=forms.SelectDateWidget,
@@ -45,5 +37,20 @@ class ThesisApplicationForm(forms.Form):
 
     def clean(self):
         super(ThesisApplicationForm, self).clean()
-        if self.cleaned_data['student_id'] != '123456':
-            raise forms.ValidationError({'student_id': 'gibt es nicht'})
+
+        matnr = int(self.cleaned_data['student_id'])
+
+        errors = []
+
+        if not Student.objects.find(matnr):
+            errors.append(forms.ValidationError(
+                {'student_id': 'Matrikelnummer existiert nicht'}))
+
+        if self.cleaned_data['begin_date'] >= self.cleaned_data['due_date']:
+            errors.append(forms.ValidationError(
+                {'due_date': 'Abgabe muss später als der Beginn sein'}))
+
+        if errors:
+            raise forms.ValidationError(errors)
+
+        self.cleaned_data['student'] = Student.objects.find(matnr)

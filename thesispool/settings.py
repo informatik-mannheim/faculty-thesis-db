@@ -1,5 +1,6 @@
 import ldap
 import os
+import sys
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -74,7 +75,6 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 
@@ -129,3 +129,9 @@ STATICFILES_DIRs = [
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+from .settings_secret import *
+
+# Dirty hack: Remove mysql DB in test setting
+if 'test' in sys.argv:
+    DATABASES['faculty'] = {}
