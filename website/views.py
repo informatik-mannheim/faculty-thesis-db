@@ -7,7 +7,7 @@ from sendfile import sendfile
 from website.models import *
 from website.forms import *
 
-from pdf import BachelorForms
+from thesispool.pdf import BachelorForms
 
 
 def index(request):
