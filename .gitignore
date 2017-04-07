@@ -22,3 +22,5 @@ tests/report/
 
 # secret settings file for local overrides
 settings_secret.py
+
+static/
