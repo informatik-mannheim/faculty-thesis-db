@@ -71,7 +71,7 @@ class BachelorForms(object):
 
     Needs to be instantiated with a Thesis instance and provides several
     filled out forms (ausgabe, bewertung...). PDFs will be created on first
-    call to any of the API methods and is cached for subsequent calls.
+    call to any of the API methods and are cached for subsequent calls.
     """
     TMP_DIR = "/tmp/thesispool"
     BASE_PDF = os.path.join(BASE_DIR, 'website/pdf/formulare.pdf')
