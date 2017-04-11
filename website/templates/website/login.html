@@ -1,35 +1,57 @@
 {% extends "base.html" %}
 
+{% block header %}
+
+{% endblock header %}
+
 {% block content %}
 
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
 
-{% if next %}
-    {% if user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
-    {% else %}
-    <p>Please login to see this page.</p>
-    {% endif %}
-{% endif %}
 
-<form method="post" action="/accounts/login/">
-    {% csrf_token %}
-    <table>
-    <tr>
-        <td>{{ form.username.label_tag }}</td>
-        <td>{{ form.username }}</td>
-    </tr>
-    <tr>
-        <td>{{ form.password.label_tag }}</td>
-        <td>{{ form.password }}</td>
-    </tr>
-    </table>
 
-    <input type="submit" value="login" />
-    <input type="hidden" name="next" value="{{ next }}" />
-</form>
+<div class="container">
+  
+  <div class="row" id="pwd-container">
+    <div class="col-md-4">
 
+    </div>
+    
+    <div class="col-md-4">
+      <section class="login-form">
+        <form method="post" action="/accounts/login/" role="login">
+           {% csrf_token %}
+
+            {% if form.errors %}
+                <p class="alert alert-danger">Account nicht gefunden</p>
+            {% endif %}
+
+            {% if next %}
+                {% if user.is_authenticated %}
+                    <p>Your account doesn't have access to this page. To proceed, please login with an account that has access.</p>
+                {% else %}
+                    <p>Please login to see this page.</p>
+                {% endif %}
+            {% endif %}
+        
+            <span>{{ form.username.label_tag }}</span>
+            <span>{{ form.username }}</span>
+            <span>{{ form.password.label_tag }}</span>
+            <span>{{ form.password }}</span>
+            
+          
+          
+          <button type="submit" name="go" class="btn btn-lg btn-primary btn-block">Anmelden</button>
+         
+          
+        </form>
+        
+      </section>  
+      </div>
+      
+      <div class="col-md-4"></div>
+  </div>
+  
+  
+  
+</div>
 {% endblock %}

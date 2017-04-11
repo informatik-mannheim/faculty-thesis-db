@@ -29,3 +29,4 @@ pip3 install django_sendfile
 
 # for pdf sending
 # sudo apt-get install libapache2-mod-xsendfile
+# a2enmod xsendfile

@@ -4,9 +4,20 @@
 <html>
 	<head>
 		<title>Thesispool</title>
+		<link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet"> 
+		
+		<link rel="stylesheet" type="text/css" href="{% static 'website/bootstrap-3.3.7-dist/css/bootstrap.min.css' %}">
+		<link rel="stylesheet" type="text/css" href="{% static 'website/bootstrap-3.3.7-dist/css/bootstrap-theme.css' %}">
 		<link rel="stylesheet" href="{% static 'website/style.css' %}">
+
+		{% block header %}
+		{% endblock header %}
 	</head>
 	<body>
+		<div class="col-md-12 dark-primary-color" style="height: 80px;">
+			<h1 class="text-primary-color" style="margin-top: 20px">Thesispool</h1>
+		</div>
+
 		{% block content %}
 		{% endblock content %}
 	</body>

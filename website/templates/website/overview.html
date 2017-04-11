@@ -2,42 +2,36 @@
 {% load static %}
 
 {% block content %}
-	<h1>Hallo, {{ user.first_name }} {{ user.last_name }}!</h1>
-	<div>
-		<h2>Aktuelle Abschlussarbeiten:</h2>
+	<div class="col-md-12 light-primary-color ribbon">
+		<span class="text-secondary-color" style="margin-top: 25px;">Angemeldet als {{ user.first_name }} {{ user.last_name }}
+		</span>	
+		<span>
+			<a href="/accounts/logout" class="label label-danger" >logout</a>
+		</span>
 	</div>
-<table>
-<thead>
-</thead>
-<tr>
-	<th>Thema</th>
-	<th>Student</th>
-	<th>Zweitkorrektor</th>
-</tr>
-<tbody>
-		{% for thesis in theses %}
-		<tr>
-			<td>{{thesis.title}} <a href="/delete/{{thesis.id}}">X</a></td>
-			<td>{{thesis.student}}</td>
-			<td>{{thesis.assessor.first_name}} {{thesis.assessor.last_name}}</td>
-			<td><a target="_blank" href="/download/{{thesis.id}}">PDF</a></td>
-		</tr>
-		{% endfor %}
-</tbody>
-</table>
-
-	<ul>
+	<div class="col-md-10 col-md-offset-1">
+		<table class="ui celled table">
+			<thead>
+				<tr>
+					<th>Thema</th>
+					<th>Student</th>
+					<th>Zweitkorrektor</th>
+					<th>Dokumente</th>
+				</tr>
+			</thead>
+			
+			<tbody>
+					{% for thesis in theses %}
+					<tr>
+						<td>{{thesis.title}}</td>
+						<td>{{thesis.student}}</td>
+						<td>{{thesis.assessor.first_name}} {{thesis.assessor.last_name}}</td>
+						<td><a target="_blank" href="/download/{{thesis.id}}">Anmeldung</a></td>
+					</tr>
+					{% endfor %}
+			</tbody>
+		</table>
 		
-	</ul>
-
-	<a href="{% url 'create' %}">Create New</a>
-	<br />
-	<br />
-	<br />
-
-		<form method="get" action="/accounts/logout/">
-			{% csrf_token %}
-			<input type="submit" value="logout" />
-		</form>
-
+		<a class="btn-lg btn-success" href="{% url 'create' %}">Neue Anmeldung</a>
+	</div>
 {% endblock content %}
