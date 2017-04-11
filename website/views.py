@@ -35,7 +35,7 @@ def delete_thesis(request, pk):
 
 @login_required
 def overview(request):
-    theses = Thesis.objects.filter(supervisor__id=request.user.username)
+    theses = Thesis.objects.for_supervisor(request.user.username)
 
     return render(request, 'website/overview.html', {"theses": theses})
 

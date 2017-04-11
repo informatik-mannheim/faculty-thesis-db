@@ -35,6 +35,14 @@ class ThesisApplicationForm(forms.Form):
         label="Abgabe",
         initial=timezone.now() + timedelta(90))
 
+
+    external = forms.BooleanField(
+        label="extern",
+        initial=False,
+    )
+
+    external_where = forms.CharField(label="bei", max_length=300, required=False)
+
     def clean(self):
         super(ThesisApplicationForm, self).clean()
 

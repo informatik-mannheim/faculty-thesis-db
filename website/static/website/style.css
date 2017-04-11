@@ -29,6 +29,10 @@ body {
 }
 
 
+td {
+	max-width: 500px;
+	word-wrap: break-word;
+}
 
 * {
     -webkit-box-sizing: border-box;

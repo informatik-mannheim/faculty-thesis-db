@@ -2,6 +2,15 @@ from django.db import models
 from django.db import connections
 
 
+class ThesisManager(models.Manager):
+
+    def for_supervisor(self, supervisor_id):
+        theses = self.filter(
+            supervisor__id=supervisor_id).order_by('due_date')
+
+        return theses
+
+
 class StudentManager(models.Manager):
 
     def find(self, matnr):
@@ -40,12 +49,35 @@ class Student(models.Model):
 
 
 class Thesis(models.Model):
+    APPLIED = 'AP'
+    PROLONGED = 'PL'
+    HANDED_IN = 'HI'
+    GRADED = 'GD'
+    STATUS_CHOICES = (
+        (APPLIED, 'Angemeldet'),
+        (PROLONGED, 'Verlängert'),
+        (HANDED_IN, 'Abgegeben'),
+        (GRADED, 'Benotet'),
+    )
+
     title = models.CharField(max_length=200)
     supervisor = models.ForeignKey('Supervisor', on_delete=models.CASCADE)
-    assessor = models.ForeignKey('Assessor', on_delete=models.CASCADE)
+    assessor = models.ForeignKey(
+        'Assessor',
+        on_delete=models.SET_NULL,
+        null=True)
     student = models.ForeignKey('Student', on_delete=models.CASCADE)
     begin_date = models.DateField()
     due_date = models.DateField()
+    external = models.BooleanField(default=False)
+    external_where = models.CharField(max_length=200, blank=True)
+    status = models.CharField(
+        max_length=2,
+        choices=STATUS_CHOICES,
+        default=APPLIED,
+    )
+
+    objects = ThesisManager()
 
     def __str__(self):
         return "{0}".format(self.title)
