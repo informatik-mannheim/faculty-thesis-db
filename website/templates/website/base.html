@@ -14,9 +14,22 @@
 		{% endblock header %}
 	</head>
 	<body>
-		<div class="col-md-12 dark-primary-color" style="height: 80px;">
-			<h1 class="text-primary-color" style="margin-top: 20px">Thesispool</h1>
+		<div class="row">
+			<div class="col-md-12 dark-primary-color" style="height: 80px;">
+				<h1 class="text-primary-color header" style="margin-top: 20px">Thesispool</h1>
+			</div>	
 		</div>
+		{% if user.is_authenticated %}
+			<div class="col-md-12 light-primary-color ribbon">
+			        <span class="text-secondary-color" style="margin-top: 25px;">Angemeldet als {{ user.first_name }} {{ user.last_name }}
+			        </span> 
+			        <span>
+			            <a href="/accounts/logout">(logout)</a>
+			        </span>
+			</div>
+		{% endif %}
+
+
 
 		{% block content %}
 		{% endblock content %}

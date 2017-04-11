@@ -2,20 +2,13 @@
 {% load static %}
 
 {% block content %}
-	<div class="col-md-12 light-primary-color ribbon">
-		<span class="text-secondary-color" style="margin-top: 25px;">Angemeldet als {{ user.first_name }} {{ user.last_name }}
-		</span>	
-		<span>
-			<a href="/accounts/logout">(logout)</a>
-		</span>
-	</div>
 	<div class="col-md-10 col-md-offset-1">
 		<div style="height:40px; margin-bottom: 30px">
 			<div style="display: inline-block; vertical-align: middle">
 				<h2>Laufende Abschlussarbeiten</h2>
 			</div>	
 			<div style="display: inline-block; vertical-align: middle; margin-top:12px; margin-left: 10px;">
-				<a href="{% url 'create' %}">
+				<a href="{% url 'create_step_one' %}">
 					<span class="btn-sm btn-success glyphicon glyphicon-plus"></span>
 				</a>	
 			</div>
@@ -40,7 +33,12 @@
 						<td>{{thesis.get_status_display}}</td>
 						<td>{{thesis.student}}</td>
 						<td>{{thesis.title}}</td>
-						<td>{{thesis.assessor.first_name}} {{thesis.assessor.last_name}}</td>
+						{% if thesis.assessor %}
+							<td>{{thesis.assessor.first_name}} {{thesis.assessor.last_name}}</td>
+						{% else %}
+							<td> <i>nicht festgelegt</i></td>
+						{% endif %}
+						
 						<td><a target="_blank" href="/download/{{thesis.id}}">Anmeldung</a></td>
 					</tr>
 					{% endfor %}

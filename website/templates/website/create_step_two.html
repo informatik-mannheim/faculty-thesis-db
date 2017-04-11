@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <h1>Neue Bachelorthesis anlegen</h1>
+    </div>
+
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="fieldWrapper">
+            {{ form.title.errors }}
+            {{ form.title }}
+        </div>
+        <br />
+
+        <div class="row">
+            <div class="col-md-3">
+                <strong>Erstkorrektor</strong>
+                <p>
+                    {{user.first_name}} {{user.last_name}}
+                </p>    
+            </div>
+            <div class="col-md-3">
+                 <strong>Student</strong>
+                <p>
+                    {{student}}
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <strong>Zweitkorrektor</strong>
+                <br/>
+                 <div class="fieldWrapper inline space-top-small">
+                    {{ form.assessor_first_name.errors }}
+                    {{ form.assessor_first_name }}
+                </div>
+                   <div class="fieldWrapper inline space-left-small space-top-small">
+                    {{ form.assessor_last_name.errors }}
+                    {{ form.assessor_last_name }}
+                </div>
+                   <div class="fieldWrapper inline space-left-small space-top-small">
+                    {{ form.assessor_email.errors }}
+                    {{ form.assessor_email }}
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="fieldWrapper">
+                <div class="col-md-1">
+                    
+                    {{ form.begin_date.label_tag }}
+                </div>
+                <div class="col-md-8">
+                {{ form.begin_date.errors }}
+                    {{ form.begin_date }}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="fieldWrapper">
+                <div class="col-md-1">
+                    {{ form.due_date.label_tag }}
+                </div>
+                <div class="col-md-8">
+                    {{ form.due_date }}
+                    <div class="inline">
+                        {{ form.due_date.errors }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-12">
+                <div class="fieldWrapper inline">
+                    {{ form.external.errors }}
+                    {{ form.external.label_tag }}
+                    {{ form.external }}
+                </div>
+                <div class="fieldWrapper inline">
+                    {{ form.external_where.errors }}
+                    {{ form.external_where.label_tag }}
+                    {{ form.external_where }}
+                </div>
+            </div>
+        </div>
+        <br/>
+          
+        <input class="btn btn-success" style="float: left;" type="submit" value="Speichern" />
+
+    </form>
+    
+    <form action="{%url 'overview'%}" method="get">
+            <input class="btn btn-danger space-left-small" type="submit" value="Abbrechen"/>
+    </form>
+</div>
+{% endblock %}

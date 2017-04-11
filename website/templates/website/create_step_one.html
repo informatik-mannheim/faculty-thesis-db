@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+	<div class="row">
+		<h1>Student suchen</h1>
+	</div>
+	{% if form.is_valid %}
+		<div class="row well">
+			<div class="inline">
+				<strong>Matrikelnummer {{form.student_id.value}}:</strong> {{student.first_name}} {{student.last_name}} ({{student.program}})	
+			</div>
+			<div class="inline space-left">
+				<form action="{% url 'create_step_two' student_id=student.id %}" method="get">
+				  	<button class="btn btn-success" type="submit">
+						<span class="glyphicon glyphicon-arrow-right"></span> Fortfahren
+					</button>
+				</form>
+			</div>
+		</div>
+	{% endif %}
+	
+	<br/>
+	
+	<div class="row">
+		<form action="" method="post">
+			{% csrf_token %}
+			 <div class="fieldWrapper">
+	            {{ form.student_id.errors }}
+	            {{ form.student_id.label_tag }}
+	            {{ form.student_id }}
+	        </div>
+		    
+		    <input class="btn btn-primary" type="submit" value="Matrikelnummer überprüfen" style="float: left; margin-top: 40px;"/>
+		</form>
+		
+		<form action="{%url 'overview'%}" method="get">
+		    <input class="btn btn-danger space-left" type="submit" value="Abbrechen" style="margin-top: 40px;" />
+		</form>
+	</div>
+</div>
+{% endblock content %}

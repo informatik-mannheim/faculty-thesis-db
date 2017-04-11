@@ -3,7 +3,6 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse
 from sendfile import sendfile
 
-
 from website.models import *
 from website.forms import *
 
@@ -41,14 +40,14 @@ def overview(request):
 
 
 @login_required
-def create(request):
+def create_step_two(request, student_id):
+    student = Student.objects.find(student_id)
+
     if request.method == 'POST':
         form = ThesisApplicationForm(request.POST)
-        a_form = AssessorForm(request.POST)
 
-        if form.is_valid() and a_form.is_valid():
-            assessor = a_form.save()
-            student = form.cleaned_data['student']
+        if form.is_valid():
+            assessor = form.cleaned_data['assessor']
 
             supervisor = Supervisor(first_name=request.user.first_name,
                                     last_name=request.user.last_name,
@@ -56,6 +55,9 @@ def create(request):
 
             student.save()
             supervisor.save()
+
+            if assessor:
+                assessor.save()
 
             Thesis(title=form.cleaned_data['title'],
                    begin_date=form.cleaned_data['begin_date'],
@@ -67,8 +69,25 @@ def create(request):
             return HttpResponseRedirect('/overview/')
 
     else:
-        form = ThesisApplicationForm()
-        a_form = AssessorForm()
+        form = ThesisApplicationForm(initial={'student_id': student_id})
 
-    context = {'form': form, 'a_form': a_form}
-    return render(request, 'website/create_thesis.html', context)
+    context = {'form': form, 'student': student}
+    return render(request, 'website/create_step_two.html', context)
+
+
+@login_required
+def create_step_one(request):
+    student = None
+
+    if request.method == 'POST':
+        form = CheckStudentIdForm(request.POST)
+
+        if form.is_valid():
+            student = form.cleaned_data['student']
+
+    else:
+        form = CheckStudentIdForm()
+
+    context = {'form': form, 'student': student}
+
+    return render(request, 'website/create_step_one.html', context)
