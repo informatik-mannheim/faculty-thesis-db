@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse
@@ -5,6 +6,8 @@ from sendfile import sendfile
 
 from website.models import *
 from website.forms import *
+
+from website.util import dateutil
 
 from thesispool.pdf import BachelorForms
 
@@ -41,6 +44,8 @@ def overview(request):
 
 @login_required
 def create_step_two(request, student_id):
+    start, end = dateutil.get_thesis_period(timezone.now(), 3)
+
     student = Student.objects.find(student_id)
 
     if request.method == 'POST':
@@ -69,7 +74,9 @@ def create_step_two(request, student_id):
             return HttpResponseRedirect('/overview/')
 
     else:
-        form = ThesisApplicationForm(initial={'student_id': student_id})
+        form = ThesisApplicationForm(initial={'student_id': student_id,
+                                              'begin_date': start,
+                                              'due_date': end})
 
     context = {'form': form, 'student': student}
     return render(request, 'website/create_step_two.html', context)

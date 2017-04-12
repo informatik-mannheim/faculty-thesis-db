@@ -42,6 +42,12 @@ class Student(models.Model):
     def email(self):
         return "{0}@stud.hs-mannheim.de".format(self.id)
 
+    def is_master(self):
+        return self.program == 'IM'
+
+    def is_bachelor(self):
+        return not self.is_master()
+
     def __str__(self):
         return "{0} {1} ({2})".format(self.first_name,
                                       self.last_name,

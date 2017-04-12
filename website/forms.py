@@ -2,7 +2,6 @@ from datetime import timedelta
 
 from django import forms
 from django.forms import ModelForm
-from django.utils import timezone
 
 from website.models import *
 
@@ -15,7 +14,9 @@ class ThesisForm(ModelForm):
 
 
 class CheckStudentIdForm(forms.Form):
-    student_id = forms.IntegerField(label="Matrikelnummer")
+    student_id = forms.IntegerField(label="Matrikelnummer",
+                                    widget=forms.TextInput(attrs={
+                                        'autofocus': 'autofocus'}))
 
     def clean(self):
         super(CheckStudentIdForm, self).clean()
@@ -33,17 +34,16 @@ class ThesisApplicationForm(forms.Form):
     title = forms.CharField(label="Titel",
                             max_length=300,
                             widget=forms.TextInput(
-                                attrs={'placeholder': 'Titel der Arbeit...'}))
+                                attrs={'placeholder': 'Titel der Arbeit...',
+                                       'autofocus': 'autofocus'}))
 
     begin_date = forms.DateField(
         widget=forms.SelectDateWidget,
-        label="Beginn",
-        initial=timezone.now())
+        label="Beginn")
 
     due_date = forms.DateField(
         widget=forms.SelectDateWidget,
-        label="Abgabe",
-        initial=timezone.now() + timedelta(90))
+        label="Abgabe")
 
     external = forms.BooleanField(
         label="extern",
@@ -74,7 +74,10 @@ class ThesisApplicationForm(forms.Form):
     def clean(self):
         super(ThesisApplicationForm, self).clean()
 
-        if self.cleaned_data['begin_date'] >= self.cleaned_data['due_date']:
+        begin = self.cleaned_data.get('begin_date')
+        end = self.cleaned_data.get('due_date')
+
+        if begin is not None and end is not None and begin >= end:
             raise forms.ValidationError(
                 {'due_date': 'Abgabe muss später als der Beginn sein'})
 
