@@ -69,8 +69,8 @@ class Student(models.Model):
         that was fetched from the faculty DB"""
         return cls(id=record[0],
                    first_name=record[1],
-                   last_name=record[1],
-                   program=record[2])
+                   last_name=record[2],
+                   program=record[3])
 
     def __str__(self):
         return "{0} {1} ({2})".format(self.first_name,

@@ -34,3 +34,13 @@ class StudentTests(TestCase):
         self.assertTrue(self.create_test_student('EMLB').is_bachelor())
         self.assertTrue(self.create_test_student('MTB').is_bachelor())
         self.assertTrue(self.create_test_student('WI').is_bachelor())
+
+    def test_from_raw(self):
+        raw = [123456, 'peter', 'mustermann', 'IM']
+
+        student = Student.from_raw(raw)
+
+        self.assertEqual(student.id, 123456)
+        self.assertEqual(student.first_name, 'peter')
+        self.assertEqual(student.last_name, 'mustermann')
+        self.assertEqual(student.program, 'IM')
