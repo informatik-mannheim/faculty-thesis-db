@@ -66,41 +66,23 @@ class PDFInfo(object):
         self.filename = filename
 
 
-class BachelorForms(object):
-    """Class to interact with all PDF forms related to bachelor theses.
+class AbstractPDF(object):
+    """Base class to populate empty pdf forms with form data.
 
-    Needs to be instantiated with a Thesis instance and provides several
-    filled out forms (ausgabe, bewertung...). PDFs will be created on first
-    call to any of the API methods and are cached for subsequent calls.
+    Override with name of form that should be used for populating
+    form fields with data from the thesis instance.
     """
     TMP_DIR = "/tmp/thesispool"
-    BASE_PDF = os.path.join(BASE_DIR, 'website/pdf/formulare.pdf')
+    BASE_PDF = os.path.join(BASE_DIR, 'website/pdf/{0}.pdf')
 
-    def __init__(self, thesis):
+    def __init__(self, thesis, form_name):
         self.thesis = thesis
+        self.form_name = form_name
+        self.input_pdf_path = self.BASE_PDF.format(self.form_name)
         self.__generated_pdf = None
 
-    def ausgabe(self):
-        """Return PDFInfo for filled out pdf for Bachelorarbeit Ausgabe"""
-        return self.__generate_pdf()[0]
-
-    def bewertung(self):
-        """Return PDFInfo for filled out pdf for Bachelorarbeit Bewertung"""
-        return self.__generate_pdf()[1]
-
-    def verlaengerung(self):
-        """Return PDFInfo for filled out pdf for Bachelorarbeit Verlängerung"""
-        return self.__generate_pdf()[2]
-
-    def termin_kolloquium(self):
-        """Return PDFInfo for filled out pdf for Bachelorarbeit Termin
-        Kolloquium
-        """
-        return self.__generate_pdf()[3]
-
-    def kolloquium(self):
-        """Return PDFInfo for filled out pdf for Bachelorarbeit Kolloquium"""
-        return self.__generate_pdf()[4]
+    def get(self):
+        return self.__generate_pdf()
 
     def __generate_pdf(self):
         """Generate PDF file from Thesis instance.
@@ -114,7 +96,7 @@ class BachelorForms(object):
         if not self.__generated_pdf:
             self.__ensure_temp_dir_exists()
 
-            xfdf = self.__generate_xfdf()
+            xfdf = self._generate_xfdf()
             xfdf_path = self.__write_xfdf_to_tmp(xfdf)
 
             self.__generated_pdf = self.__run_pdftk(xfdf_path)
@@ -124,25 +106,32 @@ class BachelorForms(object):
     def __ensure_temp_dir_exists(self):
         os.makedirs(self.TMP_DIR, exist_ok=True)
 
-    def __generate_xfdf(self):
+    def _generate_xfdf(self):
         """Generate XFDF data used in PDF form data population"""
-        xfdf = XFDF("Ja")
+        xfdf = XFDF("On")
 
         xfdf.add_field("Vorname", self.thesis.student.first_name)
         xfdf.add_field("Name", self.thesis.student.last_name)
         xfdf.add_field("BeginnDerArbeit",
-                       self.thesis.begin_date.strftime("%m.%d.%Y"))
+                       self.thesis.begin_date.strftime("%d.%m.%Y"))
         xfdf.add_field("AbgabeDerArbeit",
-                       self.thesis.due_date.strftime("%m.%d.%Y"))
+                       self.thesis.due_date.strftime("%d.%m.%Y"))
         xfdf.add_field("MatrNr", self.thesis.student.id)
         xfdf.add_field("Titel", self.thesis.title)
         xfdf.add_field("EMail", self.thesis.student.email)
-        # clear checkboxes just to be sure
-        xfdf.uncheck("UIB")
-        xfdf.uncheck("IB")
-        xfdf.uncheck("IMB")
+        xfdf.add_field("Studiengang", self.thesis.student.program)
 
-        xfdf.check(self.thesis.student.program)
+        if self.thesis.assessor:
+            xfdf.add_field("NameZweitkorrektor",
+                           self.thesis.assessor.short_name)
+
+        if self.thesis.external:
+            xfdf.check("AnfertigungFirma")
+        else:
+            xfdf.uncheck("AnfertigungFirma")
+            xfdf.check("AnfertigungHS")
+        if self.thesis.external_where:
+            xfdf.add_field("Firma", self.thesis.external_where)
 
         return xfdf
 
@@ -161,26 +150,38 @@ class BachelorForms(object):
         pdf_path = xfdf_path.replace(".xfdf", ".pdf")
 
         # run pdftk to fill form fields
-        subprocess.run(["pdftk", self.BASE_PDF,
+        subprocess.run(["pdftk", self.input_pdf_path,
                         "fill_form", xfdf_path,
                         "output", pdf_path, "flatten"])
 
-        # run pdftk again to burst the filled out pdf into separate pdfs
-        subprocess.run(["pdftk", pdf_path, "burst",
-                        "output", pdf_path + "_%02d"])
+        return self.__generate_pdf_info(pdf_path)
 
-        return [
-            self.__generate_pdf_info('ausgabe', pdf_path + "_01"),
-            self.__generate_pdf_info('bewertung', pdf_path + "_02"),
-            self.__generate_pdf_info('verlaengerung', pdf_path + "_03"),
-            self.__generate_pdf_info('kolloquium_termin', pdf_path + "_04"),
-            self.__generate_pdf_info('kolloquium', pdf_path + "_05"),
-        ]
-
-    def __generate_pdf_info(self, type, path):
+    def __generate_pdf_info(self, path):
         today = datetime.now().strftime("%Y%m%d")
         student_id = self.thesis.student.id
 
-        filename = "{0}_{1}_ba_{2}.pdf".format(today, type, student_id)
+        filename = "{0}_{1}_{2}.pdf".format(
+            today, self.form_name, student_id)
 
         return PDFInfo(path, filename)
+
+
+class ApplicationPDF(AbstractPDF):
+    """PDF for application of thesis"""
+
+    def __init__(self, thesis):
+        super(ApplicationPDF, self).__init__(thesis, 'ausgabe')
+
+
+class GradingPDF(AbstractPDF):
+    """PDF for grading of thesis"""
+
+    def __init__(self, thesis):
+        super(GradingPDF, self).__init__(thesis, 'bewertung')
+
+
+class ProlongationPDF(AbstractPDF):
+    """PDF for prolongation of thesis"""
+
+    def __init__(self, thesis):
+        super(ProlongationPDF, self).__init__(thesis, 'verlaengerung')

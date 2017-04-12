@@ -9,7 +9,7 @@ from website.forms import *
 
 from website.util import dateutil
 
-from thesispool.pdf import BachelorForms
+from thesispool.pdf import *
 
 
 def index(request):
@@ -18,13 +18,13 @@ def index(request):
 
 @login_required
 def download(request, pk):
+    # by changing pk, every prof could download any pdf he/she wants. Fix?
     thesis = Thesis.objects.get(pk=pk)
-
-    pdf = BachelorForms(thesis).ausgabe()
+    pdf = ApplicationPDF(thesis).get()
 
     return sendfile(request,
                     pdf.path,
-                    attachment=True,
+                    attachment=False,
                     attachment_filename=pdf.filename)
 
 
@@ -70,7 +70,9 @@ def create_step_two(request, student_id):
                    due_date=form.cleaned_data['due_date'],
                    assessor=assessor,
                    student=student,
-                   supervisor=supervisor).save()
+                   supervisor=supervisor,
+                   external=form.cleaned_data['external'],
+                   external_where=form.cleaned_data['external_where']).save()
 
             return HttpResponseRedirect('/overview/')
 

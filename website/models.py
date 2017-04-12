@@ -79,6 +79,10 @@ class Student(models.Model):
 
 
 class Thesis(models.Model):
+
+    class Meta:
+        verbose_name_plural = "theses"
+
     APPLIED = 'AP'
     PROLONGED = 'PL'
     HANDED_IN = 'HI'
@@ -128,6 +132,10 @@ class Assessor(models.Model):
     first_name = models.CharField(max_length=30, verbose_name="Vorname")
     last_name = models.CharField(max_length=30, verbose_name="Nachname")
     email = models.EmailField(max_length=80, verbose_name="E-Mail")
+
+    @property
+    def short_name(self):
+        return "{0}.{1}".format(self.first_name[0], self.last_name)
 
     def __str__(self):
         return "{0} {1} ({2})".format(self.first_name,
