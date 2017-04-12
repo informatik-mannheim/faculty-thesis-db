@@ -132,8 +132,11 @@ STATICFILES_DIRs = [
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-from .settings_secret import *
+from .settings_secret import *  # noqa
 
-# Dirty hack: Remove mysql DB in test setting
+# For testing purposes, let faculty be a sqlite3 file to allow setup / teardown
 if 'test' in sys.argv:
-    DATABASES['faculty'] = {}
+    DATABASES['faculty'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'students.sqlite3'),
+    }

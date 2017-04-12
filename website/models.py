@@ -12,41 +12,65 @@ class ThesisManager(models.Manager):
 
 
 class StudentManager(models.Manager):
+    """Custom manager that allows for reading from an external DB"""
 
     def find(self, matnr):
         """
         Fetch student from external database, return None if matnr is invalid.
         """
+        sql = """select id,
+                        firstname,
+                        lastname,
+                        program
+                from student where id = %s"""
+
         cursor = connections['faculty'].cursor()
-        cursor.execute("select * from student where id = %s", [matnr],)
+        cursor.execute(sql, [matnr],)
         row = cursor.fetchone()
 
-        if not row:
-            return None
-
-        return Student(id=matnr,
-                       first_name=row[1],
-                       last_name=row[2],
-                       program=row[4])
+        return None if not row else Student.from_raw(row)
 
 
 class Student(models.Model):
-    id = models.IntegerField(primary_key=True)
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
-    program = models.CharField(max_length=10)
+    """Model for students. Model is a little bit tricky as students are read from
+    a read-only MySQL DB (a.k.a. the faculty DB) and saved to the internal
+    database. In order to make it testable the table name and all column names
+    need to be the same internally and externally so that all mappings work
+    even if the DB is being switched.
+    """
+
+    class Meta:
+        """Same as in faculty DB"""
+        db_table = 'student'
+
+    id = models.IntegerField(primary_key=True, db_column='id')
+    first_name = models.CharField(max_length=30, db_column='firstname')
+    last_name = models.CharField(max_length=30, db_column='lastname')
+    program = models.CharField(max_length=10, db_column='program')
 
     objects = StudentManager()
 
     @property
     def email(self):
+        """Generate email address using the default patter"""
         return "{0}@stud.hs-mannheim.de".format(self.id)
 
     def is_master(self):
+        """Checks if the student is a master student"""
         return self.program == 'IM'
 
     def is_bachelor(self):
+        """Checks if the student is a bachelor student"""
         return not self.is_master()
+
+    @classmethod
+    def from_raw(cls, record):
+        """Create a student instance from a raw record
+        that was fetched from the faculty DB"""
+        return cls(id=record[0],
+                   first_name=record[1],
+                   last_name=record[1],
+                   program=record[2])
 
     def __str__(self):
         return "{0} {1} ({2})".format(self.first_name,
