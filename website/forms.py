@@ -86,6 +86,11 @@ class ThesisApplicationForm(forms.Form):
         required=False
     )
 
+    student_email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'placeholder': 'E-Mail (optional)'}),
+        required=False
+    )
+
     external_where = forms.CharField(
         label="bei", max_length=300, required=False)
 
@@ -109,6 +114,8 @@ class ThesisApplicationForm(forms.Form):
         supervisor.save()
         student.save()
 
+        contact = self.cleaned_data["student_email"] or student.email
+
         thesis = Thesis(title=self.cleaned_data['title'],
                         begin_date=self.cleaned_data['begin_date'],
                         due_date=self.cleaned_data['due_date'],
@@ -116,7 +123,8 @@ class ThesisApplicationForm(forms.Form):
                         student=student,
                         supervisor=supervisor,
                         external=self.cleaned_data['external'],
-                        external_where=self.cleaned_data['external_where'])
+                        external_where=self.cleaned_data['external_where'],
+                        student_contact=contact)
 
         thesis.save()
 

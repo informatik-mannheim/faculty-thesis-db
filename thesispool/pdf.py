@@ -118,7 +118,7 @@ class AbstractPDF(object):
                        self.thesis.due_date.strftime("%d.%m.%Y"))
         xfdf.add_field("MatrNr", self.thesis.student.id)
         xfdf.add_field("Titel", self.thesis.title)
-        xfdf.add_field("EMail", self.thesis.student.email)
+        xfdf.add_field("EMail", self.thesis.student_contact)
         xfdf.add_field("Studiengang", self.thesis.student.program)
 
         if self.thesis.assessor:

@@ -24,11 +24,16 @@
                     {{user.first_name}} {{user.last_name}}
                 </p>    
             </div>
-            <div class="col-md-3">
-                 <strong>Student</strong>
-                <p>
-                    {{student}}
-                </p>
+            <div class="col-md-5">
+                 <div><strong>Student</strong></div>
+                
+                    <span class="inline">{{student}} &nbsp;</span>
+                    <div class="fieldWrapper inline">
+                    {{ form.student_email.errors }}
+                    {{ form.student_email }}
+                    </div>
+          
+              
             </div>
         </div>
 

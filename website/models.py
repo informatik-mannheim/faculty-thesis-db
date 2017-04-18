@@ -112,6 +112,7 @@ class Thesis(models.Model):
         choices=STATUS_CHOICES,
         default=APPLIED,
     )
+    student_contact = models.EmailField()
 
     objects = ThesisManager()
 
