@@ -64,23 +64,30 @@ class CreateStepTwo(View):
                                               'begin_date': self.start,
                                               'due_date': self.end})
 
-        context = {'form': form, 'student': self.student}
+        context = {
+            'form': form,
+            'a_form': AssessorForm(),
+            'student': self.student
+        }
 
         return render(request, 'website/create_step_two.html', context)
 
     def post(self, request, *args, **kwargs):
         form = ThesisApplicationForm(request.POST)
+        a_form = AssessorForm(request.POST)
 
-        if form.is_valid():
+        if form.is_valid() and a_form.is_valid():
             supervisor = Supervisor(first_name=request.user.first_name,
                                     last_name=request.user.last_name,
                                     id=request.user.username)
 
-            form.create_thesis(supervisor, self.student)
+            assessor = a_form.cleaned_data["assessor"]
+
+            form.create_thesis(assessor, supervisor, self.student)
 
             return HttpResponseRedirect('/overview/')
 
-        context = {'form': form, 'student': self.student}
+        context = {'form': form, 'a_form': a_form, 'student': self.student}
 
         return render(request, 'website/create_step_two.html', context)
 

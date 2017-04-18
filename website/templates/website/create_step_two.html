@@ -35,18 +35,20 @@
         <div class="row">
             <div class="col-md-12">
                 <strong>Zweitkorrektor</strong>
-                <br/>
+                <br />
+                {{ a_form.non_field_errors }}
+                
                  <div class="fieldWrapper inline space-top-small">
-                    {{ form.assessor_first_name.errors }}
-                    {{ form.assessor_first_name }}
+                    {{ a_form.first_name.errors }}
+                    {{ a_form.first_name }}
                 </div>
                    <div class="fieldWrapper inline space-left-small space-top-small">
-                    {{ form.assessor_last_name.errors }}
-                    {{ form.assessor_last_name }}
+                    {{ a_form.last_name.errors }}
+                    {{ a_form.last_name }}
                 </div>
                    <div class="fieldWrapper inline space-left-small space-top-small">
-                    {{ form.assessor_email.errors }}
-                    {{ form.assessor_email }}
+                    {{ a_form.email.errors }}
+                    {{ a_form.email }}
                 </div>
             </div>
         </div>

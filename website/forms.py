@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import ModelForm
+from django.core.exceptions import ValidationError
 
 from website.models import *
 
@@ -28,6 +29,42 @@ class CheckStudentIdForm(forms.Form):
         self.cleaned_data['student'] = Student.objects.find(matnr)
 
 
+class AssessorForm(forms.Form):
+    first_name = forms.CharField(
+        label="Vorname",
+        max_length=300,
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'Vorname'}))
+
+    last_name = forms.CharField(
+        label="Nachname",
+        max_length=300,
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'Nachname'}))
+    email = forms.CharField(
+        label="E-Mail",
+        max_length=300,
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'E-Mail'}))
+
+    def clean(self):
+        if not any(self.cleaned_data.values()):
+            self.cleaned_data['assessor'] = None
+
+        else:
+            try:
+                assessor = Assessor(
+                    first_name=self.cleaned_data['first_name'],
+                    last_name=self.cleaned_data['last_name'],
+                    email=self.cleaned_data['email'])
+
+                assessor.full_clean()
+
+                self.cleaned_data['assessor'] = assessor
+            except ValidationError:
+                raise forms.ValidationError('Zweitkorrektor unvollständig')
+
+
 class ThesisApplicationForm(forms.Form):
     title = forms.CharField(label="Titel",
                             max_length=300,
@@ -52,23 +89,6 @@ class ThesisApplicationForm(forms.Form):
     external_where = forms.CharField(
         label="bei", max_length=300, required=False)
 
-    assessor_first_name = forms.CharField(
-        label="Vorname",
-        max_length=300,
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': 'Vorname'}))
-
-    assessor_last_name = forms.CharField(
-        label="Nachname",
-        max_length=300,
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': 'Nachname'}))
-    assessor_email = forms.CharField(
-        label="E-Mail",
-        max_length=300,
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': 'E-Mail'}))
-
     def clean(self):
         super(ThesisApplicationForm, self).clean()
 
@@ -79,20 +99,9 @@ class ThesisApplicationForm(forms.Form):
             raise forms.ValidationError(
                 {'due_date': 'Abgabe muss später als der Beginn sein'})
 
-        if not self.cleaned_data['assessor_email']:
-            self.cleaned_data['assessor'] = None
-
-        else:
-            self.cleaned_data['assessor'] = Assessor(
-                first_name=self.cleaned_data['assessor_first_name'],
-                last_name=self.cleaned_data['assessor_last_name'],
-                email=self.cleaned_data['assessor_email'])
-
-    def create_thesis(self, supervisor, student):
+    def create_thesis(self, assessor, supervisor, student):
         if not self.is_valid():
             return None
-
-        assessor = self.cleaned_data['assessor']
 
         if assessor:
             assessor.save()

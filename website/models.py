@@ -131,9 +131,12 @@ class Supervisor(models.Model):
 
 
 class Assessor(models.Model):
-    first_name = models.CharField(max_length=30, verbose_name="Vorname")
-    last_name = models.CharField(max_length=30, verbose_name="Nachname")
-    email = models.EmailField(max_length=80, verbose_name="E-Mail")
+    first_name = models.CharField(
+        max_length=30, verbose_name="Vorname")
+    last_name = models.CharField(
+        max_length=30, verbose_name="Nachname")
+    email = models.EmailField(
+        max_length=80, verbose_name="E-Mail")
 
     @property
     def short_name(self):
