@@ -21,6 +21,7 @@ pip3 install django django_auth_ldap
 
 # used for pdf sending
 pip3 install django_sendfile
+pip3 install python-dateutil
 
 # make db and folder above it owned by www-data
 # collectstatic

@@ -15,7 +15,8 @@ class dateutil(object):
         return date + relativedelta(months=number, days=-1)
 
     @staticmethod
-    def get_thesis_period(date, months):
+    def get_thesis_period(date, student):
+        months = 3 if student.is_bachelor() else 6
         start = dateutil.next_month_start(date)
         end = dateutil.add_months(months, start)
 

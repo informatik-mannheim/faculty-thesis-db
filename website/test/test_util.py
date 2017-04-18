@@ -1,11 +1,15 @@
 from unittest import TestCase
 from datetime import datetime
-
+from website.models import Student
 
 from website.util import dateutil
 
 
 class ThesisModelTests(TestCase):
+
+    def setUp(self):
+        self.ba_student = Student(program="IMB")
+        self.ma_student = Student(program="IM")
 
     def test_get_beginning_of_next_month(self):
 
@@ -38,13 +42,16 @@ class ThesisModelTests(TestCase):
         self.assertEqual(then_plus_3, dateutil.add_months(3, then))
         self.assertEqual(then_plus_6, dateutil.add_months(6, then))
 
-    def test_get_thesis_period(self):
-        start, end = dateutil.get_thesis_period(datetime(2017, 1, 2), 3)
+    def test_get_thesis_period_3_months_for_bachelor(self):
+        start, end = dateutil.get_thesis_period(
+            datetime(2017, 1, 2), self.ba_student)
 
         self.assertEqual(start, datetime(2017, 2, 1))
         self.assertEqual(end, datetime(2017, 4, 30))
 
-        start, end = dateutil.get_thesis_period(datetime(2017, 1, 1), 6)
+    def test_get_thesis_period_6_months_for_master(self):
+        start, end = dateutil.get_thesis_period(
+            datetime(2017, 1, 1), self.ma_student)
 
         self.assertEqual(start, datetime(2017, 1, 1))
         self.assertEqual(end, datetime(2017, 6, 30))

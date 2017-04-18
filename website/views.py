@@ -46,8 +46,7 @@ def overview(request):
 def create_step_two(request, student_id):
     student = Student.objects.find(student_id)
 
-    length = 6 if student.is_master else 3
-    start, end = dateutil.get_thesis_period(timezone.now(), length)
+    start, end = dateutil.get_thesis_period(timezone.now(), student)
 
     if request.method == 'POST':
         form = ThesisApplicationForm(request.POST)
