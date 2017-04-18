@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.views import View
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect, reverse
 from django.utils import timezone
 from sendfile import sendfile
@@ -14,6 +14,20 @@ from thesispool.pdf import *
 
 def index(request):
     return redirect(reverse('overview'))
+
+
+@login_required
+def prolong(request, pk):
+    thesis = Thesis.objects.get(pk=pk)
+
+    return HttpResponse(thesis)
+
+
+@login_required
+def grade(request, pk):
+    thesis = Thesis.objects.get(pk=pk)
+
+    return HttpResponse(thesis)
 
 
 @login_required

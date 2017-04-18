@@ -28,7 +28,8 @@
 			
 			<tbody>
 					{% for thesis in theses %}
-					<tr>
+				
+					<tr class="{% cycle 'row1' 'row2' %}">
 						<td>{{thesis.due_date}}</td>
 						<td>{{thesis.get_status_display}}</td>
 						<td>{{thesis.student}}</td>
@@ -39,10 +40,34 @@
 							<td> <i>nicht festgelegt</i></td>
 						{% endif %}
 						
-						<td><a target="_blank" href="/download/application/{{thesis.pdf_key}}">Anmeldung</a></td>
-						<td><a target="_blank" href="/download/grading/{{thesis.pdf_key}}">Bewertung</a></td>
-						<td><a target="_blank" href="/download/prolongation/{{thesis.pdf_key}}">Verlängerung</a></td>
+						<td rowspan="2">
+							<a class="document-link" target="_blank" href="/download/application/{{thesis.pdf_key}}">
+								<span class="glyphicon glyphicon-file"></span>&nbsp; Anmeldung
+							</a>
+							<br />
+							<a class="document-link" target="_blank" href="/download/prolongation/{{thesis.pdf_key}}">
+								<span class="glyphicon glyphicon-file"></span>&nbsp; Verlängerung
+							</a>
+							<br />
+							<a class="document-link" target="_blank" href="/download/grading/{{thesis.pdf_key}}">
+								<span class="glyphicon glyphicon-file"></span>&nbsp; Bewertung
+							</a>
+						</td>
 					</tr>
+					<tr class="{% cycle 'row1' 'row2' %}">
+						<td class="info-row" colspan="5"  style="border-bottom: 1px solid #ddd; border-top:0px">
+							<a href="#" class="icon-link">
+								<span class="glyphicon glyphicon-pencil" title="Ändern" style="margin-left: 20px;"></span>
+							</a>
+							<a href="{% url 'prolong' thesis.pk %}" class="icon-link">
+								<span class="glyphicon glyphicon-hourglass" title="Verlängern" style="margin-left: 20px;"></span>
+							</a>
+							<a href="{% url 'grade' thesis.pk %}" class="icon-link">
+								<span class="glyphicon glyphicon-education" title="Benoten" style="margin-left: 20px;"></span>
+							</a>
+						</td>
+					</tr>
+
 					{% endfor %}
 			</tbody>
 		</table>

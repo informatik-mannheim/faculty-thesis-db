@@ -28,4 +28,6 @@ urlpatterns = [
         login_required(views.PdfView.as_view()),
         {"type": GradingPDF},
         name='grading_pdf'),
+    url(r'^prolong/(?P<pk>\d+)$', views.prolong, name="prolong"),
+    url(r'^grade/(?P<pk>\d+)$', views.grade, name="grade"),
 ]

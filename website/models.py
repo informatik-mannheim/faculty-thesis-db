@@ -117,7 +117,7 @@ class Thesis(models.Model):
     objects = ThesisManager()
 
     def __str__(self):
-        return "{0}".format(self.title)
+        return "'{0}' ({1})".format(self.title, self.student)
 
 
 class Supervisor(models.Model):
