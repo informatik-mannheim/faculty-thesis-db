@@ -1,5 +1,6 @@
 from django.db import models
 from django.db import connections
+import uuid
 
 
 class ThesisManager(models.Manager):
@@ -105,6 +106,7 @@ class Thesis(models.Model):
     due_date = models.DateField()
     external = models.BooleanField(default=False)
     external_where = models.CharField(max_length=200, blank=True)
+    pdf_key = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     status = models.CharField(
         max_length=2,
         choices=STATUS_CHOICES,

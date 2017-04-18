@@ -22,7 +22,7 @@
 					<th>Student</th>
 					<th>Thema</th>
 					<th>Zweitkorrektor</th>
-					<th>Dokumente</th>
+					<th colspan=3>Dokumente</th>
 				</tr>
 			</thead>
 			
@@ -39,7 +39,9 @@
 							<td> <i>nicht festgelegt</i></td>
 						{% endif %}
 						
-						<td><a target="_blank" href="/download/{{thesis.id}}">Anmeldung</a></td>
+						<td><a target="_blank" href="/download/application/{{thesis.pdf_key}}">Anmeldung</a></td>
+						<td><a target="_blank" href="/download/grading/{{thesis.pdf_key}}">Bewertung</a></td>
+						<td><a target="_blank" href="/download/prolongation/{{thesis.pdf_key}}">Verlängerung</a></td>
 					</tr>
 					{% endfor %}
 			</tbody>

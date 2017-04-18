@@ -17,18 +17,6 @@ def index(request):
 
 
 @login_required
-def download(request, pk):
-    # by changing pk, every prof could download any pdf he/she wants. Fix?
-    thesis = Thesis.objects.get(pk=pk)
-    pdf = ApplicationPDF(thesis).get()
-
-    return sendfile(request,
-                    pdf.path,
-                    attachment=True,
-                    attachment_filename=pdf.filename)
-
-
-@login_required
 def delete_thesis(request, pk):
     Thesis.objects.get(pk=pk).delete()
 
@@ -40,6 +28,25 @@ def overview(request):
     theses = Thesis.objects.for_supervisor(request.user.username)
 
     return render(request, 'website/overview.html', {"theses": theses})
+
+
+class PdfView(View):
+    type = None
+
+    def send(self, request, pdf):
+        """Call xsendfile wrapper to send PDF (in attachment mode)"""
+        return sendfile(request,
+                        pdf.path,
+                        attachment=True,
+                        attachment_filename=pdf.filename)
+
+    def get(self, request, *args, **kwargs):
+        """Create PDF of requested type (passed by urls.py) for selected thesis
+        and send it via xsendfile"""
+        thesis = Thesis.objects.get(pdf_key=kwargs["pdfkey"])
+        pdf_type = kwargs["type"]
+
+        return self.send(request, pdf_type(thesis).get())
 
 
 class CreateStepTwo(View):
