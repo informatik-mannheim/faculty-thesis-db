@@ -102,4 +102,13 @@
             <input class="btn btn-danger space-left-small" type="submit" value="Abbrechen"/>
     </form>
 </div>
+
+<script type="text/javascript">
+    var external_checkbox = document.getElementById("id_external")
+    var external_textfield = document.getElementById("id_external_where")
+    
+    external_textfield.addEventListener("keyup", function() {
+        external_checkbox.checked = (external_textfield.value !== "");
+    });
+</script>
 {% endblock %}
