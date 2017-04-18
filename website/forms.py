@@ -87,3 +87,28 @@ class ThesisApplicationForm(forms.Form):
                 first_name=self.cleaned_data['assessor_first_name'],
                 last_name=self.cleaned_data['assessor_last_name'],
                 email=self.cleaned_data['assessor_email'])
+
+    def create_thesis(self, supervisor, student):
+        if not self.is_valid():
+            return None
+
+        assessor = self.cleaned_data['assessor']
+
+        if assessor:
+            assessor.save()
+
+        supervisor.save()
+        student.save()
+
+        thesis = Thesis(title=self.cleaned_data['title'],
+                        begin_date=self.cleaned_data['begin_date'],
+                        due_date=self.cleaned_data['due_date'],
+                        assessor=assessor,
+                        student=student,
+                        supervisor=supervisor,
+                        external=self.cleaned_data['external'],
+                        external_where=self.cleaned_data['external_where'])
+
+        thesis.save()
+
+        return thesis

@@ -4,8 +4,8 @@
 
 <div class="container">
     <div class="row">
-        <h1>Neue Bachelorthesis anlegen</h1>
-    </div>
+        <h1>Neue {{student.is_bachelor | yesno:"Bachelorthesis,Masterthesis,Thesis"}} anlegen</h1>
+    </div> 
 
     <form action="" method="post">
         {% csrf_token %}

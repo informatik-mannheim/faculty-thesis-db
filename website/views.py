@@ -1,12 +1,12 @@
-from django.utils import timezone
 from django.contrib.auth.decorators import login_required
+from django.views import View
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse
+from django.utils import timezone
 from sendfile import sendfile
 
-from website.models import *
 from website.forms import *
-
+from website.models import *
 from website.util import dateutil
 
 from thesispool.pdf import *
@@ -24,7 +24,7 @@ def download(request, pk):
 
     return sendfile(request,
                     pdf.path,
-                    attachment=False,
+                    attachment=True,
                     attachment_filename=pdf.filename)
 
 
@@ -42,51 +42,45 @@ def overview(request):
     return render(request, 'website/overview.html', {"theses": theses})
 
 
-@login_required
-def create_step_two(request, student_id):
-    student = Student.objects.find(student_id)
+class CreateStepTwo(View):
 
-    start, end = dateutil.get_thesis_period(timezone.now(), student)
+    def dispatch(self, request, *args, **kwargs):
+        self.student = Student.objects.find(kwargs["student_id"])
 
-    if request.method == 'POST':
+        self.start, self.end = dateutil.get_thesis_period(
+            timezone.now(), self.student)
+
+        return super(CreateStepTwo, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        form = ThesisApplicationForm(initial={'student_id': self.student.id,
+                                              'begin_date': self.start,
+                                              'due_date': self.end})
+
+        context = {'form': form, 'student': self.student}
+
+        return render(request, 'website/create_step_two.html', context)
+
+    def post(self, request, *args, **kwargs):
         form = ThesisApplicationForm(request.POST)
 
         if form.is_valid():
-            assessor = form.cleaned_data['assessor']
-
             supervisor = Supervisor(first_name=request.user.first_name,
                                     last_name=request.user.last_name,
                                     id=request.user.username)
 
-            student.save()
-            supervisor.save()
-
-            if assessor:
-                assessor.save()
-
-            Thesis(title=form.cleaned_data['title'],
-                   begin_date=form.cleaned_data['begin_date'],
-                   due_date=form.cleaned_data['due_date'],
-                   assessor=assessor,
-                   student=student,
-                   supervisor=supervisor,
-                   external=form.cleaned_data['external'],
-                   external_where=form.cleaned_data['external_where']).save()
+            form.create_thesis(supervisor, self.student)
 
             return HttpResponseRedirect('/overview/')
 
-    else:
-        form = ThesisApplicationForm(initial={'student_id': student_id,
-                                              'begin_date': start,
-                                              'due_date': end})
+        context = {'form': form, 'student': self.student}
 
-    context = {'form': form, 'student': student}
-    return render(request, 'website/create_step_two.html', context)
+        return render(request, 'website/create_step_two.html', context)
 
 
 @login_required
 def create_step_one(request):
-    student = None
+    student, form = None, None
 
     if request.method == 'POST':
         form = CheckStudentIdForm(request.POST)
@@ -94,9 +88,6 @@ def create_step_one(request):
         if form.is_valid():
             student = form.cleaned_data['student']
 
-    else:
-        form = CheckStudentIdForm()
-
-    context = {'form': form, 'student': student}
+    context = {'form': form or CheckStudentIdForm(), 'student': student}
 
     return render(request, 'website/create_step_one.html', context)
