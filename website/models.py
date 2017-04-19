@@ -1,7 +1,9 @@
+from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db import connections
-from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
 
 import uuid
 
@@ -129,6 +131,8 @@ class Thesis(models.Model):
                                 validators=[
                                     MinValueValidator(1.0),
                                     MaxValueValidator(5.0)])
+    prolongation_date = models.DateField(blank=True, null=True)
+    grade_date = models.DateField(blank=True, null=True)
 
     objects = ThesisManager()
 
@@ -141,12 +145,41 @@ class Thesis(models.Model):
         self.grade = grade
         self.clean_fields()
         self.status = Thesis.GRADED
+        self.grade_date = timezone.now().date()
+        self.save()
+
+        return True
+
+    def prolong(self, prolongation_date):
+        if self.status != Thesis.APPLIED and self.status != Thesis.PROLONGED:
+            return False
+
+        self.prolongation_date = prolongation_date
+        self.full_clean()
+        self.status = Thesis.PROLONGED
         self.save()
 
         return True
 
     def is_graded(self):
         return self.status == Thesis.GRADED
+
+    def was_prolonged(self):
+        return self.prolongation_date is not None
+
+    def is_late(self):
+        if self.was_prolonged():
+            return self.grade_date > self.prolongation_date
+        else:
+            return self.grade_date > self.due_date
+
+    def clean(self):
+        self.clean_fields()
+
+        if self.prolongation_date < self.due_date:
+            raise ValidationError(
+                {'prolongation_date':
+                    'prolongation date must be later than due date'})
 
     def __str__(self):
         return "'{0}' ({1})".format(self.title, self.student)

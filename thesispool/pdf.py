@@ -130,8 +130,27 @@ class AbstractPDF(object):
         else:
             xfdf.uncheck("AnfertigungFirma")
             xfdf.check("AnfertigungHS")
+        if self.thesis.grade:
+            xfdf.add_field("Note", str(self.thesis.grade))
         if self.thesis.external_where:
             xfdf.add_field("Firma", self.thesis.external_where)
+
+        if self.thesis.was_prolonged():
+            xfdf.check("AbgabeMitVerlängerung")
+            xfdf.uncheck("AbgabeTermingerecht")
+        else:
+            xfdf.uncheck("AbgabeMitVerlängerung")
+            xfdf.check("AbgabeTermingerecht")
+
+        if self.thesis.is_late():
+            xfdf.check("AbgabeVerspätet")
+            xfdf.uncheck("AbgabeTermingerecht")
+        else:
+            xfdf.uncheck("AbgabeVerspätet")
+            xfdf.check("AbgabeTermingerecht")
+
+        if self.thesis.is_graded():
+            xfdf.add_field("DatumAbgabe", self.thesis.grade_date.strftime("%d.%m.%Y"))
 
         return xfdf
 
