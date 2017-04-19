@@ -1,5 +1,7 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db import connections
+
 import uuid
 
 
@@ -100,21 +102,46 @@ class Thesis(models.Model):
     assessor = models.ForeignKey(
         'Assessor',
         on_delete=models.SET_NULL,
-        null=True)
+        null=True,
+        blank=True)
     student = models.ForeignKey('Student', on_delete=models.CASCADE)
     begin_date = models.DateField()
     due_date = models.DateField()
     external = models.BooleanField(default=False)
     external_where = models.CharField(max_length=200, blank=True)
-    pdf_key = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    surrogate_key = models.UUIDField(
+        default=uuid.uuid4, editable=False, unique=True)
     status = models.CharField(
         max_length=2,
         choices=STATUS_CHOICES,
         default=APPLIED,
     )
-    student_contact = models.EmailField()
+    student_contact = models.EmailField(blank=True)
+    grade = models.DecimalField(max_digits=2,
+                                decimal_places=1,
+                                blank=True,
+                                null=True,
+                                validators=[
+                                    MinValueValidator(1.0),
+                                    MaxValueValidator(5.0)])
 
     objects = ThesisManager()
+
+    def assign_grade(self, grade):
+        """Assign grade and set status to GRADED
+        if grade is valid and thesis hasn't been graded yet"""
+        if self.is_graded():
+            return False
+
+        self.grade = grade
+        self.clean_fields()
+        self.status = Thesis.GRADED
+        self.save()
+
+        return True
+
+    def is_graded(self):
+        return self.status == Thesis.GRADED
 
     def __str__(self):
         return "'{0}' ({1})".format(self.title, self.student)

@@ -31,7 +31,12 @@
 				
 					<tr class="{% cycle 'row1' 'row2' %}">
 						<td>{{thesis.due_date}}</td>
-						<td>{{thesis.get_status_display}}</td>
+						<td>
+							{{thesis.get_status_display}}
+							{% if thesis.is_graded %}
+								<br/> <span class="badge">{{thesis.grade}}</span>
+							{% endif %}
+						</td>
 						<td>{{thesis.student}}</td>
 						<td>{{thesis.title}}</td>
 						{% if thesis.assessor %}
@@ -41,32 +46,37 @@
 						{% endif %}
 						
 						<td rowspan="2">
-							<a class="document-link" target="_blank" href="/download/application/{{thesis.pdf_key}}">
+							<a class="document-link" target="_blank" href="/download/application/{{thesis.surrogate_key}}">
 								<span class="glyphicon glyphicon-file"></span>&nbsp; Anmeldung
 							</a>
 							<br />
-							<a class="document-link" target="_blank" href="/download/prolongation/{{thesis.pdf_key}}">
+							<a class="document-link" target="_blank" href="/download/prolongation/{{thesis.surrogate_key}}">
 								<span class="glyphicon glyphicon-file"></span>&nbsp; Verlängerung
 							</a>
 							<br />
-							<a class="document-link" target="_blank" href="/download/grading/{{thesis.pdf_key}}">
+							<a class="document-link" target="_blank" href="/download/grading/{{thesis.surrogate_key}}">
 								<span class="glyphicon glyphicon-file"></span>&nbsp; Bewertung
 							</a>
 						</td>
+						
 					</tr>
+					
 					<tr class="{% cycle 'row1' 'row2' %}">
+						{% if not thesis.is_graded %}
 						<td class="info-row" colspan="5"  style="border-bottom: 1px solid #ddd; border-top:0px">
 							<a href="#" class="icon-link">
 								<span class="glyphicon glyphicon-pencil" title="Ändern" style="margin-left: 20px;"></span>
 							</a>
-							<a href="{% url 'prolong' thesis.pk %}" class="icon-link">
+							<a href="{% url 'prolong' thesis.surrogate_key|slugify %}" class="icon-link">
 								<span class="glyphicon glyphicon-hourglass" title="Verlängern" style="margin-left: 20px;"></span>
 							</a>
-							<a href="{% url 'grade' thesis.pk %}" class="icon-link">
+							<a href="{% url 'grade' thesis.surrogate_key|slugify %}" class="icon-link">
 								<span class="glyphicon glyphicon-education" title="Benoten" style="margin-left: 20px;"></span>
 							</a>
 						</td>
+						{% endif %}
 					</tr>
+					
 
 					{% endfor %}
 			</tbody>

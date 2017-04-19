@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.utils import timezone
 from sendfile import sendfile
 
@@ -17,24 +17,28 @@ def index(request):
 
 
 @login_required
-def prolong(request, pk):
-    thesis = Thesis.objects.get(pk=pk)
+def prolong(request, key):
+    thesis = Thesis.objects.get(surrogate_key=key)
 
     return HttpResponse(thesis)
 
 
 @login_required
-def grade(request, pk):
-    thesis = Thesis.objects.get(pk=pk)
+def grade(request, key):
+    thesis = get_object_or_404(Thesis, surrogate_key=key)
 
-    return HttpResponse(thesis)
+    if request.POST:
+        form = GradeForm(request.POST)
+        if form.is_valid():
+            grade = form.cleaned_data["grade"]
+            thesis.assign_grade(grade)
+            return HttpResponseRedirect(reverse('overview'))
+    else:
+        form = GradeForm()
 
+    context = {"thesis": thesis, 'form': form}
 
-@login_required
-def delete_thesis(request, pk):
-    Thesis.objects.get(pk=pk).delete()
-
-    return HttpResponseRedirect('/overview/')
+    return render(request, 'website/grade.html', context)
 
 
 @login_required
@@ -57,7 +61,7 @@ class PdfView(View):
     def get(self, request, *args, **kwargs):
         """Create PDF of requested type (passed by urls.py) for selected thesis
         and send it via xsendfile"""
-        thesis = Thesis.objects.get(pdf_key=kwargs["pdfkey"])
+        thesis = Thesis.objects.get(surrogate_key=kwargs["key"])
         pdf_type = kwargs["type"]
 
         return self.send(request, pdf_type(thesis).get())

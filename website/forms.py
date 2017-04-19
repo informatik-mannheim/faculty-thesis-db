@@ -12,6 +12,16 @@ class ThesisForm(ModelForm):
         fields = ['title', 'student', 'supervisor', 'assessor']
 
 
+class GradeForm(forms.Form):
+    grade = forms.DecimalField(label="Note",
+                               decimal_places=1,
+                               max_digits=2,
+                               min_value=1.0,
+                               max_value=5.0,
+                               widget=forms.NumberInput(
+                                   attrs={'autofocus': 'autofocus'}))
+
+
 class CheckStudentIdForm(forms.Form):
     student_id = forms.IntegerField(label="Matrikelnummer",
                                     widget=forms.TextInput(attrs={
