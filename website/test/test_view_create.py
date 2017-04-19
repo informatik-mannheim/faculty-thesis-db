@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.test.utils import setup_test_environment
-from django.contrib.auth.models import User
+from website.models import User
 from django.urls import reverse
 
 from website.models import Student

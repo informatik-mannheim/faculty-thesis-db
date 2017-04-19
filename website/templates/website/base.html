@@ -21,15 +21,13 @@
 		</div>
 		{% if user.is_authenticated %}
 			<div class="col-md-12 light-primary-color ribbon">
-			        <span class="text-secondary-color" style="margin-top: 25px;">Angemeldet als {{ user.first_name }} {{ user.last_name }}
+			        <span class="text-secondary-color" style="margin-top: 25px;">Angemeldet als {{ user.first_name }} {{ user.last_name }} [{{user.initials}}] 
 			        </span> 
 			        <span>
 			            <a href="/accounts/logout">(logout)</a>
 			        </span>
 			</div>
 		{% endif %}
-
-
 
 		{% block content %}
 		{% endblock content %}

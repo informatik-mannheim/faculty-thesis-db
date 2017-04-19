@@ -77,6 +77,8 @@ DATABASES = {
     }
 }
 
+AUTH_USER_MODEL = 'website.User'
+
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 
@@ -106,7 +108,8 @@ AUTH_LDAP_START_TLS = False
 # LDAP connection data
 AUTH_LDAP_SERVER_URI = "ldap://ldap-master.sv.hs-mannheim.de"
 AUTH_LDAP_USER_DN_TEMPLATE = "uid=%(user)s,ou=Users,dc=informatik,dc=hs-mannheim,dc=de"
-AUTH_LDAP_USER_ATTR_MAP = {"first_name": "givenName", "last_name": "sn"}
+#AUTH_LDAP_USER_ATTRLIST = ['*', '+']
+AUTH_LDAP_USER_ATTR_MAP = {"first_name": "givenName", "last_name": "sn", "initials": "initials"}
 
 LOGIN_REDIRECT_URL = '/overview/'
 

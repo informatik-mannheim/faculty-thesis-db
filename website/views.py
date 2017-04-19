@@ -11,6 +11,9 @@ from website.util import dateutil
 
 from thesispool.pdf import *
 
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
 
 def index(request):
     return redirect(reverse('overview'))
@@ -44,6 +47,7 @@ def grade(request, key):
 @login_required
 def overview(request):
     theses = Thesis.objects.for_supervisor(request.user.username)
+    request.user.initials
 
     return render(request, 'website/overview.html', {"theses": theses})
 

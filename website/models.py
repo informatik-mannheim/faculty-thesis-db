@@ -1,8 +1,13 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db import connections
+from django.contrib.auth.models import AbstractUser
 
 import uuid
+
+
+class User(AbstractUser):
+    initials = models.CharField(max_length=10, blank=True, null=True)
 
 
 class ThesisManager(models.Manager):
