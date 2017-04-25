@@ -58,6 +58,7 @@ class AssessorForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': 'E-Mail'}))
 
     def clean(self):
+        super(AssessorForm, self).clean()
         if not any(self.cleaned_data.values()):
             self.cleaned_data['assessor'] = None
 
