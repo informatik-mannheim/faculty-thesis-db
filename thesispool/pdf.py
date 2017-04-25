@@ -121,6 +121,7 @@ class AbstractPDF(object):
         xfdf.add_field("Titel", self.thesis.title)
         xfdf.add_field("EMail", self.thesis.student_contact)
         xfdf.add_field("Studiengang", self.thesis.student.program)
+        xfdf.add_field("KürzelErstkorrektor", self.thesis.supervisor.initials)
 
         if self.thesis.assessor:
             xfdf.add_field("NameZweitkorrektor",

@@ -188,10 +188,23 @@ class Thesis(models.Model):
 class Supervisor(models.Model):
     first_name = models.CharField(max_length=30, verbose_name="Vorname")
     last_name = models.CharField(max_length=30, verbose_name="Nachname")
+    initials = models.CharField(max_length=10, verbose_name="Kürzel")
     id = models.CharField(max_length=30, primary_key=True)
 
+    @classmethod
+    def from_user(cls, user):
+        initials = user.initials if hasattr(user, 'initials') else ""
+
+        return cls(id=user.username,
+                   first_name=user.first_name,
+                   last_name=user.last_name,
+                   initials=initials)
+
     def __str__(self):
-        return "{0} {1} ({2})".format(self.first_name, self.last_name, self.id)
+        return "{0} {1} ({2})".format(
+            self.first_name,
+            self.last_name,
+            self.initials)
 
     __repr__ = __str__
 

@@ -64,8 +64,7 @@ class ViewCreateStepTwoTests(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(response.context["student"], self.student)
 
+    # ------- TODO: mehr! -------#
+
     def test_validation_stuff(self):
         response = self.client.get(reverse('create_step_two', args=['123456']))
-
-        self.assertEqual(202, response.status_code,
-                         "Hier noch vieel mehr testen!")

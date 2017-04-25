@@ -99,9 +99,7 @@ class CreateStepTwo(View):
         a_form = AssessorForm(request.POST)
 
         if form.is_valid() and a_form.is_valid():
-            supervisor = Supervisor(first_name=request.user.first_name,
-                                    last_name=request.user.last_name,
-                                    id=request.user.username)
+            supervisor = Supervisor.from_user(request.user)
 
             assessor = a_form.cleaned_data["assessor"]
 
