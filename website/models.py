@@ -169,9 +169,9 @@ class Thesis(models.Model):
 
     def is_late(self):
         if self.was_prolonged():
-            return self.grade_date > self.prolongation_date
+            return self.grade_date and self.grade_date > self.prolongation_date
         else:
-            return self.grade_date > self.due_date
+            return self.grade_date and self.grade_date > self.due_date
 
     def clean(self):
         self.clean_fields()
