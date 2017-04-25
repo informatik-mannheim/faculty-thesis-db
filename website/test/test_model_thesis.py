@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.test.utils import setup_test_environment
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, date
 
 from website.models import *
 from decimal import Decimal
@@ -177,6 +177,7 @@ class ThesisModelTests(TestCase):
     def test_can_grade_a_thesis_with_best_grade(self):
         title = "My thesis"
         grade = 1.0
+        examination_date = date(2018, 2, 15)
 
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
@@ -190,18 +191,19 @@ class ThesisModelTests(TestCase):
 
         self.assertEqual(thesis.status, Thesis.APPLIED)
 
-        result = thesis.assign_grade(grade)
+        result = thesis.assign_grade(grade, examination_date)
 
         thesis = Thesis.objects.first()
 
         self.assertEqual(thesis.status, Thesis.GRADED)
         self.assertEqual(float(thesis.grade), grade)
         self.assertTrue(result)
-        self.assertEqual(timezone.now().date(), thesis.grade_date)
+        self.assertEqual(examination_date, thesis.examination_date)
 
     def test_can_grade_a_thesis_with_average_grade(self):
         title = "My thesis"
         grade = Decimal("2.3")
+        examination_date = date(2018, 2, 15)
 
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
@@ -215,18 +217,19 @@ class ThesisModelTests(TestCase):
 
         self.assertEqual(thesis.status, Thesis.APPLIED)
 
-        result = thesis.assign_grade(grade)
+        result = thesis.assign_grade(grade, examination_date)
 
         thesis = Thesis.objects.first()
 
         self.assertEqual(thesis.status, Thesis.GRADED)
         self.assertEqual(thesis.grade, grade)
         self.assertTrue(result)
-        self.assertEqual(timezone.now().date(), thesis.grade_date)
+        self.assertEqual(examination_date, thesis.examination_date)
 
     def test_can_grade_a_thesis_with_worst_grade(self):
         title = "My thesis"
         grade = Decimal("5.0")
+        examination_date = date(2018, 2, 15)
 
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
@@ -240,18 +243,19 @@ class ThesisModelTests(TestCase):
 
         self.assertEqual(thesis.status, Thesis.APPLIED)
 
-        result = thesis.assign_grade(grade)
+        result = thesis.assign_grade(grade, examination_date)
 
         thesis = Thesis.objects.first()
 
         self.assertEqual(thesis.status, Thesis.GRADED)
         self.assertEqual(thesis.grade, grade)
         self.assertTrue(result)
-        self.assertEqual(timezone.now().date(), thesis.grade_date)
+        self.assertEqual(examination_date, thesis.examination_date)
 
     def test_can_not_grade_a_thesis_with_grade_above_best(self):
         title = "My thesis"
         grade = Decimal("0.9")
+        examination_date = date(2018, 3, 29)
 
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
@@ -265,7 +269,7 @@ class ThesisModelTests(TestCase):
 
         self.assertEqual(thesis.status, Thesis.APPLIED)
         with self.assertRaises(ValidationError):
-            result = thesis.assign_grade(grade)
+            result = thesis.assign_grade(grade, examination_date)
 
             thesis = Thesis.objects.first()
 
@@ -285,11 +289,14 @@ class ThesisModelTests(TestCase):
 
         self.assertEqual(thesis.status, Thesis.APPLIED)
 
-        grades = [-1000, 0.0, 0.5, 0.9, 0.99, 0.999, 1.01, 5.1, 10, 100, 1000]
+        grades = ["-1000", "0.0", "0.5", "0.9", "0.99",
+                  "0.999", "1.01", "5.1", "10", "100", "1000"]
+
+        examination_date = date(2018, 3, 29)
 
         for grade in grades:
             with self.assertRaises(ValidationError):
-                result = thesis.assign_grade(Decimal(str(grade)))
+                result = thesis.assign_grade(Decimal(grade), examination_date)
 
                 thesis = Thesis.objects.first()
 
@@ -311,14 +318,15 @@ class ThesisModelTests(TestCase):
         self.assertEqual(thesis.grade, None)
 
         grade = Decimal("1.1")
+        examination_date = date(2018, 3, 29)
 
-        result = thesis.assign_grade(grade)
+        result = thesis.assign_grade(grade, examination_date)
 
         self.assertEqual(Thesis.objects.first().grade, grade)
         self.assertEqual(Thesis.objects.first().status, Thesis.GRADED)
         self.assertTrue(result)
 
-        result = thesis.assign_grade(Decimal("5.0"))
+        result = thesis.assign_grade(Decimal("5.0"), examination_date)
 
         self.assertEqual(Thesis.objects.first().grade, grade)
         self.assertEqual(Thesis.objects.first().status, Thesis.GRADED)
@@ -465,50 +473,49 @@ class ThesisModelTests(TestCase):
                         supervisor=self.supervisor,
                         title="Some title",
                         status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30).date(),
-                        due_date=datetime(2018, 6, 30).date(),
-                        grade_date=datetime(2018, 6, 30).date())
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30),
+                        handed_in_date=date(2018, 6, 30))
 
         self.assertFalse(thesis.is_late())
 
-    def test_thesis_is_not_late_if_graded_before_due_date(self):
+    def test_thesis_is_not_late_if_handed_in_before_due_date(self):
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
                         status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30).date(),
-                        due_date=datetime(2018, 6, 30).date(),
-                        grade_date=datetime(2018, 6, 25).date())
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30),
+                        handed_in_date=date(2018, 6, 25))
 
         self.assertFalse(thesis.is_late())
 
-    def test_thesis_is_late_if_graded_before_after_due_date(self):
+    def test_thesis_is_late_if_handed_in_before_after_due_date(self):
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
                         status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30).date(),
-                        due_date=datetime(2018, 6, 30).date(),
-                        grade_date=datetime(2018, 7, 1).date())
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30),
+                        handed_in_date=date(2018, 7, 1))
 
         self.assertTrue(thesis.is_late())
 
-    def test_thesis_is_not_late_if_graded_on_prolongation_date(self):
+    def test_thesis_is_not_late_if_handed_in_on_prolongation_date(self):
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
                         status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30).date(),
-                        due_date=datetime(2018, 6, 30).date(),
-                        prolongation_date=datetime(2018, 9, 30).date(),
-                        grade_date=datetime(2018, 9, 30).date())
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30),
+                        handed_in_date=date(2018, 6, 30))
 
         self.assertFalse(thesis.is_late())
 
-    def test_thesis_is_not_late_if_graded_before_prolongation_date(self):
+    def test_thesis_is_not_late_if_handed_in_before_prolongation_date(self):
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
@@ -517,19 +524,19 @@ class ThesisModelTests(TestCase):
                         begin_date=datetime(2018, 1, 30).date(),
                         due_date=datetime(2018, 6, 30).date(),
                         prolongation_date=datetime(2018, 9, 30).date(),
-                        grade_date=datetime(2018, 9, 29).date())
+                        handed_in_date=datetime(2018, 9, 29).date())
 
         self.assertFalse(thesis.is_late())
 
-    def test_thesis_is_late_if_graded_after_prolongation_date(self):
+    def test_thesis_is_late_if_handed_in_after_prolongation_date(self):
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
                         status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30).date(),
-                        due_date=datetime(2018, 6, 30).date(),
-                        prolongation_date=datetime(2018, 9, 30).date(),
-                        grade_date=datetime(2018, 10, 1).date())
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30),
+                        prolongation_date=date(2018, 9, 30),
+                        handed_in_date=date(2018, 10, 1))
 
         self.assertTrue(thesis.is_late())

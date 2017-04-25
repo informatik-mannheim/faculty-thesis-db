@@ -34,7 +34,9 @@
 						<td>
 							{{thesis.get_status_display}}
 							{% if thesis.is_graded %}
-								<span class="badge">{{thesis.grade}}</span>
+								<span class="badge">
+									{{thesis.grade}}
+								</span>
 							{% endif %}
 						</td>
 						<td>{{thesis.student}}</td>

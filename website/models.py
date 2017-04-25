@@ -132,20 +132,23 @@ class Thesis(models.Model):
                                     MinValueValidator(1.0),
                                     MaxValueValidator(5.0)])
     prolongation_date = models.DateField(blank=True, null=True)
-    grade_date = models.DateField(blank=True, null=True)
+    examination_date = models.DateField(blank=True, null=True)
+    handed_in_date = models.DateField(blank=True, null=True)
+    restriction_note = models.NullBooleanField(blank=True)
 
     objects = ThesisManager()
 
-    def assign_grade(self, grade):
+    def assign_grade(self, grade, examination_date, restriction_note=False):
         """Assign grade and set status to GRADED
         if grade is valid and thesis hasn't been graded yet"""
         if self.is_graded():
             return False
 
         self.grade = grade
+        self.examination_date = examination_date
+        self.restriction_note = restriction_note
         self.clean_fields()
         self.status = Thesis.GRADED
-        self.grade_date = timezone.now().date()
         self.save()
 
         return True
@@ -169,14 +172,14 @@ class Thesis(models.Model):
 
     def is_late(self):
         if self.was_prolonged():
-            return self.grade_date and self.grade_date > self.prolongation_date
+            return self.handed_in_date and self.handed_in_date > self.prolongation_date
         else:
-            return self.grade_date and self.grade_date > self.due_date
+            return self.handed_in_date and self.handed_in_date > self.due_date
 
     def clean(self):
         self.clean_fields()
 
-        if self.prolongation_date < self.due_date:
+        if self.was_prolonged() and self.prolongation_date < self.due_date:
             raise ValidationError(
                 {'prolongation_date':
                     'prolongation date must be later than due date'})

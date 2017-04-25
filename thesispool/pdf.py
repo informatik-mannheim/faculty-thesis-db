@@ -151,8 +151,15 @@ class AbstractPDF(object):
             xfdf.uncheck("AbgabeVerspätet")
             xfdf.check("AbgabeTermingerecht")
 
-        if self.thesis.is_graded():
-            xfdf.add_field("DatumAbgabe", self.thesis.grade_date.strftime("%d.%m.%Y"))
+        if self.thesis.handed_in_date:
+            xfdf.add_field("DatumAbgabe", self.thesis.handed_in_date.strftime("%d.%m.%Y"))
+
+        xfdf.add_field("DatumKolloquium", self.thesis.examination_date.strftime("%d.%m.%Y"))
+
+        if self.thesis.restriction_note:
+            xfdf.check("Sperrvermerk")
+        else:
+            xfdf.uncheck("Sperrvermerk")
 
         return xfdf
 

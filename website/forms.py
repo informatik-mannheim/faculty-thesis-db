@@ -21,6 +21,26 @@ class GradeForm(forms.Form):
                                widget=forms.NumberInput(
                                    attrs={'autofocus': 'autofocus'}))
 
+    restriction_note = forms.BooleanField(label="Sperrvermerk",
+                                          initial=False,
+                                          required=False)
+
+    examination_date = forms.DateField(
+        widget=forms.SelectDateWidget,
+        label="Kolloquiumsdatum")
+
+    handed_in_date = forms.DateField(
+        widget=forms.SelectDateWidget,
+        label="Abgedatum",
+        required=True)
+
+    def clean(self):
+        super(GradeForm, self).clean()
+
+        if 'grade' in self.cleaned_data:
+            if 4 < self.cleaned_data["grade"] < 5.0:
+                raise forms.ValidationError({'grade': 'Ungültige Note'})
+
 
 class CheckStudentIdForm(forms.Form):
     student_id = forms.IntegerField(label="Matrikelnummer",

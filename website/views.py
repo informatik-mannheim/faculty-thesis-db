@@ -34,10 +34,20 @@ def grade(request, key):
         form = GradeForm(request.POST)
         if form.is_valid():
             grade = form.cleaned_data["grade"]
-            thesis.assign_grade(grade)
+            examination_date = form.cleaned_data["examination_date"]
+            restriction_note = form.cleaned_data["restriction_note"]
+
+            thesis.assign_grade(grade, examination_date, restriction_note)
+
+            thesis.handed_in_date = form.cleaned_data["handed_in_date"]
+            thesis.save()
+
             return HttpResponseRedirect(reverse('overview'))
     else:
-        form = GradeForm()
+        form = GradeForm(initial={
+            'examination_date': datetime.now().date(),
+            'handed_in_date': thesis.handed_in_date or datetime.now().date
+        })
 
     context = {"thesis": thesis, 'form': form}
 
