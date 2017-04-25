@@ -3,7 +3,6 @@
 import subprocess
 import tempfile
 import os
-import locale
 from thesispool.settings import BASE_DIR
 from datetime import datetime
 
@@ -133,8 +132,7 @@ class AbstractPDF(object):
             xfdf.uncheck("AnfertigungFirma")
             xfdf.check("AnfertigungHS")
         if self.thesis.grade:
-            locale.setlocale(locale.LC_ALL, '')
-            grade = locale.format("%.1f", self.thesis.grade)
+            grade = ('%.1f' % self.thesis.grade).replace('.', ',')
             xfdf.add_field("Note", grade)
         if self.thesis.external_where:
             xfdf.add_field("Firma", self.thesis.external_where)
