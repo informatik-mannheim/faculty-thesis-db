@@ -140,6 +140,13 @@ class AbstractPDF(object):
         if self.thesis.is_prolonged():
             xfdf.check("AbgabeMitVerlängerung")
             xfdf.uncheck("AbgabeTermingerecht")
+
+            xfdf.add_field("BegründungVerlängerung",
+                           self.thesis.prolongation_reason)
+            xfdf.add_field("VerlängerungUmWochen",
+                           self.thesis.prolongation_weeks)
+            xfdf.add_field("DatumAbgabeNeu", self.__date_format(
+                self.thesis.prolongation_date))
         else:
             xfdf.uncheck("AbgabeMitVerlängerung")
             xfdf.check("AbgabeTermingerecht")
