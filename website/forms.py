@@ -12,6 +12,40 @@ class ThesisForm(ModelForm):
         fields = ['title', 'student', 'supervisor', 'assessor']
 
 
+class ProlongationForm(forms.Form):
+    reason_widget = forms.Textarea(attrs={'cols': 40, 'rows': 5})
+    weeks_widget = forms.NumberInput(
+        attrs={'maxlength': '2', 'autofocus': 'autofocus'})
+
+    reason = forms.CharField(label="Begründung",
+                             max_length=2000,
+                             required=True,
+                             strip=True,
+                             widget=reason_widget)
+
+    weeks = forms.IntegerField(label="Wochen",
+                               required=True,
+                               min_value=1,
+                               max_value=99,
+                               widget=weeks_widget)
+
+    prolongation_date = forms.DateField(label="Neue Abgabe",
+                                        widget=forms.SelectDateWidget,
+                                        required=True)
+
+    due_date = forms.DateField(label="Ursprüngliche Abgabe",
+                               widget=forms.HiddenInput(),
+                               required=True)
+
+    def clean(self):
+        prolongation_date = self.cleaned_data["prolongation_date"]
+        due_date = self.cleaned_data["due_date"]
+
+        if prolongation_date <= due_date:
+            raise ValidationError(
+                {'prolongation_date': 'Verlängerung liegt vor der Abgabe'})
+
+
 class GradeForm(forms.Form):
     grade = forms.DecimalField(label="Note",
                                decimal_places=1,

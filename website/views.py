@@ -1,17 +1,18 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.views import View
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.utils import timezone
 from sendfile import sendfile
 
+from datetime import timedelta
+
 from website.forms import *
 from website.models import *
 from website.util import dateutil
-
 from thesispool.pdf import *
 
-from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
@@ -21,9 +22,29 @@ def index(request):
 
 @login_required
 def prolong(request, key):
-    thesis = Thesis.objects.get(surrogate_key=key)
+    thesis = get_object_or_404(Thesis, surrogate_key=key)
 
-    return HttpResponse(thesis)
+    if request.POST:
+        form = ProlongationForm(request.POST)
+        if form.is_valid():
+            reason = form.cleaned_data["reason"]
+            prolongation_date = form.cleaned_data["prolongation_date"]
+            weeks = form.cleaned_data["weeks"]
+
+            thesis.prolong(prolongation_date, reason, weeks)
+            return HttpResponseRedirect(reverse('overview'))
+
+    else:
+        initials = {
+            'due_date': thesis.due_date,
+            'prolongation_date': thesis.due_date + timedelta(30)
+        }
+
+        form = ProlongationForm(initial=initials)
+
+    context = {'thesis': thesis, 'form': form}
+
+    return render(request, 'website/prolong.html', context)
 
 
 @login_required

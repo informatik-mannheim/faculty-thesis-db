@@ -1,16 +1,17 @@
-from datetime import datetime
-
+from django.test import TestCase, Client
 from website.models import *
 
+from datetime import datetime
 
-class ThesisSet(object):
+
+class ThesisStub(object):
 
     @classmethod
     def empty(cls):
         return []
 
     @classmethod
-    def single(cls, supervisor):
+    def applied(cls, supervisor):
         student = Student(id=987654,
                           first_name="Larry",
                           last_name="Langzeitstudent")
@@ -28,7 +29,7 @@ class ThesisSet(object):
                         title="Eine einzelne Thesis",
                         begin_date=datetime.now().date(),
                         due_date=datetime(2018, 1, 30),
-                        status=Thesis.PROLONGED)
+                        status=Thesis.APPLIED)
 
         return thesis
 
@@ -74,3 +75,24 @@ class ThesisSet(object):
         c.save()
 
         return [a, b, c]
+
+
+class LoggedInTestCase(TestCase):
+
+    def setUp(self):
+        user = User(username="prof", password="pass", initials="PPP")
+        user.save()
+
+        self.student = Student(
+            id=123456, first_name="Larry", last_name="Langzeitstudent")
+        self.assessor = Assessor(
+            first_name="Max", last_name="Mustermann", email="mm@example.com")
+        self.supervisor = Supervisor(
+            first_name="Peter", last_name="Professpr", id=user.username)
+
+        self.supervisor.save()
+        self.student.save()
+        self.assessor.save()
+
+        self.client = Client()
+        self.client.force_login(user)

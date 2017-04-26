@@ -113,9 +113,9 @@ class AbstractPDF(object):
         xfdf.add_field("Vorname", self.thesis.student.first_name)
         xfdf.add_field("Name", self.thesis.student.last_name)
         xfdf.add_field("BeginnDerArbeit",
-                       self.thesis.begin_date.strftime("%d.%m.%Y"))
+                       self.__date_format(self.thesis.begin_date))
         xfdf.add_field("AbgabeDerArbeit",
-                       self.thesis.due_date.strftime("%d.%m.%Y"))
+                       self.__date_format(self.thesis.due_date))
         xfdf.add_field("MatrNr", self.thesis.student.id)
         xfdf.add_field("Titel", self.thesis.title)
         xfdf.add_field("EMail", self.thesis.student_contact)
@@ -152,9 +152,12 @@ class AbstractPDF(object):
             xfdf.check("AbgabeTermingerecht")
 
         if self.thesis.handed_in_date:
-            xfdf.add_field("DatumAbgabe", self.thesis.handed_in_date.strftime("%d.%m.%Y"))
+            xfdf.add_field("DatumAbgabe",
+                           self.__date_format(self.thesis.handed_in_date))
 
-        xfdf.add_field("DatumKolloquium", self.thesis.examination_date.strftime("%d.%m.%Y"))
+        if self.thesis.examination_date:
+            xfdf.add_field("DatumKolloquium",
+                           self.__date_format(self.thesis.examination_date))
 
         if self.thesis.restriction_note:
             xfdf.check("Sperrvermerk")
@@ -162,6 +165,9 @@ class AbstractPDF(object):
             xfdf.uncheck("Sperrvermerk")
 
         return xfdf
+
+    def __date_format(self, date):
+        return date.strftime("%d.%m.%Y")
 
     def __write_xfdf_to_tmp(self, xfdf):
         fd, xfdf_path = tempfile.mkstemp(suffix=".xfdf",

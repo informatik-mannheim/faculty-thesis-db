@@ -132,6 +132,11 @@ class Thesis(models.Model):
                                     MinValueValidator(1.0),
                                     MaxValueValidator(5.0)])
     prolongation_date = models.DateField(blank=True, null=True)
+    prolongation_reason = models.CharField(
+        blank=True,
+        null=True,
+        max_length=2000)
+    prolongation_weeks = models.IntegerField(blank=True, null=True)
     examination_date = models.DateField(blank=True, null=True)
     handed_in_date = models.DateField(blank=True, null=True)
     restriction_note = models.NullBooleanField(blank=True)
@@ -153,11 +158,14 @@ class Thesis(models.Model):
 
         return True
 
-    def prolong(self, prolongation_date):
+    def prolong(self, prolongation_date, reason, weeks):
         if self.status != Thesis.APPLIED and self.status != Thesis.PROLONGED:
             return False
 
         self.prolongation_date = prolongation_date
+        self.prolongation_reason = reason
+        self.prolongation_weeks = weeks
+
         self.full_clean()
         self.status = Thesis.PROLONGED
         self.save()
@@ -179,7 +187,7 @@ class Thesis(models.Model):
     def clean(self):
         self.clean_fields()
 
-        if self.was_prolonged() and self.prolongation_date < self.due_date:
+        if self.was_prolonged() and self.prolongation_date <= self.due_date:
             raise ValidationError(
                 {'prolongation_date':
                     'prolongation date must be later than due date'})

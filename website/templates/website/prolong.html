@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class="container">
+		<div class="row">
+			<h1>Thesis verlängern</h1>
+		</div>
+
+
+		<!-- thesis summary: refactor to component -->
+
+		<div class="row">
+			<div class="col-md-2">
+		 		Titel:
+		 	</div>
+		 	<div class="col-md-10">
+		 	 	<strong>{{thesis.title}}</strong>
+		 	</div>
+		</div>
+		<br/>
+		<div class="row">
+			<div class="col-md-2">
+		 		Student:
+		 	</div>
+		 	<div class="col-md-10">
+		 		{{thesis.student.first_name}}&nbsp;{{thesis.student.last_name}}
+		 	</div>
+		</div>
+		<br />
+		<div class="row">
+			<div class="col-md-2">
+		 		Erstkorrektor:
+		 	</div>
+		 	<div class="col-md-10">
+		 		{{thesis.supervisor}}
+		 	</div>
+		</div>
+		<div class="row">
+			<div class="col-md-2">
+			 	Zweitkorrektor:
+			 </div>
+			 <div class="col-md-10">
+			 	{% if thesis.assessor %}
+			  		{{thesis.assessor}}
+			  	{% else %}
+			  		<span style="font-style: italic;">nicht festgelegt</span>
+			  	{% endif %}
+			 </div>
+		</div>
+		<br/>
+		<div class="row">
+			<div class="col-md-2">Beginn: </div>
+			<div class="col-md-10">{{thesis.begin_date}}</div>
+		</div>
+			<div class="row">
+			<div class="col-md-2">Abgabe: </div>
+			<div class="col-md-10">{{thesis.due_date}}</div>
+		</div>
+		<br />
+		<form action="/prolong/{{thesis.surrogate_key}}" method="post">
+			{% csrf_token %}
+			<div class="row">
+				<div class="col-md-2">
+					<div class="fieldWrapper">
+			          	{{ form.weeks.label_tag }}
+		      		</div>	
+				</div>
+				<div class="col-md-10">
+					<div class="fieldWrapper">
+			            {{ form.weeks }}
+			            {{ form.weeks.errors }}
+		      		</div>	
+				</div>
+			</div> 
+			<br />
+			<div class="row">
+				<div class="col-md-2">
+					<div class="fieldWrapper">
+			          	{{ form.reason.label_tag }}
+		      		</div>	
+				</div>
+				<div class="col-md-10">
+					<div class="fieldWrapper">
+			            {{ form.reason }}
+			            {{ form.reason.errors }}
+		      		</div>	
+				</div>
+			</div> 
+			<br />
+			<div class="row">
+				<div class="col-md-2">
+					<div class="fieldWrapper">
+			          	{{ form.prolongation_date.label_tag }}
+		      		</div>	
+				</div>
+				<div class="col-md-10">
+					<div class="fieldWrapper">
+			            {{ form.prolongation_date }}
+			            {{ form.prolongation_date.errors }}
+		      		</div>	
+				</div>
+			</div> 
+
+			<div class="fieldWrapper">
+			          	{{ form.due_date }}
+		    </div>	
+			<br />
+			<input class="btn btn-success" style="float: left;" type="submit" value="Speichern" />
+		</form>
+    
+    	<form action="{%url 'overview'%}" method="get">
+            <input class="btn btn-danger space-left-small" type="submit" value="Abbrechen"/>
+    	</form>
+	</div>
+	
+
+{% endblock content %}

@@ -347,7 +347,7 @@ class ThesisModelTests(TestCase):
 
         self.assertEqual(Thesis.objects.first().prolongation_date, None)
 
-        result = thesis.prolong(prolongation_date)
+        result = thesis.prolong(prolongation_date, "aus gutem Grund", 4)
 
         thesis = Thesis.objects.first()
 
@@ -371,7 +371,7 @@ class ThesisModelTests(TestCase):
 
         self.assertEqual(Thesis.objects.first().prolongation_date, None)
 
-        result = thesis.prolong(first_prolongation)
+        result = thesis.prolong(first_prolongation, "aus gutem Grund", 4)
 
         thesis = Thesis.objects.first()
 
@@ -379,7 +379,7 @@ class ThesisModelTests(TestCase):
         self.assertEqual(Thesis.PROLONGED, thesis.status)
         self.assertTrue(result)
 
-        result = thesis.prolong(second_prolongation)
+        result = thesis.prolong(second_prolongation, "aus gutem Grund", 4)
 
         self.assertEqual(second_prolongation, thesis.prolongation_date)
         self.assertEqual(Thesis.PROLONGED, thesis.status)
@@ -400,7 +400,7 @@ class ThesisModelTests(TestCase):
 
         self.assertEqual(Thesis.objects.first().prolongation_date, None)
 
-        result = thesis.prolong(prolongation_date)
+        result = thesis.prolong(prolongation_date, "aus gutem Grund", 4)
 
         thesis = Thesis.objects.first()
 
@@ -423,7 +423,7 @@ class ThesisModelTests(TestCase):
 
         self.assertEqual(Thesis.objects.first().prolongation_date, None)
 
-        result = thesis.prolong(prolongation_date)
+        result = thesis.prolong(prolongation_date, "aus gutem Grund", 4)
 
         thesis = Thesis.objects.first()
 
@@ -447,7 +447,7 @@ class ThesisModelTests(TestCase):
         self.assertEqual(Thesis.objects.first().prolongation_date, None)
 
         with self.assertRaises(ValidationError):
-            thesis.prolong(prolongation_date)
+            thesis.prolong(prolongation_date, "aus gutem Grund", 4)
 
     def test_can_not_prolong_thesis_with_date_before_due_date(self):
         prolongation_date = datetime(2018, 6, 29).date()
@@ -465,7 +465,25 @@ class ThesisModelTests(TestCase):
         self.assertEqual(Thesis.objects.first().prolongation_date, None)
 
         with self.assertRaises(ValidationError):
-            thesis.prolong(prolongation_date)
+            thesis.prolong(prolongation_date, "aus gutem Grund", 4)
+
+    def test_can_not_prolong_thesis_with_date_equal_due_date(self):
+        prolongation_date = datetime(2018, 6, 30).date()
+
+        thesis = Thesis(student=self.student,
+                        assessor=self.assessor,
+                        supervisor=self.supervisor,
+                        title="Some title",
+                        status=Thesis.APPLIED,
+                        begin_date=datetime(2018, 1, 30),
+                        due_date=datetime(2018, 6, 30))
+
+        thesis.save()
+
+        self.assertEqual(Thesis.objects.first().prolongation_date, None)
+
+        with self.assertRaises(ValidationError):
+            thesis.prolong(prolongation_date, "aus gutem Grund", 4)
 
     def test_thesis_is_not_late_if_graded_on_due_date(self):
         thesis = Thesis(student=self.student,

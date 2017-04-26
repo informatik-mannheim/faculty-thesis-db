@@ -1,40 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from django.test import TestCase, Client
 from django.test.utils import setup_test_environment
 from django.urls import reverse
 
 from datetime import date, datetime
 from decimal import Decimal
-
 import uuid
 
+from website.test.test import LoggedInTestCase, ThesisStub
 from website.models import *
 
 
 setup_test_environment()
 
 
-class ViewGradeTests(TestCase):
-
-    def setUp(self):
-        user = User(username="prof", password="pass", initials="PPP")
-        user.save()
-
-        self.student = Student(
-            id=123456, first_name="Larry", last_name="Langzeitstudent")
-        self.assessor = Assessor(
-            first_name="Max", last_name="Mustermann", email="mm@example.com")
-        self.supervisor = Supervisor(
-            first_name="Peter", last_name="Professpr", id=user.username)
-
-        self.supervisor.save()
-        self.student.save()
-        self.assessor.save()
-
-        self.client = Client()
-        self.client.force_login(user)
+class ViewGradeTests(LoggedInTestCase):
 
     def test_cannot_grade_non_existent_thesis(self):
         response = self.client.get(reverse('grade', args=[uuid.uuid4()]))
@@ -42,13 +22,7 @@ class ViewGradeTests(TestCase):
         self.assertEqual(404, response.status_code)
 
     def test_initial_grade_form(self):
-        thesis = Thesis(student=self.student,
-                        assessor=self.assessor,
-                        supervisor=self.supervisor,
-                        title="Some title",
-                        status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30),
-                        due_date=datetime(2018, 6, 30))
+        thesis = ThesisStub.applied(self.supervisor)
 
         thesis.save()
 
@@ -61,13 +35,7 @@ class ViewGradeTests(TestCase):
         self.assertEqual(datetime.now().date(), initial_date)
 
     def test_can_grade_thesis_with_restriction_note(self):
-        thesis = Thesis(student=self.student,
-                        assessor=self.assessor,
-                        supervisor=self.supervisor,
-                        title="Some title",
-                        status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30),
-                        due_date=datetime(2018, 6, 30))
+        thesis = ThesisStub.applied(self.supervisor)
 
         thesis.save()
 
@@ -91,13 +59,7 @@ class ViewGradeTests(TestCase):
         self.assertTrue(thesis.restriction_note)
 
     def test_can_grade_thesis_without_restriction_note(self):
-        thesis = Thesis(student=self.student,
-                        assessor=self.assessor,
-                        supervisor=self.supervisor,
-                        title="Some title",
-                        status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30),
-                        due_date=datetime(2018, 6, 30))
+        thesis = ThesisStub.applied(self.supervisor)
 
         thesis.save()
 
@@ -121,13 +83,7 @@ class ViewGradeTests(TestCase):
         self.assertFalse(thesis.restriction_note)
 
     def test_can_not_grade_thesis_with_invalid_grade(self):
-        thesis = Thesis(student=self.student,
-                        assessor=self.assessor,
-                        supervisor=self.supervisor,
-                        title="Some title",
-                        status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30),
-                        due_date=datetime(2018, 6, 30))
+        thesis = ThesisStub.applied(self.supervisor)
 
         thesis.save()
 
@@ -152,13 +108,7 @@ class ViewGradeTests(TestCase):
             self.assertEqual(Thesis.APPLIED, thesis.status)
 
     def test_can_not_grade_thesis_without_grade(self):
-        thesis = Thesis(student=self.student,
-                        assessor=self.assessor,
-                        supervisor=self.supervisor,
-                        title="Some title",
-                        status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30),
-                        due_date=datetime(2018, 6, 30))
+        thesis = ThesisStub.applied(self.supervisor)
 
         thesis.save()
 
@@ -180,13 +130,7 @@ class ViewGradeTests(TestCase):
         self.assertEqual(Thesis.APPLIED, thesis.status)
 
     def test_can_not_grade_thesis_without_examination_date(self):
-        thesis = Thesis(student=self.student,
-                        assessor=self.assessor,
-                        supervisor=self.supervisor,
-                        title="Some title",
-                        status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30),
-                        due_date=datetime(2018, 6, 30))
+        thesis = ThesisStub.applied(self.supervisor)
 
         thesis.save()
 
@@ -208,13 +152,7 @@ class ViewGradeTests(TestCase):
         self.assertEqual(Thesis.APPLIED, thesis.status)
 
     def test_can_not_grade_thesis_without_handed_in_date(self):
-        thesis = Thesis(student=self.student,
-                        assessor=self.assessor,
-                        supervisor=self.supervisor,
-                        title="Some title",
-                        status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30),
-                        due_date=datetime(2018, 6, 30))
+        thesis = ThesisStub.applied(self.supervisor)
 
         thesis.save()
 
