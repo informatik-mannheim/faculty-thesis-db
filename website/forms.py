@@ -19,14 +19,12 @@ class HandInForm(forms.Form):
                                      required=True,
                                      widget=forms.SelectDateWidget)
 
+    restriction_note = forms.BooleanField(label="Sperrvermerk",
+                                          required=False)
+
     @classmethod
     def initialize_from(cls, thesis):
-        if thesis.is_prolonged():
-            deadline = thesis.prolongation_date
-        else:
-            deadline = thesis.due_date
-
-        return cls(initial={'handed_in_date': deadline})
+        return cls(initial={'handed_in_date': thesis.deadline})
 
 
 class ProlongationForm(forms.Form):
@@ -58,14 +56,9 @@ class ProlongationForm(forms.Form):
     def initialize_from(cls, thesis):
         """Due date depends on whether a thesis was prolonged or not.
         Prolongation date is always due_date + 1 month"""
-        if thesis.is_prolonged():
-            due_date = thesis.prolongation_date
-        else:
-            due_date = thesis.due_date
-
         initials = {
-            'due_date': due_date,
-            'prolongation_date': due_date + timedelta(30)
+            'due_date': thesis.deadline,
+            'prolongation_date': thesis.deadline + timedelta(30)
         }
 
         return cls(initial=initials)
@@ -88,9 +81,7 @@ class GradeForm(forms.Form):
                                widget=forms.NumberInput(
                                    attrs={'autofocus': 'autofocus'}))
 
-    restriction_note = forms.BooleanField(label="Sperrvermerk",
-                                          initial=False,
-                                          required=False)
+    restriction_note = forms.BooleanField(label="Sperrvermerk", required=False)
 
     examination_date = forms.DateField(
         widget=forms.SelectDateWidget,
@@ -107,6 +98,25 @@ class GradeForm(forms.Form):
         if 'grade' in self.cleaned_data:
             if 4 < self.cleaned_data["grade"] < 5.0:
                 raise forms.ValidationError({'grade': 'Ungültige Note'})
+
+    @classmethod
+    def initialize_from(cls, thesis):
+        initials = {
+            'restriction_note': thesis.restriction_note,
+            'examination_date': thesis.handed_in_date or thesis.deadline,
+            'handed_in_date': thesis.handed_in_date or thesis.deadline,
+        }
+
+        return cls(initial=initials)
+
+    def persist(self, thesis):
+        grade = self.cleaned_data["grade"]
+        examination_date = self.cleaned_data["examination_date"]
+        restriction_note = self.cleaned_data["restriction_note"]
+        handed_in_date = self.cleaned_data["handed_in_date"]
+
+        thesis.hand_in(handed_in_date, restriction_note)
+        thesis.assign_grade(grade, examination_date, restriction_note)
 
 
 class CheckStudentIdForm(forms.Form):

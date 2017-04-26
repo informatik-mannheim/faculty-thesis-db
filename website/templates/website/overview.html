@@ -29,7 +29,7 @@
 			<tbody>
 					{% for thesis in theses %}
 				
-					<tr class="{% cycle 'row1' 'row2' %}" style="height: 80px;">
+					<tr class="{% cycle 'row1' 'row2' %} {{thesis.is_graded|yesno:'tr-inactive,,'}}" style="height: 80px;">
 						<td>{{thesis.due_date}}</td>
 						<td>
 							<span>{{thesis.get_status_display}}</span>

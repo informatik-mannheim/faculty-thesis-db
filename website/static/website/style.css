@@ -183,3 +183,7 @@ form[role=login] > div {
 #id_password {
 	width: 300px;
 }
+
+tr.tr-inactive {
+	opacity: 0.75;
+}

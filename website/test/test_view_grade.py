@@ -32,7 +32,7 @@ class ViewGradeTests(LoggedInTestCase):
         initial_date = response.context["form"].initial["examination_date"]
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(datetime.now().date(), initial_date)
+        self.assertEqual(thesis.due_date, initial_date)
 
     def test_can_grade_thesis_with_restriction_note(self):
         thesis = ThesisStub.applied(self.supervisor)

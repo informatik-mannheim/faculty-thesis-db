@@ -47,22 +47,11 @@ def grade(request, key):
     if request.POST:
         form = GradeForm(request.POST)
         if form.is_valid():
-            # TODO: Move to form as def assign_grade_to(thesis) and test it
-            grade = form.cleaned_data["grade"]
-            examination_date = form.cleaned_data["examination_date"]
-            restriction_note = form.cleaned_data["restriction_note"]
-
-            thesis.assign_grade(grade, examination_date, restriction_note)
-
-            thesis.handed_in_date = form.cleaned_data["handed_in_date"]
-            thesis.save()
+            form.persist(thesis)
 
             return HttpResponseRedirect(reverse('overview'))
     else:
-        form = GradeForm(initial={
-            'examination_date': datetime.now().date(),
-            'handed_in_date': thesis.handed_in_date or datetime.now().date
-        })
+        form = GradeForm.initialize_from(thesis)
 
     context = {"thesis": thesis, 'form': form}
 
@@ -77,7 +66,9 @@ def handin(request, key):
         form = HandInForm(request.POST)
 
         if form.is_valid():
-            thesis.hand_in(form.cleaned_data["handed_in_date"])
+            restriction_note = form.cleaned_data["restriction_note"]
+            handed_in_date = form.cleaned_data["handed_in_date"]
+            thesis.hand_in(handed_in_date, restriction_note)
 
             return HttpResponseRedirect(reverse('overview'))
     else:

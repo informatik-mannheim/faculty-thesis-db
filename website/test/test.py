@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from website.models import *
 
-from datetime import datetime
+from datetime import date, datetime
 
 
 class ThesisStub(object):
@@ -28,7 +28,7 @@ class ThesisStub(object):
                         supervisor=supervisor,
                         title="Eine einzelne Thesis",
                         begin_date=datetime.now().date(),
-                        due_date=datetime(2018, 1, 30),
+                        due_date=date(2018, 1, 30),
                         status=Thesis.APPLIED)
 
         return thesis
@@ -51,7 +51,7 @@ class ThesisStub(object):
                    supervisor=supervisor,
                    title="Eine Thesis",
                    begin_date=datetime.now().date(),
-                   due_date=datetime(2018, 1, 30),
+                   due_date=date(2018, 1, 30),
                    status=Thesis.PROLONGED)
 
         b = Thesis(student=student,
@@ -59,7 +59,7 @@ class ThesisStub(object):
                    supervisor=supervisor,
                    title="Eine andere Thesis",
                    begin_date=datetime.now().date(),
-                   due_date=datetime(2019, 1, 30),
+                   due_date=date(2019, 1, 30),
                    status=Thesis.APPLIED)
 
         c = Thesis(student=student,
@@ -67,7 +67,7 @@ class ThesisStub(object):
                    supervisor=supervisor,
                    title="Eine weitere Thesis",
                    begin_date=datetime.now().date(),
-                   due_date=datetime(2017, 1, 30),
+                   due_date=date(2017, 1, 30),
                    status=Thesis.GRADED)
 
         a.save()

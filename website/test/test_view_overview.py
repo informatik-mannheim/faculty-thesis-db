@@ -35,14 +35,3 @@ class ViewOverviewTests(LoggedInTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(3, len(response.context["theses"]))
         self.assertTrue(not_visible not in response.context["theses"])
-
-    def test_theses_should_be_sorted_by_due_date(self):
-        theses = ThesisStub.small(self.supervisor)
-        expected_order = sorted(theses, key=lambda thesis: thesis.due_date)
-
-        response = self.client.get(reverse('overview'))
-
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(3, len(response.context["theses"]))
-
-        self.assertEqual(expected_order, list(response.context["theses"]))

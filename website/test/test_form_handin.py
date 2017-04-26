@@ -24,7 +24,7 @@ class FormHandInTests(TestCase):
 
         form = HandInForm.initialize_from(thesis)
 
-        self.assertEqual(thesis.due_date, form.initial["handed_in_date"])
+        self.assertEqual(thesis.due_date, form["handed_in_date"].value())
 
     def test_initial_handed_in_date_is_prolongation_date(self):
         """Should set handed_in_date to prlongation_date
@@ -37,5 +37,5 @@ class FormHandInTests(TestCase):
 
         form = HandInForm.initialize_from(thesis)
 
-        self.assertEqual(thesis.prolongation_date,
-                         form.initial["handed_in_date"])
+        self.assertEqual(thesis.prolongation_date, form[
+                         "handed_in_date"].value())

@@ -3,7 +3,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db import connections
-from django.utils import timezone
 
 import uuid
 
@@ -16,7 +15,7 @@ class ThesisManager(models.Manager):
 
     def for_supervisor(self, supervisor_id):
         theses = self.filter(
-            supervisor__id=supervisor_id).order_by('due_date')
+            supervisor__id=supervisor_id).order_by('status', 'due_date')
 
         return theses
 
@@ -171,7 +170,7 @@ class Thesis(models.Model):
 
         return True
 
-    def hand_in(self, handed_in_date):
+    def hand_in(self, handed_in_date, restriction_note=False):
         """Set the handed_in_date of a thesis.
         It is possible to hand in a thesis before or after grading. Handing in
         a thesis after it was graded does not change the GRADED status."""
@@ -179,12 +178,17 @@ class Thesis(models.Model):
             return False
 
         self.handed_in_date = handed_in_date
+        self.restriction_note = restriction_note
         self.full_clean()
         if self.status < Thesis.HANDED_IN:
             self.status = Thesis.HANDED_IN
         self.save()
 
         return True
+
+    @property
+    def deadline(self):
+        return self.prolongation_date if self.is_prolonged() else self.due_date
 
     def is_handed_in(self):
         return self.handed_in_date

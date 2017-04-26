@@ -576,6 +576,25 @@ class ThesisModelTests(TestCase):
         self.assertEqual(Thesis.HANDED_IN, thesis.status)
         self.assertTrue(thesis.is_handed_in())
 
+    def test_can_hand_in_an_applied_thesis_with_restriction_note(self):
+        thesis = Thesis(student=self.student,
+                        assessor=self.assessor,
+                        supervisor=self.supervisor,
+                        title="Some title",
+                        status=Thesis.APPLIED,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30))
+
+        handed_in_date = date(2018, 6, 30)
+        restriction_note = True
+
+        thesis.hand_in(handed_in_date, restriction_note)
+
+        self.assertEqual(thesis.handed_in_date, handed_in_date)
+        self.assertEqual(Thesis.HANDED_IN, thesis.status)
+        self.assertTrue(thesis.is_handed_in())
+        self.assertTrue(thesis.restriction_note)
+
     def test_can_hand_in_a_prolonged_thesis(self):
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
@@ -634,3 +653,26 @@ class ThesisModelTests(TestCase):
         self.assertEqual(thesis.handed_in_date, handed_in_date)
         self.assertEqual(Thesis.GRADED, thesis.status)
         self.assertTrue(thesis.is_handed_in())
+
+    def test_deadline_without_prolongation(self):
+        thesis = Thesis(student=self.student,
+                        assessor=self.assessor,
+                        supervisor=self.supervisor,
+                        title="Some title",
+                        status=Thesis.APPLIED,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30))
+
+        self.assertEqual(thesis.due_date, thesis.deadline)
+
+    def test_deadline_with_prolongation(self):
+        thesis = Thesis(student=self.student,
+                        assessor=self.assessor,
+                        supervisor=self.supervisor,
+                        title="Some title",
+                        status=Thesis.PROLONGED,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30),
+                        prolongation_date=date(2018, 9, 30))
+
+        self.assertEqual(thesis.prolongation_date, thesis.deadline)

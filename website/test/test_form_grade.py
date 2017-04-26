@@ -3,9 +3,10 @@
 from django.test import TestCase
 from django.test.utils import setup_test_environment
 
-from datetime import datetime
+from datetime import date
 from decimal import Decimal
 
+from website.models import Thesis
 from website.forms import GradeForm
 
 
@@ -14,11 +15,19 @@ setup_test_environment()
 
 class GradeFormTests(TestCase):
 
-    def test_initials(self):
-        form = GradeForm()
-        self.assertEqual(False, form.fields["restriction_note"].initial)
-        self.assertEqual(None, form.fields["grade"].initial)
-        self.assertEqual(None, form.fields["examination_date"].initial)
+    def test_initilization(self):
+        thesis = Thesis(title="Some title",
+                        status=Thesis.PROLONGED,
+                        restriction_note=True,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30))
+
+        form = GradeForm.initialize_from(thesis)
+
+        self.assertEqual(thesis.restriction_note,
+                         form["restriction_note"].value())
+        self.assertEqual(thesis.due_date, form["examination_date"].value())
+        self.assertEqual(thesis.due_date, form["handed_in_date"].value())
 
     def test_validate_grade(self):
         valid_grades = ["1.0", "1.1", "1.2", "2.0", "2.5",
@@ -28,8 +37,8 @@ class GradeFormTests(TestCase):
             data = {
                 'grade': Decimal(grade),
                 'restriction_note': True,
-                'examination_date': datetime(2017, 3, 1).date(),
-                'handed_in_date': datetime(2017, 2, 1).date()
+                'examination_date': date(2017, 3, 1),
+                'handed_in_date': date(2017, 2, 1)
             }
 
             form = GradeForm(data)
@@ -45,8 +54,8 @@ class GradeFormTests(TestCase):
             data = {
                 'grade': Decimal(grade),
                 'restriction_note': True,
-                'examination_date': datetime(2017, 1, 1).date(),
-                'handed_in_date': datetime(2017, 2, 1).date()
+                'examination_date': date(2017, 1, 1),
+                'handed_in_date': date(2017, 2, 1)
             }
 
             form = GradeForm(data)
