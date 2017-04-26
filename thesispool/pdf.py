@@ -137,7 +137,7 @@ class AbstractPDF(object):
         if self.thesis.external_where:
             xfdf.add_field("Firma", self.thesis.external_where)
 
-        if self.thesis.was_prolonged():
+        if self.thesis.is_prolonged():
             xfdf.check("AbgabeMitVerlängerung")
             xfdf.uncheck("AbgabeTermingerecht")
         else:

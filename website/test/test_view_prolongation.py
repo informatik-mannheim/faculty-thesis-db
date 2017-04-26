@@ -153,3 +153,26 @@ class ViewProlongationTests(LoggedInTestCase):
         thesis = Thesis.objects.get(surrogate_key=thesis.surrogate_key)
 
         self.assertEqual(Thesis.APPLIED, thesis.status)
+
+    def test_sets_prolongation_date_as_due_date(self):
+        thesis = ThesisStub.applied(self.supervisor)
+
+        thesis.begin_date = date(2018, 1, 1)
+        thesis.due_date = date(2018, 3, 30)
+        first_prolongation = date(2018, 4, 30)
+
+        thesis.save()
+
+        thesis.prolong(first_prolongation, 'because', 4)
+
+        response = self.client.get(
+            reverse('prolong', args=[thesis.surrogate_key]))
+
+        initial_due_date = response.context["form"].initial["due_date"]
+        initial_prolongation = response.context[
+            "form"].initial["prolongation_date"]
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(first_prolongation, initial_due_date)
+        self.assertEqual(first_prolongation + timedelta(30),
+                         initial_prolongation)

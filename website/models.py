@@ -175,11 +175,11 @@ class Thesis(models.Model):
     def is_graded(self):
         return self.status == Thesis.GRADED
 
-    def was_prolonged(self):
+    def is_prolonged(self):
         return self.prolongation_date is not None
 
     def is_late(self):
-        if self.was_prolonged():
+        if self.is_prolonged():
             return self.handed_in_date and self.handed_in_date > self.prolongation_date
         else:
             return self.handed_in_date and self.handed_in_date > self.due_date
@@ -187,7 +187,7 @@ class Thesis(models.Model):
     def clean(self):
         self.clean_fields()
 
-        if self.was_prolonged() and self.prolongation_date <= self.due_date:
+        if self.is_prolonged() and self.prolongation_date <= self.due_date:
             raise ValidationError(
                 {'prolongation_date':
                     'prolongation date must be later than due date'})

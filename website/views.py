@@ -35,9 +35,14 @@ def prolong(request, key):
             return HttpResponseRedirect(reverse('overview'))
 
     else:
+        if thesis.is_prolonged():
+            due_date = thesis.prolongation_date
+        else:
+            due_date = thesis.due_date
+
         initials = {
-            'due_date': thesis.due_date,
-            'prolongation_date': thesis.due_date + timedelta(30)
+            'due_date': due_date,
+            'prolongation_date': due_date + timedelta(30)
         }
 
         form = ProlongationForm(initial=initials)
