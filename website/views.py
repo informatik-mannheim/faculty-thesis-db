@@ -68,6 +68,8 @@ def handin(request, key):
         if form.is_valid():
             restriction_note = form.cleaned_data["restriction_note"]
             handed_in_date = form.cleaned_data["handed_in_date"]
+            new_title = form.cleaned_data["new_title"]
+            thesis.title = new_title
             thesis.hand_in(handed_in_date, restriction_note)
 
             return HttpResponseRedirect(reverse('overview'))

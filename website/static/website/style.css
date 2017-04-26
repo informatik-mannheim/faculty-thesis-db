@@ -187,3 +187,14 @@ form[role=login] > div {
 tr.tr-inactive {
 	opacity: 0.75;
 }
+
+input.title {
+	width: 100%;
+}
+
+input[disabled] {
+    color: #111111;
+    padding: 2px;
+    margin: 0 0 0 0;
+    background-image: none;
+}

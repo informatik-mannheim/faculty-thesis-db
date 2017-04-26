@@ -12,7 +12,7 @@
 	 		Titel:
 	 	</div>
 	 	<div class="col-md-10">
-	 	 	<strong>{{thesis.title}}</strong>
+	 	 	<strong>{{thesis.title}}</strong> (<a id="change_title_toggle" href="javascript:">ändern</a>)
 	 	</div>
 	</div>
 	<br/>
@@ -66,6 +66,22 @@
 	<br />
 	<form action="/handin/{{thesis.surrogate_key}}" method="post">
 		{% csrf_token %}
+		<div id="change_title" style="display:none;">
+			<div class="row">
+				<div class="col-md-2">
+					<div class="fieldWrapper">
+			          	{{ form.new_title.label_tag }}
+		      		</div>	
+				</div>
+				<div class="col-md-10">
+					<div class="fieldWrapper">
+			            {{ form.new_title }}
+			            {{ form.new_title.errors }}
+		      		</div>	
+				</div>
+			</div> 
+		</div>
+		<br />
 		<div class="row">
 			<div class="col-md-2">
 				<div class="fieldWrapper">
@@ -101,6 +117,15 @@
             <input class="btn btn-danger space-left-small" type="submit" value="Abbrechen"/>
     </form>
 </div>
+
+<script type="text/javascript">
+	var new_title_toggle = document.getElementById("change_title_toggle");
+	var new_title = document.getElementById("change_title")
+
+	new_title_toggle.addEventListener("click", function() {
+		new_title.style.display = 'block';
+	});
+</script>
 
 
 {% endblock content %}

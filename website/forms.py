@@ -22,9 +22,21 @@ class HandInForm(forms.Form):
     restriction_note = forms.BooleanField(label="Sperrvermerk",
                                           required=False)
 
+    new_title = forms.CharField(label="Neuer Titel",
+                                max_length=300,
+                                required=True,
+                                widget=forms.TextInput(
+                                    attrs={'max_length': '200',
+                                           'class': 'title'})
+                                )
+
     @classmethod
     def initialize_from(cls, thesis):
-        return cls(initial={'handed_in_date': thesis.deadline})
+        # TODO: test new_title defaults
+        initials = {'handed_in_date': thesis.deadline,
+                    'new_title': thesis.title}
+
+        return cls(initial=initials)
 
 
 class ProlongationForm(forms.Form):
