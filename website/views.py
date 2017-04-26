@@ -6,8 +6,6 @@ from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.utils import timezone
 from sendfile import sendfile
 
-from datetime import timedelta
-
 from website.forms import *
 from website.models import *
 from website.util import dateutil
@@ -35,17 +33,7 @@ def prolong(request, key):
             return HttpResponseRedirect(reverse('overview'))
 
     else:
-        if thesis.is_prolonged():
-            due_date = thesis.prolongation_date
-        else:
-            due_date = thesis.due_date
-
-        initials = {
-            'due_date': due_date,
-            'prolongation_date': due_date + timedelta(30)
-        }
-
-        form = ProlongationForm(initial=initials)
+        form = ProlongationForm.initialize_from(thesis)
 
     context = {'thesis': thesis, 'form': form}
 
@@ -59,6 +47,7 @@ def grade(request, key):
     if request.POST:
         form = GradeForm(request.POST)
         if form.is_valid():
+            # TODO: Move to form as def assign_grade_to(thesis) and test it
             grade = form.cleaned_data["grade"]
             examination_date = form.cleaned_data["examination_date"]
             restriction_note = form.cleaned_data["restriction_note"]
@@ -87,6 +76,7 @@ def handin(request, key):
     if request.POST:
         form = GradeForm(request.POST)
         if form.is_valid():
+            # TODO: Move to form as def assign_grade_to(thesis) and test it
             grade = form.cleaned_data["grade"]
             examination_date = form.cleaned_data["examination_date"]
             restriction_note = form.cleaned_data["restriction_note"]
@@ -111,7 +101,6 @@ def handin(request, key):
 @login_required
 def overview(request):
     theses = Thesis.objects.for_supervisor(request.user.username)
-    request.user.initials
 
     return render(request, 'website/overview.html', {"theses": theses})
 
@@ -164,7 +153,6 @@ class CreateStepTwo(View):
 
         if form.is_valid() and a_form.is_valid():
             supervisor = Supervisor.from_user(request.user)
-
             assessor = a_form.cleaned_data["assessor"]
 
             form.create_thesis(assessor, supervisor, self.student)

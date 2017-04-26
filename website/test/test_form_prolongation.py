@@ -4,14 +4,31 @@
 from django.test import TestCase
 from django.test.utils import setup_test_environment
 
-from datetime import datetime
+from datetime import datetime, date, timedelta
+
 from website.forms import ProlongationForm
+from website.models import Thesis
 
 
 setup_test_environment()
 
 
 class FormProlongationTests(TestCase):
+
+    def test_sets_prolongation_date_as_due_date(self):
+        """Should set due_date to either due_date or prolongation_date,
+        depending on whether the thesis has been prolonged"""
+        thesis = Thesis(
+            begin_date=date(2018, 1, 1),
+            due_date=date(2018, 3, 30),
+            prolongation_date=date(2018, 4, 30),
+            status=Thesis.PROLONGED)
+
+        form = ProlongationForm.initialize_from(thesis)
+
+        self.assertEqual(thesis.prolongation_date, form.initial["due_date"])
+        self.assertEqual(thesis.prolongation_date + timedelta(30),
+                         form.initial["prolongation_date"])
 
     def test_validate_prolongation_date_before_due_date(self):
         """Prolongation date must be > due_date"""

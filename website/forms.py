@@ -4,6 +4,8 @@ from django.core.exceptions import ValidationError
 
 from website.models import *
 
+from datetime import timedelta
+
 
 class ThesisForm(ModelForm):
 
@@ -36,6 +38,22 @@ class ProlongationForm(forms.Form):
     due_date = forms.DateField(label="Ursprüngliche Abgabe",
                                widget=forms.HiddenInput(),
                                required=True)
+
+    @classmethod
+    def initialize_from(cls, thesis):
+        """Due date depends on whether a thesis was prolonged or not.
+        Prolongation date is always due_date + 1 month"""
+        if thesis.is_prolonged():
+            due_date = thesis.prolongation_date
+        else:
+            due_date = thesis.due_date
+
+        initials = {
+            'due_date': due_date,
+            'prolongation_date': due_date + timedelta(30)
+        }
+
+        return cls(initial=initials)
 
     def clean(self):
         prolongation_date = self.cleaned_data["prolongation_date"]

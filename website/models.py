@@ -145,7 +145,7 @@ class Thesis(models.Model):
     def assign_grade(self, grade, examination_date, restriction_note=False):
         """Assign grade and set status to GRADED
         if grade is valid and thesis hasn't been graded yet"""
-        if self.is_graded():
+        if self.status >= Thesis.GRADED:
             return False
 
         self.grade = grade
