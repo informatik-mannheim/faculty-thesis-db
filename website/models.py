@@ -93,10 +93,10 @@ class Thesis(models.Model):
     class Meta:
         verbose_name_plural = "theses"
 
-    APPLIED = 'AP'
-    PROLONGED = 'PL'
-    HANDED_IN = 'HI'
-    GRADED = 'GD'
+    APPLIED = 0
+    PROLONGED = 1
+    HANDED_IN = 2
+    GRADED = 3
     STATUS_CHOICES = (
         (APPLIED, 'Angemeldet'),
         (PROLONGED, 'Verlängert'),
@@ -118,8 +118,7 @@ class Thesis(models.Model):
     external_where = models.CharField(max_length=200, blank=True)
     surrogate_key = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True)
-    status = models.CharField(
-        max_length=2,
+    status = models.IntegerField(
         choices=STATUS_CHOICES,
         default=APPLIED,
     )
@@ -159,7 +158,7 @@ class Thesis(models.Model):
         return True
 
     def prolong(self, prolongation_date, reason, weeks):
-        if self.status != Thesis.APPLIED and self.status != Thesis.PROLONGED:
+        if self.status >= Thesis.HANDED_IN:
             return False
 
         self.prolongation_date = prolongation_date
