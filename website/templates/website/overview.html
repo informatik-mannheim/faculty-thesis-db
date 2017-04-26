@@ -22,22 +22,30 @@
 					<th>Student</th>
 					<th>Thema</th>
 					<th>Zweitkorrektor</th>
-					<th colspan=3>Dokumente</th>
+					<th>Dokumente</th>
 				</tr>
 			</thead>
 			
 			<tbody>
 					{% for thesis in theses %}
 				
-					<tr class="{% cycle 'row1' 'row2' %}">
+					<tr class="{% cycle 'row1' 'row2' %}" style="height: 80px;">
 						<td>{{thesis.due_date}}</td>
 						<td>
-							{{thesis.get_status_display}}
+							<span>{{thesis.get_status_display}}</span>
+							
 							{% if thesis.is_graded %}
 								<span class="badge">
 									{{thesis.grade}}
 								</span>
+							{% elif thesis.was_prolonged %}
+								<div style="margin-top: 10px; font-size: 16px;">
+									<span class="glyphicon glyphicon-time"></span>&nbsp;
+									<span>{{thesis.prolongation_date}}</span>
+								</div>
 							{% endif %}
+
+
 						</td>
 						<td>{{thesis.student}}</td>
 						<td>{{thesis.title}}</td>
@@ -65,16 +73,21 @@
 					
 					<tr class="{% cycle 'row1' 'row2' %}">
 						{% if not thesis.is_graded %}
-						<td class="info-row" colspan="5"  style="border-bottom: 1px solid #ddd; border-top:0px">
+						<td class="info-row" colspan="1"  style="border-bottom: 1px solid #ddd; border-top:0px">
 							<a href="#" class="icon-link">
-								<span class="glyphicon glyphicon-pencil" title="Ändern" style="margin-left: 20px;"></span>
+								<span class="glyphicon glyphicon-pencil" title="Ändern" style="margin-left: 2px;"></span>
 							</a>
 							<a href="{% url 'prolong' thesis.surrogate_key|slugify %}" class="icon-link">
 								<span class="glyphicon glyphicon-hourglass" title="Verlängern" style="margin-left: 20px;"></span>
 							</a>
+							<a href="{% url 'handin' thesis.surrogate_key|slugify %}" class="icon-link">
+								<span class="glyphicon glyphicon-envelope" title="Benoten" style="margin-left: 20px;"></span>
+							</a>
 							<a href="{% url 'grade' thesis.surrogate_key|slugify %}" class="icon-link">
 								<span class="glyphicon glyphicon-education" title="Benoten" style="margin-left: 20px;"></span>
 							</a>
+						</td>
+						<td colspan="5" style="border-bottom: 1px solid #ddd; border-top:0px">
 						</td>
 						{% endif %}
 					</tr>

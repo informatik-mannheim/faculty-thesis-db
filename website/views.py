@@ -76,6 +76,34 @@ def grade(request, key):
 
 
 @login_required
+def handin(request, key):
+    thesis = get_object_or_404(Thesis, surrogate_key=key)
+
+    if request.POST:
+        form = GradeForm(request.POST)
+        if form.is_valid():
+            grade = form.cleaned_data["grade"]
+            examination_date = form.cleaned_data["examination_date"]
+            restriction_note = form.cleaned_data["restriction_note"]
+
+            thesis.assign_grade(grade, examination_date, restriction_note)
+
+            thesis.handed_in_date = form.cleaned_data["handed_in_date"]
+            thesis.save()
+
+            return HttpResponseRedirect(reverse('overview'))
+    else:
+        form = GradeForm(initial={
+            'examination_date': datetime.now().date(),
+            'handed_in_date': thesis.handed_in_date or datetime.now().date
+        })
+
+    context = {"thesis": thesis, 'form': form}
+
+    return render(request, 'website/grade.html', context)
+
+
+@login_required
 def overview(request):
     theses = Thesis.objects.for_supervisor(request.user.username)
     request.user.initials

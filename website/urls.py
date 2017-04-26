@@ -28,4 +28,5 @@ urlpatterns = [
         name='grading_pdf'),
     url(r'^prolong/(?P<key>[0-9a-f\-]+)$', views.prolong, name="prolong"),
     url(r'^grade/(?P<key>[0-9a-f\-]+)$', views.grade, name="grade"),
+    url(r'^handin/(?P<key>[0-9a-f\-]+)$', views.handin, name="handin"),
 ]
