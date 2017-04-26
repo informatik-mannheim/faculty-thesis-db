@@ -52,13 +52,13 @@
 			<div class="col-md-2">Beginn: </div>
 			<div class="col-md-10">{{thesis.begin_date}}</div>
 		</div>
-			<div class="row">
+		<div class="row">
 			<div class="col-md-2">Abgabe: </div>
 			<div class="col-md-10">
 					{% if thesis.is_prolonged %}
 						<span class="glyphicon glyphicon-time"></span>&nbsp;
 						<span>{{ thesis.prolongation_date }}</span>
-						<span>(bereits verlängert)</span>
+						<span>(verlängert)</span>
 					{% else %}	
 						{{ thesis.due_date }}
 					{% endif %}

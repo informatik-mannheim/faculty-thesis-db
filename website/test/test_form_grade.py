@@ -14,9 +14,6 @@ setup_test_environment()
 
 class GradeFormTests(TestCase):
 
-    def setUp(self):
-        pass
-
     def test_initials(self):
         form = GradeForm()
         self.assertEqual(False, form.fields["restriction_note"].initial)

@@ -77,12 +77,14 @@
 							<a href="#" class="icon-link">
 								<span class="glyphicon glyphicon-pencil" title="Ändern" style="margin-left: 2px;"></span>
 							</a>
+							{% if not thesis.is_handed_in %}
 							<a href="{% url 'prolong' thesis.surrogate_key|slugify %}" class="icon-link">
 								<span class="glyphicon glyphicon-hourglass" title="Verlängern" style="margin-left: 20px;"></span>
 							</a>
 							<a href="{% url 'handin' thesis.surrogate_key|slugify %}" class="icon-link">
-								<span class="glyphicon glyphicon-envelope" title="Benoten" style="margin-left: 20px;"></span>
+								<span class="glyphicon glyphicon-envelope" title="Einreichen" style="margin-left: 20px;"></span>
 							</a>
+							{% endif %}
 							<a href="{% url 'grade' thesis.surrogate_key|slugify %}" class="icon-link">
 								<span class="glyphicon glyphicon-education" title="Benoten" style="margin-left: 20px;"></span>
 							</a>

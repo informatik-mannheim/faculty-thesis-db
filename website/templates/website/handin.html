@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container">
 	<div class="row">
-		<h1>Thesis benoten</h1>
+		<h1>Thesis abgeben</h1>
 	</div>
 	
 	
@@ -38,6 +38,16 @@
 	</div>
 	<br/>
 	<div class="row">
+		<div class="col-md-2">
+	 		Student:
+	 	</div>
+	 	<div class="col-md-10">
+	 		{{thesis.student.first_name}}&nbsp;{{thesis.student.last_name}}
+	 	</div>
+	</div>
+	
+	<br />
+	<div class="row">
 		<div class="col-md-2">Beginn: </div>
 		<div class="col-md-10">{{thesis.begin_date}}</div>
 	</div>
@@ -54,65 +64,22 @@
 		</div>
 	</div>
 	<br />
-	<form action="/grade/{{thesis.surrogate_key}}" method="post">
+	<form action="/handin/{{thesis.surrogate_key}}" method="post">
 		{% csrf_token %}
 		<div class="row">
 			<div class="col-md-2">
 				<div class="fieldWrapper">
-		          	{{ form.grade.label_tag }}
+		          	{{ form.handed_in_date.label_tag }}
 	      		</div>	
 			</div>
 			<div class="col-md-10">
 				<div class="fieldWrapper">
-		            {{ form.grade }}
-		            {{ form.grade.errors }}
+		            {{ form.handed_in_date }}
+		            {{ form.handed_in_date.errors }}
 	      		</div>	
 			</div>
 		</div> 
-		<br />
-		<div style="display: {{thesis.handed_in_date|yesno:'none,visible'}}">
-			<div class="row">
-				<div class="col-md-2">
-					<div class="fieldWrapper">
-			          	{{ form.handed_in_date.label_tag }}
-		      		</div>	
-				</div>
-				<div class="col-md-10">
-					<div class="fieldWrapper">
-			            {{ form.handed_in_date }}
-			            {{ form.handed_in_date.errors }}
-		      		</div>	
-				</div>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-2">
-				<div class="fieldWrapper">
-		          	{{ form.examination_date.label_tag }}
-	      		</div>	
-			</div>
-			<div class="col-md-10">
-				<div class="fieldWrapper">
-		            {{ form.examination_date }}
-		            {{ form.examination_date.errors }}
-	      		</div>	
-			</div>
-		</div>
-		<br />
-		<div class="row">
-			<div class="col-md-2">
-				<div class="fieldWrapper">
-		          	{{ form.restriction_note.label_tag }}
-	      		</div>	
-			</div>
-			<div class="col-md-10">
-				<div class="fieldWrapper">
-		            {{ form.restriction_note }}
-		            {{ form.restriction_note.errors }}
-	      		</div>	
-			</div>
-		</div> 
-		<br/>
+		<br />	
 		<input class="btn btn-success" style="float: left;" type="submit" value="Speichern" />
 	</form>
     

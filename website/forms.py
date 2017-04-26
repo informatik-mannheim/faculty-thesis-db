@@ -14,6 +14,21 @@ class ThesisForm(ModelForm):
         fields = ['title', 'student', 'supervisor', 'assessor']
 
 
+class HandInForm(forms.Form):
+    handed_in_date = forms.DateField(label="Abgabedatum",
+                                     required=True,
+                                     widget=forms.SelectDateWidget)
+
+    @classmethod
+    def initialize_from(cls, thesis):
+        if thesis.is_prolonged():
+            deadline = thesis.prolongation_date
+        else:
+            deadline = thesis.due_date
+
+        return cls(initial={'handed_in_date': deadline})
+
+
 class ProlongationForm(forms.Form):
     reason_widget = forms.Textarea(attrs={'cols': 40, 'rows': 5})
     weeks_widget = forms.NumberInput(
@@ -83,7 +98,7 @@ class GradeForm(forms.Form):
 
     handed_in_date = forms.DateField(
         widget=forms.SelectDateWidget,
-        label="Abgedatum",
+        label="Abgabedatum",
         required=True)
 
     def clean(self):

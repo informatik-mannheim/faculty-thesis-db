@@ -558,3 +558,79 @@ class ThesisModelTests(TestCase):
                         handed_in_date=date(2018, 10, 1))
 
         self.assertTrue(thesis.is_late())
+
+    def test_can_hand_in_an_applied_thesis(self):
+        thesis = Thesis(student=self.student,
+                        assessor=self.assessor,
+                        supervisor=self.supervisor,
+                        title="Some title",
+                        status=Thesis.APPLIED,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30))
+
+        handed_in_date = date(2018, 6, 30)
+
+        thesis.hand_in(handed_in_date)
+
+        self.assertEqual(thesis.handed_in_date, handed_in_date)
+        self.assertEqual(Thesis.HANDED_IN, thesis.status)
+        self.assertTrue(thesis.is_handed_in())
+
+    def test_can_hand_in_a_prolonged_thesis(self):
+        thesis = Thesis(student=self.student,
+                        assessor=self.assessor,
+                        supervisor=self.supervisor,
+                        title="Some title",
+                        status=Thesis.PROLONGED,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30),
+                        prolongation_date=date(2018, 7, 30))
+
+        handed_in_date = date(2018, 8, 30)
+
+        thesis.hand_in(handed_in_date)
+
+        self.assertEqual(thesis.handed_in_date, handed_in_date)
+        self.assertEqual(Thesis.HANDED_IN, thesis.status)
+        self.assertTrue(thesis.is_handed_in())
+
+    def test_can_not_hand_in_a_handed_in_thesis(self):
+        thesis = Thesis(student=self.student,
+                        assessor=self.assessor,
+                        supervisor=self.supervisor,
+                        title="Some title",
+                        status=Thesis.HANDED_IN,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30),
+                        handed_in_date=date(2018, 6, 30))
+
+        handed_in_date = date(2018, 8, 29)
+
+        success = thesis.hand_in(handed_in_date)
+
+        self.assertFalse(success)
+
+        self.assertNotEqual(thesis.handed_in_date, handed_in_date)
+        self.assertEqual(Thesis.HANDED_IN, thesis.status)
+        self.assertTrue(thesis.is_handed_in())
+
+    def test_handing_in_a_graded_thesis_does_not_change_status(self):
+        thesis = Thesis(student=self.student,
+                        assessor=self.assessor,
+                        supervisor=self.supervisor,
+                        title="Some title",
+                        status=Thesis.GRADED,
+                        grade=Decimal("1.3"),
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30),
+                        examination_date=date(2018, 6, 30))
+
+        handed_in_date = date(2018, 8, 29)
+
+        success = thesis.hand_in(handed_in_date)
+
+        self.assertTrue(success)
+
+        self.assertEqual(thesis.handed_in_date, handed_in_date)
+        self.assertEqual(Thesis.GRADED, thesis.status)
+        self.assertTrue(thesis.is_handed_in())

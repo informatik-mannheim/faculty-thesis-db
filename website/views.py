@@ -74,28 +74,18 @@ def handin(request, key):
     thesis = get_object_or_404(Thesis, surrogate_key=key)
 
     if request.POST:
-        form = GradeForm(request.POST)
+        form = HandInForm(request.POST)
+
         if form.is_valid():
-            # TODO: Move to form as def assign_grade_to(thesis) and test it
-            grade = form.cleaned_data["grade"]
-            examination_date = form.cleaned_data["examination_date"]
-            restriction_note = form.cleaned_data["restriction_note"]
-
-            thesis.assign_grade(grade, examination_date, restriction_note)
-
-            thesis.handed_in_date = form.cleaned_data["handed_in_date"]
-            thesis.save()
+            thesis.hand_in(form.cleaned_data["handed_in_date"])
 
             return HttpResponseRedirect(reverse('overview'))
     else:
-        form = GradeForm(initial={
-            'examination_date': datetime.now().date(),
-            'handed_in_date': thesis.handed_in_date or datetime.now().date
-        })
+        form = HandInForm.initialize_from(thesis)
 
     context = {"thesis": thesis, 'form': form}
 
-    return render(request, 'website/grade.html', context)
+    return render(request, 'website/handin.html', context)
 
 
 @login_required

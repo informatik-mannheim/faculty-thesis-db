@@ -171,6 +171,24 @@ class Thesis(models.Model):
 
         return True
 
+    def hand_in(self, handed_in_date):
+        """Set the handed_in_date of a thesis.
+        It is possible to hand in a thesis before or after grading. Handing in
+        a thesis after it was graded does not change the GRADED status."""
+        if self.status == Thesis.HANDED_IN:
+            return False
+
+        self.handed_in_date = handed_in_date
+        self.full_clean()
+        if self.status < Thesis.HANDED_IN:
+            self.status = Thesis.HANDED_IN
+        self.save()
+
+        return True
+
+    def is_handed_in(self):
+        return self.handed_in_date
+
     def is_graded(self):
         return self.status == Thesis.GRADED
 
@@ -178,10 +196,13 @@ class Thesis(models.Model):
         return self.prolongation_date is not None
 
     def is_late(self):
+        if not self.is_handed_in():
+            return False
+
         if self.is_prolonged():
-            return self.handed_in_date and self.handed_in_date > self.prolongation_date
+            return self.handed_in_date > self.prolongation_date
         else:
-            return self.handed_in_date and self.handed_in_date > self.due_date
+            return self.handed_in_date > self.due_date
 
     def clean(self):
         self.clean_fields()
