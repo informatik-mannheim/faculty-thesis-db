@@ -251,6 +251,9 @@ class ThesisApplicationForm(forms.Form):
         return thesis
 
     def change_thesis(self, thesis, assessor):
+        if not self.is_valid():
+            return None
+
         if assessor:
             assessor.save()
         thesis.title = self.cleaned_data['title']

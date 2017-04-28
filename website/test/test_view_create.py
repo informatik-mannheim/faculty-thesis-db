@@ -10,7 +10,7 @@ from website.models import Student, Thesis, User
 setup_test_environment()
 
 
-class ViewCreateStepTwoTests(TestCase):
+class ViewCreateSTests(TestCase):
 
     def send(self, post_data):
         return self.client.post(
@@ -247,3 +247,20 @@ class ViewCreateStepTwoTests(TestCase):
         self.assertEqual(post_data["external_where"], thesis.external_where)
         self.assertEqual(datetime(2017, 3, 1).date(), thesis.begin_date)
         self.assertEqual(datetime(2017, 6, 1).date(), thesis.due_date)
+
+    def test_headlines_differ_for_bachelor_and_master(self):
+        bachelor = Student(id=123, first_name="A", last_name="B", program='IB')
+        master = Student(id=456, first_name="C", last_name="D", program='IM')
+
+        bachelor.save(using='faculty')
+        master.save(using='faculty')
+
+        response_bachelor = self.client.get(reverse('create', args=['123']))
+        response_master = self.client.get(reverse('create', args=['456']))
+
+        self.assertEqual(200, response_bachelor.status_code)
+        self.assertEqual(200, response_master.status_code)
+        self.assertEqual(response_bachelor.context[
+                         "headline"], "Bachelorthesis anlegen")
+        self.assertEqual(response_master.context[
+                         "headline"], "Masterthesis anlegen")
