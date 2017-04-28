@@ -19,6 +19,15 @@ def index(request):
 
 
 @login_required
+def change(request, key):
+    thesis = get_object_or_404(Thesis, surrogate_key=key)
+
+    context = {'thesis': thesis}
+
+    return render(request, 'website/create_step_two.html', context)
+
+
+@login_required
 def prolong(request, key):
     thesis = get_object_or_404(Thesis, surrogate_key=key)
 
@@ -115,6 +124,9 @@ class CreateStepTwo(View):
         self.start, self.end = dateutil.get_thesis_period(
             timezone.now(), self.student)
 
+        self.headline = "{0}thesis anlegen".format(
+            "Master" if self.student.is_master() else "Bachelor")
+
         return super(CreateStepTwo, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -125,7 +137,8 @@ class CreateStepTwo(View):
         context = {
             'form': form,
             'a_form': AssessorForm(),
-            'student': self.student
+            'student': self.student,
+            'headline': self.headline
         }
 
         return render(request, 'website/create_step_two.html', context)
@@ -142,7 +155,70 @@ class CreateStepTwo(View):
 
             return HttpResponseRedirect('/overview/')
 
-        context = {'form': form, 'a_form': a_form, 'student': self.student}
+        context = {
+            'form': form,
+            'a_form': a_form,
+            'student': self.student,
+            'headline': self.headline}
+
+        return render(request, 'website/create_step_two.html', context)
+
+
+class ChangeView(View):
+
+    def dispatch(self, request, *args, **kwargs):
+        self.thesis = get_object_or_404(Thesis, surrogate_key=kwargs["key"])
+        self.headline = "{0}thesis ändern".format(
+            "Master" if self.thesis.student.is_master() else "Bachelor")
+        return super(ChangeView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        student = self.thesis.student
+        assessor = self.thesis.assessor
+
+        form = ThesisApplicationForm(initial={
+            'student_id': student.id,
+            'begin_date': self.thesis.begin_date,
+            'due_date': self.thesis.due_date,
+            'title': self.thesis.title,
+            'external': self.thesis.external,
+            'external_where': self.thesis.external_where,
+            'student_email': self.thesis.student_contact})
+
+        if assessor:
+            a_form = AssessorForm(initial={
+                'first_name': assessor.first_name,
+                'last_name': assessor.last_name,
+                'email': assessor.email
+            })
+        else:
+            a_form = AssessorForm()
+
+        context = {
+            'form': form,
+            'a_form': a_form,
+            'student': self.thesis.student,
+            'headline': self.headline
+        }
+
+        return render(request, 'website/create_step_two.html', context)
+
+    def post(self, request, *args, **kwargs):
+        form = ThesisApplicationForm(request.POST)
+        a_form = AssessorForm(request.POST)
+
+        if form.is_valid() and a_form.is_valid():
+            assessor = a_form.cleaned_data["assessor"]
+
+            form.change_thesis(self.thesis, assessor)
+
+            return HttpResponseRedirect('/overview/')
+
+        context = {
+            'form': form,
+            'a_form': a_form,
+            'student': self.thesis.student,
+            'headline': self.headline}
 
         return render(request, 'website/create_step_two.html', context)
 

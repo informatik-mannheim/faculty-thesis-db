@@ -33,5 +33,23 @@
 
 		{% block content %}
 		{% endblock content %}
+
+		<script type="text/javascript">
+			var escape_key = 27;
+
+			document.addEventListener("keyup", function(event) {
+				eventt = event || window.event;
+
+    			if (event.keyCode == escape_key) {
+    				
+        			var abort_form = document.getElementById("form_abort");
+
+					if(abort_form !== null) {
+						abort_form.submit();
+					}
+    			}
+
+			}, false);
+		</script>
 	</body>
 </html>

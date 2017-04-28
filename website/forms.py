@@ -249,3 +249,18 @@ class ThesisApplicationForm(forms.Form):
         thesis.save()
 
         return thesis
+
+    def change_thesis(self, thesis, assessor):
+        if assessor:
+            assessor.save()
+        thesis.title = self.cleaned_data['title']
+        thesis.begin_date = self.cleaned_data['begin_date']
+        thesis.due_date = self.cleaned_data['due_date']
+        thesis.assessor = assessor
+        thesis.external = self.cleaned_data['external']
+        thesis.external_where = self.cleaned_data['external_where']
+        thesis.student_contact = self.cleaned_data[
+            "student_email"] or student.email
+        thesis.full_clean()
+        thesis.save()
+        return thesis

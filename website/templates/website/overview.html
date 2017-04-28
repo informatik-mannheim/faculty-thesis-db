@@ -74,7 +74,7 @@
 					<tr class="{% cycle 'row1' 'row2' %}">
 						{% if not thesis.is_graded %}
 						<td class="info-row" colspan="1"  style="border-bottom: 1px solid #ddd; border-top:0px">
-							<a href="#" class="icon-link">
+							<a href="{%  url 'change' thesis.surrogate_key|slugify %}" class="icon-link">
 								<span class="glyphicon glyphicon-pencil" title="Ändern" style="margin-left: 2px;"></span>
 							</a>
 							{% if not thesis.is_handed_in %}
@@ -103,7 +103,9 @@
 	<script type="text/javascript">
 		document.body.addEventListener("keydown", function(event) {
 			var plus_key = 171;
-			if(event.which === plus_key) {
+			var plus_key_numpad = 107;
+
+			if(event.which === plus_key || event.which === plus_key_numpad) {
 				document.getElementById("create_new_thesis").click();
 			}
 		});		
