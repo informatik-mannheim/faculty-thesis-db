@@ -20,7 +20,8 @@ class FormHandInTests(TestCase):
         thesis = Thesis(
             begin_date=date(2018, 1, 1),
             due_date=date(2018, 3, 30),
-            status=Thesis.APPLIED)
+            status=Thesis.APPLIED,
+            restriction_note=True)
 
         form = HandInForm.initialize_from(thesis)
 
@@ -39,3 +40,15 @@ class FormHandInTests(TestCase):
 
         self.assertEqual(thesis.prolongation_date, form[
                          "handed_in_date"].value())
+
+    def test_initial_new_title_is_old_title(self):
+        """Should set new_title to old title so it can be changed"""
+        thesis = Thesis(
+            title='Realtime Enterprise Java Beans',
+            begin_date=date(2018, 1, 1),
+            due_date=date(2018, 3, 30),
+            status=Thesis.APPLIED)
+
+        form = HandInForm.initialize_from(thesis)
+
+        self.assertEqual(thesis.title, form["new_title"].value())

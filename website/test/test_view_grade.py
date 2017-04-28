@@ -3,7 +3,7 @@
 from django.test.utils import setup_test_environment
 from django.urls import reverse
 
-from datetime import date, datetime
+from datetime import date
 from decimal import Decimal
 import uuid
 
