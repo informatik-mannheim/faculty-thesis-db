@@ -29,5 +29,6 @@ urlpatterns = [
     url(r'^prolong/(?P<key>[0-9a-f\-]+)$', views.prolong, name="prolong"),
     url(r'^grade/(?P<key>[0-9a-f\-]+)$', views.grade, name="grade"),
     url(r'^handin/(?P<key>[0-9a-f\-]+)$', views.handin, name="handin"),
-    url(r'^change/(?P<key>[0-9a-f\-]+)$', login_required(views.ChangeView.as_view()), name="change"),
+    url(r'^change/(?P<key>[0-9a-f\-]+)$',
+        login_required(views.ChangeView.as_view()), name="change"),
 ]
