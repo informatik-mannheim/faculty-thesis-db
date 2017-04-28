@@ -19,15 +19,6 @@ def index(request):
 
 
 @login_required
-def change(request, key):
-    thesis = get_object_or_404(Thesis, surrogate_key=key)
-
-    context = {'thesis': thesis}
-
-    return render(request, 'website/create_step_two.html', context)
-
-
-@login_required
 def prolong(request, key):
     thesis = get_object_or_404(Thesis, surrogate_key=key)
 
@@ -116,7 +107,7 @@ class PdfView(View):
         return self.send(request, pdf_type(thesis).get())
 
 
-class CreateStepTwo(View):
+class CreateThesis(View):
 
     def dispatch(self, request, *args, **kwargs):
         self.student = Student.objects.find(kwargs["student_id"])
@@ -127,7 +118,7 @@ class CreateStepTwo(View):
         self.headline = "{0}thesis anlegen".format(
             "Master" if self.student.is_master() else "Bachelor")
 
-        return super(CreateStepTwo, self).dispatch(request, *args, **kwargs)
+        return super(CreateThesis, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         form = ThesisApplicationForm(initial={'student_id': self.student.id,
@@ -141,7 +132,7 @@ class CreateStepTwo(View):
             'headline': self.headline
         }
 
-        return render(request, 'website/create_step_two.html', context)
+        return render(request, 'website/create_or_change.html', context)
 
     def post(self, request, *args, **kwargs):
         form = ThesisApplicationForm(request.POST)
@@ -161,7 +152,7 @@ class CreateStepTwo(View):
             'student': self.student,
             'headline': self.headline}
 
-        return render(request, 'website/create_step_two.html', context)
+        return render(request, 'website/create_or_change.html', context)
 
 
 class ChangeView(View):
@@ -201,7 +192,7 @@ class ChangeView(View):
             'headline': self.headline
         }
 
-        return render(request, 'website/create_step_two.html', context)
+        return render(request, 'website/create_or_change.html', context)
 
     def post(self, request, *args, **kwargs):
         form = ThesisApplicationForm(request.POST)
@@ -220,11 +211,11 @@ class ChangeView(View):
             'student': self.thesis.student,
             'headline': self.headline}
 
-        return render(request, 'website/create_step_two.html', context)
+        return render(request, 'website/create_or_change.html', context)
 
 
 @login_required
-def create_step_one(request):
+def find_student(request):
     student, form = None, None
 
     if request.method == 'POST':
@@ -235,4 +226,4 @@ def create_step_one(request):
 
     context = {'form': form or CheckStudentIdForm(), 'student': student}
 
-    return render(request, 'website/create_step_one.html', context)
+    return render(request, 'website/find_student.html', context)
