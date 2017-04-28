@@ -43,8 +43,7 @@ class ViewGradeTests(LoggedInTestCase):
             'restriction_note': True,
             'examination_date': date(2019, 3, 1),
             'grade': Decimal("1.2"),
-            'handed_in_date': date(2019, 2, 1),
-
+            'handed_in_date': date(2019, 2, 1)
         }
 
         response = self.client.post(
