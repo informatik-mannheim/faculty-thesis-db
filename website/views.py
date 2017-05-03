@@ -83,7 +83,10 @@ def handin(request, key):
 
 @login_required
 def overview(request):
-    theses = Thesis.objects.for_supervisor(request.user.username)
+    if request.user.is_secretary:
+        theses = Thesis.objects.all()
+    else:
+        theses = Thesis.objects.for_supervisor(request.user.username)
 
     return render(request, 'website/overview.html', {"theses": theses})
 
@@ -118,6 +121,8 @@ class CreateThesis(View):
         self.headline = "{0}thesis anlegen".format(
             "Master" if self.student.is_master() else "Bachelor")
 
+        self.supervisor = Supervisor.from_user(request.user)
+
         return super(CreateThesis, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -129,8 +134,8 @@ class CreateThesis(View):
             'form': form,
             'a_form': AssessorForm(),
             'student': self.student,
-            'headline': self.headline
-        }
+            'headline': self.headline,
+            'supervisor': self.supervisor}
 
         return render(request, 'website/create_or_change.html', context)
 
@@ -139,10 +144,9 @@ class CreateThesis(View):
         a_form = AssessorForm(request.POST)
 
         if form.is_valid() and a_form.is_valid():
-            supervisor = Supervisor.from_user(request.user)
             assessor = a_form.cleaned_data["assessor"]
 
-            form.create_thesis(assessor, supervisor, self.student)
+            form.create_thesis(assessor, self.supervisor, self.student)
 
             return HttpResponseRedirect('/overview/')
 
@@ -189,7 +193,8 @@ class ChangeView(View):
             'form': form,
             'a_form': a_form,
             'student': self.thesis.student,
-            'headline': self.headline
+            'headline': self.headline,
+            'supervisor': self.thesis.supervisor
         }
 
         return render(request, 'website/create_or_change.html', context)

@@ -1,4 +1,5 @@
 import ldap
+from django_auth_ldap.config import *
 import os
 import sys
 
@@ -103,13 +104,36 @@ AUTH_LDAP_CONNECTION_OPTIONS = {
     ldap.OPT_REFERRALS: 0,
 }
 
-AUTH_LDAP_START_TLS = False
+AUTH_LDAP_START_TLS = True
+
+
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch("ou=groups,dc=informatik,dc=hs-mannheim,dc=de",
+                                    ldap.SCOPE_SUBTREE, "(objectClass=posixGroup)"
+                                    )
+AUTH_LDAP_GROUP_TYPE = PosixGroupType()
+
 
 # LDAP connection data
 AUTH_LDAP_SERVER_URI = "ldap://ldap-master.sv.hs-mannheim.de"
 AUTH_LDAP_USER_DN_TEMPLATE = "uid=%(user)s,ou=Users,dc=informatik,dc=hs-mannheim,dc=de"
-#AUTH_LDAP_USER_ATTRLIST = ['*', '+']
-AUTH_LDAP_USER_ATTR_MAP = {"first_name": "givenName", "last_name": "sn", "initials": "initials"}
+AUTH_LDAP_USER_ATTR_MAP = {"first_name": "givenName",
+                           "last_name": "sn",
+                           "initials": "initials"}
+
+
+AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+    "is_prof": "cn=profI,ou=groups,dc=informatik,dc=hs-mannheim,dc=de",
+    "is_staff": "cn=staff,ou=groups,dc=informatik,dc=hs-mannheim,dc=de",
+    "is_secretary": "cn=sekretariat,ou=groups,dc=informatik,dc=hs-mannheim,dc=de",
+}
+
+AUTH_LDAP_ALWAYS_UPDATE_USER = True
+AUTH_LDAP_FIND_GROUP_PERMS = True
+
+# Simple group restrictions
+#AUTH_LDAP_REQUIRE_GROUP = "cn=enabled,ou=django,ou=groups,dc=example,dc=com"
+AUTH_LDAP_DENY_GROUP = "cn=students,ou=groups,dc=informatik,dc=hs-mannheim,dc=de"
+
 
 LOGIN_REDIRECT_URL = '/overview/'
 
