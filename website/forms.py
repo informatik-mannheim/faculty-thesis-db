@@ -3,6 +3,7 @@ from django.forms import ModelForm
 from django.core.exceptions import ValidationError
 
 from website.models import *
+from website.ldap import get_all_supervisors
 
 from datetime import timedelta
 
@@ -267,3 +268,17 @@ class ThesisApplicationForm(forms.Form):
         thesis.full_clean()
         thesis.save()
         return thesis
+
+
+class SupervisorsForm(forms.Form):
+    supervisors = forms.ChoiceField(
+        required=True, choices=(), label="Professor")
+
+    def __init__(self, *args, **kwargs):
+        super(SupervisorsForm, self).__init__(*args, **kwargs)
+
+        supervisors = get_all_supervisors()
+        supervisors = sorted(supervisors, key=lambda s: s.last_name.lower())
+        supervisors = [(s.id, str(s)) for s in supervisors]
+
+        self.fields['supervisors'] = forms.ChoiceField(choices=supervisors)

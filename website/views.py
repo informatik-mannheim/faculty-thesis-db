@@ -7,6 +7,7 @@ from django.utils import timezone
 from sendfile import sendfile
 
 from website.forms import *
+from website.ldap import *
 from website.models import *
 from website.util import dateutil
 from thesispool.pdf import *
@@ -118,12 +119,17 @@ class CreateThesis(View):
         self.start, self.end = dateutil.get_thesis_period(
             timezone.now(), self.student)
 
-        self.headline = "{0}thesis anlegen".format(
-            "Master" if self.student.is_master() else "Bachelor")
-
-        self.supervisor = Supervisor.from_user(request.user)
+        if request.user.is_secretary:
+            self.supervisor = None
+        else:
+            self.supervisor = Supervisor.from_user(request.user)
 
         return super(CreateThesis, self).dispatch(request, *args, **kwargs)
+
+    @property
+    def headline(self):
+        return "{0}thesis anlegen".format(
+            "Master" if self.student.is_master() else "Bachelor")
 
     def get(self, request, *args, **kwargs):
         form = ThesisApplicationForm(initial={'student_id': self.student.id,
@@ -135,7 +141,8 @@ class CreateThesis(View):
             'a_form': AssessorForm(),
             'student': self.student,
             'headline': self.headline,
-            'supervisor': self.supervisor}
+            'supervisor': self.supervisor,
+            's_form': None if self.supervisor else SupervisorsForm()}
 
         return render(request, 'website/create_or_change.html', context)
 
@@ -143,8 +150,17 @@ class CreateThesis(View):
         form = ThesisApplicationForm(request.POST)
         a_form = AssessorForm(request.POST)
 
+        if not self.supervisor:
+            s_form = SupervisorsForm(request.POST)
+            s_form.full_clean()
+            s_id = s_form.cleaned_data['supervisors']
+        else:
+            s_form = None
+
         if form.is_valid() and a_form.is_valid():
             assessor = a_form.cleaned_data["assessor"]
+
+            self.supervisor = self.supervisor or get_supervisor(s_id)
 
             form.create_thesis(assessor, self.supervisor, self.student)
 
@@ -154,7 +170,9 @@ class CreateThesis(View):
             'form': form,
             'a_form': a_form,
             'student': self.student,
-            'headline': self.headline}
+            'headline': self.headline,
+            'supervisor': self.supervisor,
+            's_form': s_form}
 
         return render(request, 'website/create_or_change.html', context)
 

@@ -18,13 +18,17 @@
         <br />
 
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <strong>Erstkorrektor</strong>
                 <p>
-                    {{supervisor.first_name}} {{supervisor.last_name}}
-                </p>    
+                    {% if supervisor %}
+                        {{supervisor.first_name}} {{supervisor.last_name}}
+                    {% else %}
+                        {{ s_form.supervisors }}
+                    {% endif %}
+                </p>                
             </div>
-            <div class="col-md-5">
+            <div class="col-md-6">
                  <div><strong>Student</strong></div>
                 
                     <span class="inline">{{student}} &nbsp;</span>
