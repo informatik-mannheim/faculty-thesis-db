@@ -3,13 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse, get_object_or_404
-from django.utils import timezone
 from sendfile import sendfile
 
 from website.forms import *
 from website.ldap import *
 from website.models import *
-from website.util import dateutil
 from thesispool.pdf import *
 
 User = get_user_model()
@@ -116,9 +114,6 @@ class CreateThesis(View):
     def dispatch(self, request, *args, **kwargs):
         self.student = Student.objects.find(kwargs["student_id"])
 
-        self.start, self.end = dateutil.get_thesis_period(
-            timezone.now(), self.student)
-
         if request.user.is_secretary:
             self.supervisor = None
         else:
@@ -128,21 +123,21 @@ class CreateThesis(View):
 
     @property
     def headline(self):
-        return "{0}thesis anlegen".format(
-            "Master" if self.student.is_master() else "Bachelor")
+        prefix = ("Master", "Bachelor")[self.student.is_bachelor()]
+        return "%sthesis anlegen" % prefix
 
     def get(self, request, *args, **kwargs):
-        form = ThesisApplicationForm(initial={'student_id': self.student.id,
-                                              'begin_date': self.start,
-                                              'due_date': self.end})
+        form = ThesisApplicationForm.initialize_from(self.student)
+        s_form = SupervisorsForm() if not self.supervisor else None
+        a_form = AssessorForm()
 
         context = {
             'form': form,
-            'a_form': AssessorForm(),
+            's_form': s_form,
+            'a_form': a_form,
             'student': self.student,
             'headline': self.headline,
-            'supervisor': self.supervisor,
-            's_form': None if self.supervisor else SupervisorsForm()}
+            'supervisor': self.supervisor}
 
         return render(request, 'website/create_or_change.html', context)
 

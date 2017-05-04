@@ -1,11 +1,13 @@
 from django import forms
 from django.forms import ModelForm
 from django.core.exceptions import ValidationError
+from django.utils import timezone
+
+from datetime import timedelta
 
 from website.models import *
 from website.ldap import get_all_supervisors
-
-from datetime import timedelta
+from website.util import dateutil
 
 
 class ThesisForm(ModelForm):
@@ -268,6 +270,14 @@ class ThesisApplicationForm(forms.Form):
         thesis.full_clean()
         thesis.save()
         return thesis
+
+    @classmethod
+    def initialize_from(cls, student):
+        start, end = dateutil.get_thesis_period(timezone.now(), student)
+
+        return cls(initial={'student_id': student.id,
+                            'begin_date': start,
+                            'due_date': end})
 
 
 class SupervisorsForm(forms.Form):
