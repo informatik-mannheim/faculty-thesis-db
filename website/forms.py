@@ -6,7 +6,7 @@ from django.utils import timezone
 from datetime import timedelta
 
 from website.models import *
-from website.ldap import get_all_supervisors
+
 from website.util import dateutil
 
 
@@ -287,7 +287,7 @@ class SupervisorsForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(SupervisorsForm, self).__init__(*args, **kwargs)
 
-        supervisors = get_all_supervisors()
+        supervisors = Supervisor.objects.fetch_supervisors_from_ldap()
         supervisors = sorted(supervisors, key=lambda s: s.last_name.lower())
         supervisors = [(s.id, str(s)) for s in supervisors]
 

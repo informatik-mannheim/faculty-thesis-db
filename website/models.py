@@ -4,6 +4,11 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db import connections
 
+from thesispool.settings import AUTH_LDAP_USER_DN_TEMPLATE
+from thesispool.settings import AUTH_LDAP_SERVER_URI
+from thesispool.settings import AUTH_LDAP_PROF_DN
+
+import ldap
 import uuid
 
 
@@ -20,6 +25,40 @@ class ThesisManager(models.Manager):
             supervisor__id=supervisor_id).order_by('status', 'due_date')
 
         return theses
+
+
+class SupervisorManager(models.Manager):
+
+    def __fetch_supervisor(self, uid):
+        con = ldap.initialize(AUTH_LDAP_SERVER_URI, trace_level=0)
+
+        con.start_tls_s()
+
+        dn = AUTH_LDAP_USER_DN_TEMPLATE % {'user': uid}
+
+        results = con.search_s(dn, ldap.SCOPE_SUBTREE, "(objectClass=*)")
+
+        try:
+            entity = results[0][1]
+            return Supervisor(first_name=entity["givenName"][0].decode(),
+                              last_name=entity["sn"][0].decode(),
+                              initials=entity["initials"][0].decode(),
+                              id=entity["uid"][0].decode())
+        except Exception:
+            return None
+
+    def fetch_supervisors_from_ldap(self):
+        con = ldap.initialize(AUTH_LDAP_SERVER_URI, trace_level=0)
+
+        con.start_tls_s()
+
+        _, entry = con.search_s(AUTH_LDAP_PROF_DN, ldap.SCOPE_BASE)[0]
+
+        uids = [uid.decode() for uid in entry['memberUid']]
+
+        supervisors = [self.__fetch_supervisor(uid) for uid in uids]
+
+        return [s for s in supervisors if s is not None]
 
 
 class StudentManager(models.Manager):
@@ -227,6 +266,8 @@ class Supervisor(models.Model):
     last_name = models.CharField(max_length=30, verbose_name="Nachname")
     initials = models.CharField(max_length=10, verbose_name="Kürzel")
     id = models.CharField(max_length=30, primary_key=True)
+
+    objects = SupervisorManager()
 
     @classmethod
     def from_user(cls, user):

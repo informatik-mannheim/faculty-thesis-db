@@ -6,7 +6,6 @@ from django.shortcuts import render, redirect, reverse, get_object_or_404
 from sendfile import sendfile
 
 from website.forms import *
-from website.ldap import *
 from website.models import *
 from thesispool.pdf import *
 
