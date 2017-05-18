@@ -31,3 +31,4 @@ pip3 install python-dateutil
 # for pdf sending
 # sudo apt-get install libapache2-mod-xsendfile
 # a2enmod xsendfile
+# certificate ca-cert in /etc/ssl/certs/ca-certificats einfügen

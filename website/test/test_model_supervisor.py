@@ -20,9 +20,6 @@ class MockUser(object):
 
 class SupervisorModelTests(TestCase):
 
-    def setUp(self):
-        pass
-
     def test_creation_from_user_without_initials(self):
         user = MockUser()
         supervisor = Supervisor.from_user(user)
@@ -41,3 +38,17 @@ class SupervisorModelTests(TestCase):
         self.assertEqual(user.first_name, supervisor.first_name)
         self.assertEqual(user.last_name, supervisor.last_name)
         self.assertEqual(user.initials, supervisor.initials)
+
+    def test_get_list_of_supervisors(self):
+        """Fetch supervisors from LDAP and check that they were populated correctly.
+        Assumption is that there will always be at least one professor.
+        """
+        supervisors = Supervisor.objects.fetch_supervisors_from_ldap()
+
+        self.assertTrue(len(supervisors) > 0)
+
+        sample = supervisors[0]
+
+        self.assertTrue(len(sample.first_name) > 0)
+        self.assertTrue(len(sample.last_name) > 0)
+        self.assertEqual(3, len(sample.initials))

@@ -146,15 +146,15 @@ class CreateThesis(View):
 
         if not self.supervisor:
             s_form = SupervisorsForm(request.POST)
-            s_form.full_clean()
-            s_id = s_form.cleaned_data['supervisors']
+
+            if s_form.is_valid():
+                s_id = s_form.cleaned_data['supervisors']
+                self.supervisor = Supervisor.objects.fetch_supervisor(s_id)
         else:
             s_form = None
 
-        if form.is_valid() and a_form.is_valid():
+        if form.is_valid() and a_form.is_valid() and ((not s_form) or s_form.is_valid()):
             assessor = a_form.cleaned_data["assessor"]
-
-            self.supervisor = self.supervisor or get_supervisor(s_id)
 
             form.create_thesis(assessor, self.supervisor, self.student)
 

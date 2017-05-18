@@ -29,10 +29,13 @@ class ThesisManager(models.Manager):
 
 class SupervisorManager(models.Manager):
 
-    def __fetch_supervisor(self, uid):
-        con = ldap.initialize(AUTH_LDAP_SERVER_URI, trace_level=0)
+    def fetch_supervisor(self, uid, con=None):
+        need_unbind = False
 
-        con.start_tls_s()
+        if not con:
+            con = ldap.initialize(AUTH_LDAP_SERVER_URI, trace_level=0)
+            con.start_tls_s()
+            need_unbind = True
 
         dn = AUTH_LDAP_USER_DN_TEMPLATE % {'user': uid}
 
@@ -47,6 +50,10 @@ class SupervisorManager(models.Manager):
         except Exception:
             return None
 
+        finally:
+            if need_unbind:
+                con.unbind()
+
     def fetch_supervisors_from_ldap(self):
         con = ldap.initialize(AUTH_LDAP_SERVER_URI, trace_level=0)
 
@@ -56,7 +63,9 @@ class SupervisorManager(models.Manager):
 
         uids = [uid.decode() for uid in entry['memberUid']]
 
-        supervisors = [self.__fetch_supervisor(uid) for uid in uids]
+        supervisors = [self.fetch_supervisor(uid, con) for uid in uids]
+
+        con.unbind()
 
         return [s for s in supervisors if s is not None]
 

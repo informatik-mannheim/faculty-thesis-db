@@ -4,13 +4,13 @@ from django.urls import reverse
 
 from datetime import datetime
 
-from website.models import Student, Thesis, User
+from website.models import Student, Thesis, User, Supervisor
 
 
 setup_test_environment()
 
 
-class ViewCreateSTests(TestCase):
+class ViewCreateTests(TestCase):
 
     def send(self, post_data):
         return self.client.post(
@@ -264,3 +264,71 @@ class ViewCreateSTests(TestCase):
                          "headline"], "Bachelorthesis anlegen")
         self.assertEqual(response_master.context[
                          "headline"], "Masterthesis anlegen")
+
+    def test_supervisor_choices_for_sekretariat(self):
+        user = User(username="t.sekretariat", password="pass", initials="SEK")
+
+        user.is_secretary = True
+        user.save()
+
+        client = Client()
+        client.force_login(user)
+
+        response = client.get(reverse('create', args=['123456']))
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("s_form", response.context)
+        self.assertIsNone(response.context["supervisor"])
+
+    def test_supervisor_choice_is_validated(self):
+        user = User(username="t.sekretariat", password="pass", initials="SEK")
+
+        user.is_secretary = True
+        user.save()
+
+        client = Client()
+        client.force_login(user)
+
+        post_data = {'title': 'eine thesis', 'supervisors': 'not.existant'}
+
+        response = client.post(reverse('create', args=['123456']), post_data)
+
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(response.context["s_form"].is_valid())
+        self.assertIn("supervisors", response.context["s_form"].errors)
+
+    def test_supervisor_choice_is_attached_to_thesis(self):
+        user = User(username="t.sekretariat", password="pass", initials="SEK")
+
+        user.is_secretary = True
+        user.save()
+
+        client = Client()
+        client.force_login(user)
+
+        post_data = {
+            'title': "Ein Titel",
+            'first_name': 'Horst',
+            'last_name': 'Schneider',
+            'email': 'h.schneider@example.com',
+            'begin_date_day': '1',
+            'begin_date_month': '3',
+            'begin_date_year': '2017',
+            'due_date_day': '1',
+            'due_date_month': '6',
+            'due_date_year': '2017',
+            'external_where': 'Alstom',
+            'student_email': ''
+        }
+
+        post_data["supervisors"] = "t.prof"
+
+        response = client.post(reverse('create', args=['123456']), post_data)
+
+        self.assertEqual(302, response.status_code)
+
+        thesis = Thesis.objects.first()
+
+        all_supervisors = Supervisor.objects.fetch_supervisors_from_ldap()
+
+        self.assertIn(thesis.supervisor, all_supervisors)
