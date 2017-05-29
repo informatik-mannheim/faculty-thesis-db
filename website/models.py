@@ -153,6 +153,13 @@ class Thesis(models.Model):
         (HANDED_IN, 'Abgegeben'),
         (GRADED, 'Benotet'),
     )
+    EXCOM_APPROVED = 1
+    EXCOM_REJECTED = 2
+    EXCOM_STATUS_CHOICES = (
+        (APPLIED, 'Angemeldet'),
+        (EXCOM_APPROVED, 'Genehmigt'),
+        (EXCOM_REJECTED, 'Abgelehnt'),
+    )
 
     title = models.CharField(max_length=200)
     supervisor = models.ForeignKey('Supervisor', on_delete=models.CASCADE)
@@ -172,6 +179,14 @@ class Thesis(models.Model):
         choices=STATUS_CHOICES,
         default=APPLIED,
     )
+    excom_status = models.IntegerField(
+        choices=EXCOM_STATUS_CHOICES,
+        default=APPLIED,
+    )
+    excom_reject_reason = models.CharField(
+        blank=True,
+        null=True,
+        max_length=2000)
     student_contact = models.EmailField(blank=True)
     grade = models.DecimalField(max_digits=2,
                                 decimal_places=1,
@@ -191,6 +206,27 @@ class Thesis(models.Model):
     restriction_note = models.NullBooleanField(blank=True)
 
     objects = ThesisManager()
+
+    def approve(self):
+        if self.excom_status == Thesis.EXCOM_APPROVED:
+            return False
+
+        self.clean_fields()
+        self.excom_status = Thesis.EXCOM_APPROVED
+        self.save()
+
+        return True
+
+    def reject(self, reason):
+        if self.excom_status > Thesis.APPLIED:
+            return False
+
+        self.clean_fields()
+        self.excom_status = Thesis.EXCOM_REJECTED
+        self.excom_reject_reason = reason
+        self.save()
+
+        return True
 
     def assign_grade(self, grade, examination_date, restriction_note=False):
         """Assign grade and set status to GRADED

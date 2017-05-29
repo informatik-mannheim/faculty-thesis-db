@@ -1,0 +1,94 @@
+{% extends "website/base.html" %}
+
+{% block content %}
+	<div class="container">
+		<div class="row">
+			<h1>Thesis ablehnen</h1>
+		</div>
+
+
+		<!-- thesis summary: refactor to component -->
+
+		<div class="row">
+			<div class="col-md-2">
+		 		Titel:
+		 	</div>
+		 	<div class="col-md-10">
+		 	 	<strong>{{thesis.title}}</strong>
+		 	</div>
+		</div>
+		<br/>
+		<div class="row">
+			<div class="col-md-2">
+		 		Student:
+		 	</div>
+		 	<div class="col-md-10">
+		 		{{thesis.student.first_name}}&nbsp;{{thesis.student.last_name}}
+		 	</div>
+		</div>
+		<br />
+		<div class="row">
+			<div class="col-md-2">
+		 		Erstkorrektor:
+		 	</div>
+		 	<div class="col-md-10">
+		 		{{thesis.supervisor}}
+		 	</div>
+		</div>
+		<div class="row">
+			<div class="col-md-2">
+			 	Zweitkorrektor:
+			 </div>
+			 <div class="col-md-10">
+			 	{% if thesis.assessor %}
+			  		{{thesis.assessor}}
+			  	{% else %}
+			  		<span style="font-style: italic;">nicht festgelegt</span>
+			  	{% endif %}
+			 </div>
+		</div>
+		<br/>
+		<div class="row">
+			<div class="col-md-2">Beginn: </div>
+			<div class="col-md-10">{{thesis.begin_date}}</div>
+		</div>
+		<div class="row">
+			<div class="col-md-2">Abgabe: </div>
+			<div class="col-md-10">
+					{% if thesis.is_prolonged %}
+						<span class="glyphicon glyphicon-time"></span>&nbsp;
+						<span>{{ thesis.prolongation_date }}</span>
+						<span>(verlängert)</span>
+					{% else %}	
+						{{ thesis.due_date }}
+					{% endif %}
+			</div>
+		</div>
+		<br />
+		<form action="/approvals/reject/{{thesis.surrogate_key}}" method="post">
+			{% csrf_token %}
+			<br />
+			<div class="row">
+				<div class="col-md-2">
+					<div class="fieldWrapper">
+			          	{{ form.reason.label_tag }}
+		      		</div>	
+				</div>
+				<div class="col-md-10">
+					<div class="fieldWrapper">
+			            {{ form.reason }}
+			            {{ form.reason.errors }}
+		      		</div>	
+				</div>
+			</div> 
+			<br />
+			<input class="btn btn-success" style="float: left;" type="submit" value="Speichern" />
+		</form>
+    
+    	<form id="form_abort" action="{%url 'index'%}" method="get">
+            <input id="btn_abort" class="btn btn-danger space-left-small" type="submit" value="Abbrechen"/>
+    	</form>
+	</div>
+	
+
+{% endblock content %}
