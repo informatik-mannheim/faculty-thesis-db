@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+
+	</head>
+	<body>
+		Hallo, Welt!
+		{% for thesis in theses %}
+			{{thesis.title}} {{thesis.surrogate_key}}<br />
+		{% endfor %}
+	</body>
+</html>

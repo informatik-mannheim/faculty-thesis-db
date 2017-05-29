@@ -15,7 +15,11 @@
     
     <div class="col-md-4">
       <section class="login-form">
-        <form method="post" action="/accounts/login/" role="login">
+         {% if next %}
+          <form action="/accounts/login/?next={{next}}" method="post" role="login">
+        {% else %}
+          <form action="/accounts/login/" method="post" role="login">
+        {% endif %}
            {% csrf_token %}
 
             {% if form.errors %}
