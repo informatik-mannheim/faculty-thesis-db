@@ -1,15 +1,16 @@
 from django.shortcuts import render, redirect, reverse, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 
 from website.models import Thesis, ExcomChairman
 from approvals.forms import RejectForm
 
 
-@login_required(login_url='/accounts/login/')
-def index(request):
-    if not request.user.is_excom:
-        return redirect(reverse("overview"))
+def is_excom_member(user):
+    return user.is_excom
 
+
+@user_passes_test(is_excom_member, login_url='/accounts/login/')
+def index(request):
     open_theses = Thesis.objects.exclude(excom_status=Thesis.EXCOM_APPROVED)
 
     context = {'theses': open_theses}
@@ -19,7 +20,7 @@ def index(request):
     return render(request, 'approvals/index.html', context)
 
 
-@login_required(login_url='/accounts/login/')
+@user_passes_test(is_excom_member, login_url='/accounts/login/')
 def approve(request, key):
     thesis = get_object_or_404(Thesis, surrogate_key=key)
 
@@ -28,7 +29,7 @@ def approve(request, key):
     return redirect(reverse('index'))
 
 
-@login_required(login_url='/accounts/login/')
+@user_passes_test(is_excom_member, login_url='/accounts/login/')
 def reject(request, key):
     thesis = get_object_or_404(Thesis, surrogate_key=key)
 
