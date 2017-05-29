@@ -16,6 +16,7 @@ class User(AbstractUser):
     initials = models.CharField(max_length=10, blank=True, null=True)
     is_prof = models.BooleanField(default=False)
     is_secretary = models.BooleanField(default=False)
+    is_excom = models.BooleanField(default=False)
 
 
 class ThesisManager(models.Manager):

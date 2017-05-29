@@ -128,6 +128,7 @@ AUTH_LDAP_USER_FLAGS_BY_GROUP = {
     "is_prof": AUTH_LDAP_PROF_DN,
     "is_staff": "cn=staff,ou=groups,dc=informatik,dc=hs-mannheim,dc=de",
     "is_secretary": "cn=sekretariat,ou=groups,dc=informatik,dc=hs-mannheim,dc=de",
+    "is_excom": "cn=excom,ou=groups,dc=informatik,dc=hs-mannheim,dc=de",
 }
 
 AUTH_LDAP_ALWAYS_UPDATE_USER = True
