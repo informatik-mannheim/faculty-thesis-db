@@ -311,7 +311,7 @@ class Thesis(models.Model):
             return self.handed_in_date > self.due_date
 
     def is_approved(self):
-        return not self.status == Thesis.EXCOM_APPROVED
+        return self.excom_status == Thesis.EXCOM_APPROVED
 
     def is_rejected(self):
         return self.excom_status == Thesis.EXCOM_REJECTED
