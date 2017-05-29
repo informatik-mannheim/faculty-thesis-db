@@ -1,13 +1,13 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
-from django.db import connections
+from django.db import models, connections, transaction
 
 from thesispool.settings import AUTH_LDAP_USER_DN_TEMPLATE
 from thesispool.settings import AUTH_LDAP_SERVER_URI
 from thesispool.settings import AUTH_LDAP_PROF_DN
 
+from datetime import datetime
 import ldap
 import uuid
 
@@ -187,6 +187,9 @@ class Thesis(models.Model):
         blank=True,
         null=True,
         max_length=2000)
+    excom_chairman = models.ForeignKey(
+        'ExcomChairman', on_delete=models.CASCADE, blank=True, null=True)
+    excom_approval_date = models.DateField(blank=True, null=True)
     student_contact = models.EmailField(blank=True)
     grade = models.DecimalField(max_digits=2,
                                 decimal_places=1,
@@ -207,23 +210,35 @@ class Thesis(models.Model):
 
     objects = ThesisManager()
 
-    def approve(self):
+    @transaction.atomic
+    def approve(self, user):
         if self.excom_status == Thesis.EXCOM_APPROVED:
             return False
 
-        self.clean_fields()
+        excom_chairman = ExcomChairman.from_user(user)
+        excom_chairman.save()
+
+        self.excom_chairman = excom_chairman
+        self.excom_approval_date = datetime.now().date()
         self.excom_status = Thesis.EXCOM_APPROVED
+
+        self.clean_fields()
         self.save()
 
         return True
 
-    def reject(self, reason):
+    def reject(self, user, reason):
         if self.excom_status > Thesis.APPLIED:
             return False
 
-        self.clean_fields()
+        excom_chairman = ExcomChairman.from_user(user)
+        excom_chairman.save()
+
+        self.excom_chairman = excom_chairman
+
         self.excom_status = Thesis.EXCOM_REJECTED
         self.excom_reject_reason = reason
+        self.clean_fields()
         self.save()
 
         return True
@@ -308,6 +323,32 @@ class Thesis(models.Model):
 
     def __str__(self):
         return "'{0}' ({1})".format(self.title, self.student)
+
+
+class ExcomChairman(models.Model):
+    first_name = models.CharField(max_length=30, verbose_name="Vorname")
+    last_name = models.CharField(max_length=30, verbose_name="Nachname")
+    initials = models.CharField(max_length=10, verbose_name="Kürzel")
+    id = models.CharField(max_length=30, primary_key=True)
+
+    objects = SupervisorManager()
+
+    @classmethod
+    def from_user(cls, user):
+        initials = user.initials if hasattr(user, 'initials') else ""
+
+        return cls(id=user.username,
+                   first_name=user.first_name,
+                   last_name=user.last_name,
+                   initials=initials)
+
+    def __str__(self):
+        return "{0} {1} ({2})".format(
+            self.first_name,
+            self.last_name,
+            self.initials)
+
+    __repr__ = __str__
 
 
 class Supervisor(models.Model):

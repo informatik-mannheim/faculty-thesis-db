@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.contrib.auth.decorators import login_required
 
-from website.models import Thesis
+from website.models import Thesis, ExcomChairman
 from approvals.forms import RejectForm
 
 
@@ -14,6 +14,8 @@ def index(request):
 
     context = {'theses': open_theses}
 
+    print(ExcomChairman.objects.count())
+
     return render(request, 'approvals/index.html', context)
 
 
@@ -21,7 +23,7 @@ def index(request):
 def approve(request, key):
     thesis = get_object_or_404(Thesis, surrogate_key=key)
 
-    thesis.approve()
+    thesis.approve(request.user)
 
     return redirect(reverse('index'))
 
@@ -33,7 +35,7 @@ def reject(request, key):
     if request.POST:
         form = RejectForm(request.POST)
         if form.is_valid():
-            thesis.reject(form.cleaned_data["reason"])
+            thesis.reject(request.user, form.cleaned_data["reason"])
 
             return redirect(reverse('index'))
 
