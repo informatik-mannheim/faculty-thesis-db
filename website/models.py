@@ -295,6 +295,9 @@ class Thesis(models.Model):
         else:
             return self.handed_in_date > self.due_date
 
+    def is_rejected(self):
+        return self.excom_status == Thesis.EXCOM_REJECTED
+
     def clean(self):
         self.clean_fields()
 

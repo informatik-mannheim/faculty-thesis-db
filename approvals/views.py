@@ -10,7 +10,7 @@ def index(request):
     if not request.user.is_excom:
         return redirect(reverse("overview"))
 
-    open_theses = Thesis.objects.filter(excom_status__lte=Thesis.APPLIED)
+    open_theses = Thesis.objects.exclude(excom_status=Thesis.EXCOM_APPROVED)
 
     context = {'theses': open_theses}
 

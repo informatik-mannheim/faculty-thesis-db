@@ -54,15 +54,18 @@
 					</tr>
 					
 					<tr class="{% cycle 'row1' 'row2' %}">
-						<td class="info-row" colspan="1"  style="border-bottom: 1px solid #ddd; border-top:0px">
+						
+						<td class="info-row" colspan="6"  style="border-bottom: 1px solid #ddd; border-top:0px">
 							<a href="{%  url 'approve' thesis.surrogate_key|slugify %}" class="icon-link">
 								<span class="glyphicon glyphicon-ok" title="Genehmigen" style="margin-left: 2px; color: green;"></span>
 							</a>
+							{% if not thesis.is_rejected %}
 							<a href="{% url 'reject' thesis.surrogate_key|slugify %}" class="icon-link">
 								<span class="glyphicon glyphicon-remove" title="Ablehnen" style="margin-left: 20px; color: red;"></span>
 							</a>
-						</td>
-						<td colspan="5" style="border-bottom: 1px solid #ddd; border-top:0px">
+							{% else %}
+								&nbsp;&nbsp;<span style="color:red">Thesis abgelehnt:&nbsp;</span><span style="font-style:italic;">{{thesis.excom_reject_reason}}</span>
+							{% endif %}
 						</td>
 					</tr>
 					
