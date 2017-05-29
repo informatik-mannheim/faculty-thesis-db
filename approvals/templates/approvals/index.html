@@ -1,12 +1,75 @@
-<!DOCTYPE html>
-<html lang="de">
-	<head>
+{% extends 'website/base.html' %}
+{% load static %}
 
-	</head>
-	<body>
-		Hallo, Welt!
-		{% for thesis in theses %}
-			{{thesis.title}} {{thesis.surrogate_key}}<br />
-		{% endfor %}
-	</body>
-</html>
+{% block content %}
+		<div class="col-md-10 col-md-offset-1">
+		<div style="height:40px; margin-bottom: 30px">
+			<div style="display: inline-block; vertical-align: middle">
+				<h2>Offene Abschlussarbeiten</h2>
+			</div>	
+		</div>
+
+		<table class="ui celled table">
+			<thead>
+				<tr>
+					<th>Abgabedatum</span></th>
+					<th>Status</th>
+					<th>Student</th>
+					<th>Thema</th>
+					<th>Erstkorrektor</th>
+					<th>Zweitkorrektor</th>
+				</tr>
+			</thead>
+			
+			<tbody>
+					{% for thesis in theses %}
+				
+					<tr class="{% cycle 'row1' 'row2' %} {{thesis.is_graded|yesno:'tr-inactive,,'}}" style="height: 80px;">
+						<td>{{thesis.due_date}}</td>
+						<td>
+							<span>{{thesis.get_status_display}}</span>
+							
+							{% if thesis.is_graded %}
+								<span class="badge">
+									{{thesis.grade}}
+								</span>
+							{% elif thesis.is_prolonged %}
+								<div style="margin-top: 10px; font-size: 16px;">
+									<span class="glyphicon glyphicon-time"></span>&nbsp;
+									<span>{{thesis.prolongation_date}}</span>
+								</div>
+							{% endif %}
+
+
+						</td>
+						<td>{{thesis.student}}</td>
+						<td>{{thesis.title}}</td>
+						<td>{{thesis.supervisor}}</td>
+						{% if thesis.assessor %}
+							<td>{{thesis.assessor.first_name}} {{thesis.assessor.last_name}}</td>
+						{% else %}
+							<td> <i>nicht festgelegt</i></td>
+						{% endif %}
+						
+					</tr>
+					
+					<tr class="{% cycle 'row1' 'row2' %}">
+						<td class="info-row" colspan="1"  style="border-bottom: 1px solid #ddd; border-top:0px">
+							<a href="{%  url 'approve' thesis.surrogate_key|slugify %}" class="icon-link">
+								<span class="glyphicon glyphicon-ok" title="Genehmigen" style="margin-left: 2px; color: green;"></span>
+							</a>
+							
+							<a href="{% url 'reject' thesis.surrogate_key|slugify %}" class="icon-link">
+								<span class="glyphicon glyphicon-remove" title="Ablehnen" style="margin-left: 20px; color: red;"></span>
+							</a>
+						</td>
+						<td colspan="5" style="border-bottom: 1px solid #ddd; border-top:0px">
+						</td>
+					</tr>
+					
+
+					{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endblock content %}

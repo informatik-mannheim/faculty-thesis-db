@@ -9,7 +9,15 @@ def index(request):
     if not request.user.is_excom:
         return redirect(reverse("overview"))
 
-    print("Secretary: {0}".format(request.user.is_secretary))
-    print("Excom: {0}".format(request.user.is_excom))
     context = {'theses': Thesis.objects.all()}
     return render(request, 'approvals/index.html', context)
+
+
+@login_required(login_url='/accounts/login/')
+def approve(request, key):
+    return redirect(reverse('index'))
+
+
+@login_required(login_url='/accounts/login/')
+def reject(request, key):
+    return redirect(reverse('index'))
