@@ -149,6 +149,11 @@ class AbstractPDF(object):
         else:
             xfdf.uncheck("AbgabeMitVerlängerung")
 
+        if self.thesis.is_approved():
+            xfdf.add_field("DatumPA", self.__date_format(
+                self.thesis.excom_approval_date))
+            xfdf.add_field("KürzelPA", self.thesis.excom_chairman.initials)
+
         if self.thesis.is_late():
             xfdf.check("AbgabeVerspätet")
             xfdf.uncheck("AbgabeTermingerecht")
