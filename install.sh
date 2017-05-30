@@ -43,5 +43,3 @@ a2ensite thesispool
 a2ensite thesispool_ssl
 
 systemctl restart apache2
-
-# certificate ca-cert in /etc/ssl/certs/ca-certificats einfügen
