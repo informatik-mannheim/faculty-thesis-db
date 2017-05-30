@@ -20,7 +20,7 @@ apt-get install -y python3 apache2 python3-setuptools python3-pip libsasl2-dev l
 pip3 install -U pip
 
 #install django, LDAP backend, xsendfile and datetutil
-pip3 install pyldap django django_auth_ldap python-dateutil django_sendfile
+pip3 install pyldap django django_auth_ldap python-dateutil django_sendfile mysqlclient
 
 # enable file sending in apache (to send pdfs)
 a2enmod xsendfile
@@ -32,8 +32,8 @@ python3 manage.py collectstatic --no-input
 cp conf/thesispool.conf /etc/apache2/sites-available/
 cp conf/thesispool_ssl.conf /etc/apache2/sites-available/
 
-chown wwwrun: /var/www/thesispool
-chown wwwrun: /var/www/thesispool/db.sqlite3
+chown www-data /var/www/thesispool/
+chown www-data /var/www/thesispool/db.sqlite3
 
 systemctl restart apache2
 
