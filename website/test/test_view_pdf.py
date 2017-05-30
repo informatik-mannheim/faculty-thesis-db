@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from django.http import FileResponse
 from django.urls import reverse
 
 from datetime import datetime
@@ -27,7 +26,6 @@ class ViewPdfTests(LoggedInTestCase):
             datetime.now().strftime("%Y%m%d"), 'ausgabe', thesis.student.id)
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(FileResponse, type(response))
         self.assertEqual('application/pdf',
                          response._headers['content-type'][1])
         self.assertIn(expected_filename, response._headers[
@@ -51,7 +49,6 @@ class ViewPdfTests(LoggedInTestCase):
             thesis.student.id)
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(FileResponse, type(response))
         self.assertEqual('application/pdf',
                          response._headers['content-type'][1])
         self.assertIn(expected_filename, response._headers[
@@ -73,7 +70,6 @@ class ViewPdfTests(LoggedInTestCase):
             datetime.now().strftime("%Y%m%d"), 'bewertung', thesis.student.id)
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(FileResponse, type(response))
         self.assertEqual('application/pdf',
                          response._headers['content-type'][1])
         self.assertIn(expected_filename, response._headers[
