@@ -10,25 +10,31 @@ then
 	exit 1; 
 fi
 
+# upgrade system
+apt-get update && apt-get upgrade -y
+
 # install packages
-apt-get install -y python3 apache2 python3-setuptools python3-pip libsasl2-dev ibapache2-mod-wsgi-py3 libldap2-dev libssl-dev
+apt-get install -y python3 apache2 python3-setuptools python3-pip libsasl2-dev libapache2-mod-wsgi-py3 libldap2-dev libssl-dev libapache2-mod-xsendfile libmysqlclient-dev mysql-client
+
 # update pip
 pip3 install -U pip
-pip3 install pyldap
 
-#install django and the LDAP backend
-pip3 install django django_auth_ldap 
+#install django, LDAP backend, xsendfile and datetutil
+pip3 install pyldap django django_auth_ldap python-dateutil django_sendfile
 
-# used for pdf sending
-pip3 install django_sendfile
-pip3 install python-dateutil
+# enable file sending in apache (to send pdfs)
+a2enmod xsendfile
 
 # make db and folder above it owned by www-data
-# collectstatic
-# apt-get install libmysqlclient-dev
-# apt-get install mysqlclient
+python3 manage.py migrate
+python3 manage.py collectstatic --no-input
 
-# for pdf sending
-# sudo apt-get install libapache2-mod-xsendfile
-# a2enmod xsendfile
+cp conf/thesispool.conf /etc/apache2/sites-available/
+cp conf/thesispool_ssl.conf /etc/apache2/sites-available/
+
+chown wwwrun: /var/www/thesispool
+chown wwwrun: /var/www/thesispool/db.sqlite3
+
+systemctl restart apache2
+
 # certificate ca-cert in /etc/ssl/certs/ca-certificats einfügen
