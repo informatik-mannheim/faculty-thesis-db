@@ -14,7 +14,7 @@ fi
 apt-get update && apt-get upgrade -y
 
 # install packages
-apt-get install -y python3 apache2 python3-setuptools python3-pip libsasl2-dev libapache2-mod-wsgi-py3 libldap2-dev libssl-dev libapache2-mod-xsendfile libmysqlclient-dev mysql-client
+apt-get install -y python3 apache2 python3-setuptools python3-pip libsasl2-dev libapache2-mod-wsgi-py3 libldap2-dev libssl-dev libapache2-mod-xsendfile libmysqlclient-dev mysql-client pdftk
 
 # update pip
 pip3 install -U pip
