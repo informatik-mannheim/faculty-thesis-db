@@ -35,6 +35,10 @@ cp conf/thesispool_ssl.conf /etc/apache2/sites-available/
 chown www-data /var/www/thesispool/
 chown www-data /var/www/thesispool/db.sqlite3
 
+a2dissite 000-default
+a2ensite thesispool
+a2ensite thesispool_ssl
+
 systemctl restart apache2
 
 # certificate ca-cert in /etc/ssl/certs/ca-certificats einfügen
