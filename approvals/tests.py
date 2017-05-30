@@ -1,14 +1,10 @@
 from django.test import TestCase, Client
-from django.test.utils import setup_test_environment
 from django.urls import reverse
 
 import uuid
 
 from website.models import *
 from website.test.test import ThesisStub, LoggedInTestCase
-
-
-setup_test_environment()
 
 
 class ApprovalViewTests(LoggedInTestCase):

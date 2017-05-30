@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.test import TestCase
-from django.test.utils import setup_test_environment
 
 from datetime import date
 
 from website.models import *
 from website.forms import ThesisApplicationForm
 from website.test.test import ThesisStub
-
-setup_test_environment()
 
 
 class FormThesisApplicationTests(TestCase):

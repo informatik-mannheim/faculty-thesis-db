@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from django.test.utils import setup_test_environment
 from django.urls import reverse
 
 from website.models import Thesis
@@ -8,9 +7,6 @@ from website.test.test import LoggedInTestCase, ThesisStub
 
 import uuid
 from datetime import timedelta, date
-
-
-setup_test_environment()
 
 
 class ViewProlongationTests(LoggedInTestCase):

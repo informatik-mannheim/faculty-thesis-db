@@ -2,11 +2,7 @@
 # -*- coding: utf-8 -*-
 from website.models import User
 from django.test import TestCase, Client
-from django.test.utils import setup_test_environment
 from django.urls import reverse
-
-
-setup_test_environment()
 
 
 class LoginViewTests(TestCase):

@@ -1,14 +1,10 @@
 from django.test import TestCase
-from django.test.utils import setup_test_environment
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from datetime import datetime, date
 
 from website.models import *
 from decimal import Decimal
-
-
-setup_test_environment()
 
 
 class ThesisModelTests(TestCase):

@@ -2,12 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from django.test import TestCase
-from django.test.utils import setup_test_environment
 
 from website.forms import SupervisorsForm
 from website.models import Supervisor
-
-setup_test_environment()
 
 
 class SupervisorsFormTests(TestCase):

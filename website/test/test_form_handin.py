@@ -2,14 +2,11 @@
 # -*- coding: utf-8 -*-
 
 from django.test import TestCase
-from django.test.utils import setup_test_environment
 
 from datetime import date
 
 from website.models import *
 from website.forms import HandInForm
-
-setup_test_environment()
 
 
 class FormHandInTests(TestCase):

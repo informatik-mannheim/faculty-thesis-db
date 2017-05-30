@@ -1,16 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.http import FileResponse
-from django.test.utils import setup_test_environment
 from django.urls import reverse
 
 from datetime import datetime
 
 from website.models import *
 from website.test.test import ThesisStub, LoggedInTestCase
-
-
-setup_test_environment()
 
 
 class ViewPdfTests(LoggedInTestCase):

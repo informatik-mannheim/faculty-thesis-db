@@ -1,11 +1,7 @@
 from django.test import TestCase, Client
-from django.test.utils import setup_test_environment
 from django.urls import reverse
 
 from website.models import Student, User
-
-
-setup_test_environment()
 
 
 class ViewFindStudentTests(TestCase):

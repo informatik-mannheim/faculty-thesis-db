@@ -2,15 +2,11 @@
 # -*- coding: utf-8 -*-
 
 from django.test import TestCase
-from django.test.utils import setup_test_environment
 
 from datetime import datetime, date, timedelta
 
 from website.forms import ProlongationForm
 from website.models import Thesis
-
-
-setup_test_environment()
 
 
 class FormProlongationTests(TestCase):

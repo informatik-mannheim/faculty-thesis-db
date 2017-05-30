@@ -1,4 +1,3 @@
-from django.test.utils import setup_test_environment
 from django.urls import reverse
 
 from datetime import date
@@ -6,9 +5,6 @@ import uuid
 
 from website.models import Thesis
 from website.test.test import LoggedInTestCase, ThesisStub
-
-
-setup_test_environment()
 
 
 class ViewChangeTests(LoggedInTestCase):

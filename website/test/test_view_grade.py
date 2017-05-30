@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from django.test.utils import setup_test_environment
 from django.urls import reverse
 
 from datetime import date
@@ -9,9 +8,6 @@ import uuid
 
 from website.test.test import LoggedInTestCase, ThesisStub
 from website.models import *
-
-
-setup_test_environment()
 
 
 class ViewGradeTests(LoggedInTestCase):

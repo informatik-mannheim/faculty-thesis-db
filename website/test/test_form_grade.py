@@ -1,16 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.test import TestCase
-from django.test.utils import setup_test_environment
 
 from datetime import date
 from decimal import Decimal
 
 from website.models import Thesis
 from website.forms import GradeForm
-
-
-setup_test_environment()
 
 
 class GradeFormTests(TestCase):

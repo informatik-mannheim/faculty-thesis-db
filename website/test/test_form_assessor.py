@@ -2,12 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from django.test import TestCase
-from django.test.utils import setup_test_environment
 
 from website.forms import AssessorForm
-
-
-setup_test_environment()
 
 
 class AssessorFormTests(TestCase):

@@ -1,4 +1,3 @@
-from django.test.utils import setup_test_environment
 from django.urls import reverse
 
 from datetime import date
@@ -6,8 +5,6 @@ from decimal import Decimal
 
 from website.models import *
 from website.test.test import LoggedInTestCase, ThesisStub
-
-setup_test_environment()
 
 
 class ViewOverviewTests(LoggedInTestCase):
