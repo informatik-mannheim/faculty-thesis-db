@@ -124,6 +124,7 @@ AUTH_LDAP_USER_ATTR_MAP = {"first_name": "givenName",
 
 AUTH_LDAP_PROF_DN = "cn=profI,ou=groups,dc=informatik,dc=hs-mannheim,dc=de"
 
+# map group permissions
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {
     "is_prof": AUTH_LDAP_PROF_DN,
     "is_staff": "cn=staff,ou=groups,dc=informatik,dc=hs-mannheim,dc=de",

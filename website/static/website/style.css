@@ -11,6 +11,18 @@
 .secondary-text-color  { color: #757575; }
 .divider-color         { border-color: #BDBDBD; }
 
+.green {
+	color: green;
+}
+
+.red {
+	color: red;
+}
+
+.italic {
+	font-style: italic;
+}
+
 .inline {
 	display: inline-block;
 }

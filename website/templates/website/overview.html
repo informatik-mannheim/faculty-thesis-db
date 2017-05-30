@@ -73,28 +73,40 @@
 					
 					<tr class="{% cycle 'row1' 'row2' %}">
 						{% if not thesis.is_graded %}
-						<td class="info-row" colspan="1"  style="border-bottom: 1px solid #ddd; border-top:0px">
-							<a href="{%  url 'change' thesis.surrogate_key|slugify %}" class="icon-link">
-								<span class="glyphicon glyphicon-pencil" title="Ändern" style="margin-left: 2px;"></span>
-							</a>
-							{% if not thesis.is_handed_in %}
-							<a href="{% url 'prolong' thesis.surrogate_key|slugify %}" class="icon-link">
-								<span class="glyphicon glyphicon-hourglass" title="Verlängern" style="margin-left: 20px;"></span>
-							</a>
-							<a href="{% url 'handin' thesis.surrogate_key|slugify %}" class="icon-link">
-								<span class="glyphicon glyphicon-envelope" title="Einreichen" style="margin-left: 20px;"></span>
-							</a>
-							{% endif %}
-							<a href="{% url 'grade' thesis.surrogate_key|slugify %}" class="icon-link">
-								<span class="glyphicon glyphicon-education" title="Benoten" style="margin-left: 20px;"></span>
-							</a>
-						</td>
-						<td colspan="5" style="border-bottom: 1px solid #ddd; border-top:0px">
-						</td>
+
+							<!-- actions for thesis -->
+
+							<td class="info-row" colspan="1"  style="border-bottom: 1px solid #ddd; border-top:0px">
+								<a href="{%  url 'change' thesis.surrogate_key|slugify %}" class="icon-link">
+									<span class="glyphicon glyphicon-pencil" title="Ändern" style="margin-left: 2px;"></span>
+								</a>
+								{% if not thesis.is_handed_in %}
+								<a href="{% url 'prolong' thesis.surrogate_key|slugify %}" class="icon-link">
+									<span class="glyphicon glyphicon-hourglass" title="Verlängern" style="margin-left: 20px;"></span>
+								</a>
+								<a href="{% url 'handin' thesis.surrogate_key|slugify %}" class="icon-link">
+									<span class="glyphicon glyphicon-envelope" title="Einreichen" style="margin-left: 20px;"></span>
+								</a>
+								{% endif %}
+								<a href="{% url 'grade' thesis.surrogate_key|slugify %}" class="icon-link">
+									<span class="glyphicon glyphicon-education" title="Benoten" style="margin-left: 20px;"></span>
+								</a>
+							</td>
+
+							<!-- excom status line -->
+
+							<td colspan="5" style="border-bottom: 1px solid #ddd; border-top:0px">
+								{% if thesis.is_approved %}
+										<span class="green italic">angenommen</span>
+								{% elif thesis.is_rejected %}
+										<span class="red italic">abgelehnt:&nbsp;</span>
+										<span class="italic">{{thesis.excom_reject_reason}}</span>
+								{% else %}
+										<span class="italic">offen</span>
+								{% endif %}
+							</td>
 						{% endif %}
 					</tr>
-					
-
 					{% endfor %}
 			</tbody>
 		</table>
