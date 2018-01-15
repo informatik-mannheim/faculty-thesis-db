@@ -4,11 +4,14 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 from datetime import timedelta
+from datetime import datetime
 
 from website.models import *
 
 from website.util import dateutil
 
+# List of years for SelectDateWidget to allow years in the past
+YEARS = [ x for x in range(datetime.now().year - 2, datetime.now().year + 2) ]
 
 class ThesisForm(ModelForm):
 
@@ -20,7 +23,7 @@ class ThesisForm(ModelForm):
 class HandInForm(forms.Form):
     handed_in_date = forms.DateField(label="Abgabedatum",
                                      required=True,
-                                     widget=forms.SelectDateWidget)
+                                     widget=forms.SelectDateWidget(years=YEARS))
 
     restriction_note = forms.BooleanField(label="Sperrvermerk",
                                           required=False)
@@ -99,11 +102,11 @@ class GradeForm(forms.Form):
     restriction_note = forms.BooleanField(label="Sperrvermerk", required=False)
 
     examination_date = forms.DateField(
-        widget=forms.SelectDateWidget,
+        widget=forms.SelectDateWidget(years=YEARS),
         label="Kolloquiumsdatum")
 
     handed_in_date = forms.DateField(
-        widget=forms.SelectDateWidget,
+        widget=forms.SelectDateWidget(years=YEARS),
         label="Abgabedatum",
         required=True)
 
@@ -196,11 +199,11 @@ class ThesisApplicationForm(forms.Form):
                                        'autofocus': 'autofocus'}))
 
     begin_date = forms.DateField(
-        widget=forms.SelectDateWidget,
+        widget=forms.SelectDateWidget(years=YEARS),
         label="Beginn")
 
     due_date = forms.DateField(
-        widget=forms.SelectDateWidget,
+        widget=forms.SelectDateWidget(years=YEARS),
         label="Abgabe")
 
     external = forms.BooleanField(
