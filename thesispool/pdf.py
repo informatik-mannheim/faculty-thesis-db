@@ -110,8 +110,7 @@ class AbstractPDF(object):
         """Generate XFDF data used in PDF form data population"""
         xfdf = XFDF("On")
 
-        xfdf.add_field("Vorname", self.thesis.student.first_name)
-        xfdf.add_field("Name", self.thesis.student.last_name)
+        xfdf.add_field("NameVorname", self.thesis.student.last_name + ", " + self.thesis.student.first_name)
         xfdf.add_field("BeginnDerArbeit",
                        self.__date_format(self.thesis.begin_date))
         xfdf.add_field("AbgabeDerArbeit",
@@ -119,8 +118,17 @@ class AbstractPDF(object):
         xfdf.add_field("MatrNr", self.thesis.student.id)
         xfdf.add_field("Titel", self.thesis.title)
         xfdf.add_field("EMail", self.thesis.student_contact)
-        xfdf.add_field("Studiengang", self.thesis.student.program)
+        xfdf.add_field("Studiengang", "Fakultät für Informatik / " + self.thesis.student.program)
         xfdf.add_field("KürzelErstkorrektor", self.thesis.supervisor.initials)
+        xfdf.add_field("NameErstkorrektor", self.thesis.supervisor.short_name)
+
+        # Todo: Check why self.thesis.student.is_master does not work here
+        if self.thesis.student.program == 'IM':
+            xfdf.check("MasterThesis")
+            xfdf.uncheck("BachelorThesis")
+        else:
+            xfdf.check("BachelorThesis")
+            xfdf.uncheck("MasterThesis")
 
         if self.thesis.assessor:
             xfdf.add_field("NameZweitkorrektor",
@@ -144,6 +152,11 @@ class AbstractPDF(object):
                            self.thesis.prolongation_reason)
             xfdf.add_field("VerlängerungUmWochen",
                            self.thesis.prolongation_weeks)
+            xfdf.check("ZeitraumWochen")
+            xfdf.uncheck("ZeitraumTage")
+            xfdf.uncheck("ZeitraumMonate")
+            xfdf.check("ZustimmungProfJa")
+            xfdf.uncheck("ZustimmungProfNein")
             xfdf.add_field("DatumAbgabeNeu", self.__date_format(
                 self.thesis.prolongation_date))
         else:
@@ -168,6 +181,8 @@ class AbstractPDF(object):
         if self.thesis.examination_date:
             xfdf.add_field("DatumKolloquium",
                            self.__date_format(self.thesis.examination_date))
+            xfdf.check("KolloquiumErfolgreich")
+            xfdf.uncheck("KolloquiumErfolgreichMitNote")
 
         if self.thesis.restriction_note:
             xfdf.check("Sperrvermerk")

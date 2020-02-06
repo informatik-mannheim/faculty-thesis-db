@@ -371,6 +371,10 @@ class Supervisor(models.Model):
                    last_name=user.last_name,
                    initials=initials)
 
+    @property
+    def short_name(self):
+        return "{0}.{1}".format(self.first_name[0], self.last_name)
+
     def __str__(self):
         return "{0} {1} ({2})".format(
             self.first_name,
