@@ -16,11 +16,14 @@ apt-get update && apt-get upgrade -y
 # install packages
 apt-get install -y python3 apache2 python3-setuptools python3-pip libsasl2-dev libapache2-mod-wsgi-py3 libldap2-dev libssl-dev libapache2-mod-xsendfile libmysqlclient-dev mysql-client pdftk
 
+# install jdk11 to fix error when using pdftk
+apt-get install openjdk-11-jdk
+
 # update pip
 pip3 install -U pip
 
-#install django, LDAP backend, xsendfile and datetutil
-pip3 install pyldap django django_auth_ldap python-dateutil django_sendfile mysqlclient
+# install django, LDAP backend, xsendfile and datetutil
+pip3 install pyldap django django_auth_ldap python-dateutil django_sendfile2 mysqlclient
 
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/apache.key -out /etc/ssl/certs/apache.crt -subj "/C=DE/ST=Bawue/L=Mannheim/O=HS Mannheim/OU=IT/CN=hs-mannheim.de"
 
