@@ -68,7 +68,20 @@
 		            {{ form.grade.errors }}
 	      		</div>	
 			</div>
-		</div> 
+		</div>
+        <div class="row">
+			<div class="col-md-2">
+				<div class="fieldWrapper">
+		          	{{ form.second_grade.label_tag }}
+	      		</div>
+			</div>
+			<div class="col-md-10">
+				<div class="fieldWrapper">
+		            {{ form.second_grade }}
+		            {{ form.second_grade.errors }}
+	      		</div>
+			</div>
+		</div>
 		<br />
 		<div style="display: {{thesis.handed_in_date|yesno:'none,visible'}}">
 			<div class="row">
