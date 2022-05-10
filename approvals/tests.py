@@ -57,7 +57,10 @@ class ApprovalTests(TestCase):
             "/approvals/approve/{0}".format(self.thesis.surrogate_key),
             follow=True)
 
+        thesis = Thesis.objects.first()
+
         self.assertEqual(200, response.status_code)
+        self.assertTrue(thesis.is_approved())
         self.assertEqual(0, len(response.context["theses"]))
 
     def test_can_reject_thesis(self):
