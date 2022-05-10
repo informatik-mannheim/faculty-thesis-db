@@ -39,7 +39,7 @@ class ViewOverviewTests(LoggedInTestCase):
     def test_no_operations_possible_for_graded_thesis(self):
         thesis = ThesisStub.applied(self.supervisor)
         thesis.save()
-        thesis.assign_grade(Decimal("1.3"), date(2020, 3, 1))
+        thesis.assign_grade(Decimal("1.3"), None, date(2020, 3, 1))
 
         response = self.client.get(reverse('overview'))
 

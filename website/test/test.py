@@ -29,7 +29,8 @@ class ThesisStub(object):
                         title="Eine einzelne Thesis",
                         begin_date=datetime.now().date(),
                         due_date=date(2018, 1, 30),
-                        status=Thesis.APPLIED)
+                        status=Thesis.APPLIED,
+                        restriction_note = False)
 
         return thesis
 

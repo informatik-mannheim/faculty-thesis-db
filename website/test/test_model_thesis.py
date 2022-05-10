@@ -187,7 +187,7 @@ class ThesisModelTests(TestCase):
 
         self.assertEqual(thesis.status, Thesis.APPLIED)
 
-        result = thesis.assign_grade(grade, examination_date)
+        result = thesis.assign_grade(grade, None, examination_date)
 
         thesis = Thesis.objects.first()
 
@@ -213,7 +213,7 @@ class ThesisModelTests(TestCase):
 
         self.assertEqual(thesis.status, Thesis.APPLIED)
 
-        result = thesis.assign_grade(grade, examination_date)
+        result = thesis.assign_grade(grade, None, examination_date)
 
         thesis = Thesis.objects.first()
 
@@ -239,7 +239,7 @@ class ThesisModelTests(TestCase):
 
         self.assertEqual(thesis.status, Thesis.APPLIED)
 
-        result = thesis.assign_grade(grade, examination_date)
+        result = thesis.assign_grade(grade, None, examination_date)
 
         thesis = Thesis.objects.first()
 
@@ -265,7 +265,7 @@ class ThesisModelTests(TestCase):
 
         self.assertEqual(thesis.status, Thesis.APPLIED)
         with self.assertRaises(ValidationError):
-            result = thesis.assign_grade(grade, examination_date)
+            result = thesis.assign_grade(grade, None, examination_date)
 
             thesis = Thesis.objects.first()
 
@@ -292,7 +292,7 @@ class ThesisModelTests(TestCase):
 
         for grade in grades:
             with self.assertRaises(ValidationError):
-                result = thesis.assign_grade(Decimal(grade), examination_date)
+                result = thesis.assign_grade(Decimal(grade), None, examination_date)
 
                 thesis = Thesis.objects.first()
 
@@ -316,13 +316,13 @@ class ThesisModelTests(TestCase):
         grade = Decimal("1.1")
         examination_date = date(2018, 3, 29)
 
-        result = thesis.assign_grade(grade, examination_date)
+        result = thesis.assign_grade(grade, None, examination_date)
 
         self.assertEqual(Thesis.objects.first().grade, grade)
         self.assertEqual(Thesis.objects.first().status, Thesis.GRADED)
         self.assertTrue(result)
 
-        result = thesis.assign_grade(Decimal("5.0"), examination_date)
+        result = thesis.assign_grade(Decimal("5.0"), None, examination_date)
 
         self.assertEqual(Thesis.objects.first().grade, grade)
         self.assertEqual(Thesis.objects.first().status, Thesis.GRADED)
@@ -337,7 +337,8 @@ class ThesisModelTests(TestCase):
                         title="Some title",
                         status=Thesis.APPLIED,
                         begin_date=datetime(2018, 1, 30),
-                        due_date=datetime(2018, 6, 30))
+                        due_date=datetime(2018, 6, 30),
+                        restriction_note = False)
 
         thesis.save()
 
@@ -361,7 +362,8 @@ class ThesisModelTests(TestCase):
                         title="Some title",
                         status=Thesis.APPLIED,
                         begin_date=datetime(2018, 1, 30),
-                        due_date=datetime(2018, 6, 30))
+                        due_date=datetime(2018, 6, 30),
+                        restriction_note = False)
 
         thesis.save()
 

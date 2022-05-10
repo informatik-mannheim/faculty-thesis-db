@@ -31,7 +31,8 @@ class ViewChangeTests(LoggedInTestCase):
                         title="Eine einzelne Thesis",
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 3, 30),
-                        status=Thesis.APPLIED)
+                        status=Thesis.APPLIED,
+                        restriction_note = False)
 
         new_values = {
             'title': 'Ein ganz anderer Titel',

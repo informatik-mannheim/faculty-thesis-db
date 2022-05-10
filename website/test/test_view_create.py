@@ -7,6 +7,7 @@ from website.models import Student, Thesis, User, Supervisor
 
 
 class ViewCreateTests(TestCase):
+    databases = {'default', 'faculty'}
 
     def send(self, post_data):
         return self.client.post(

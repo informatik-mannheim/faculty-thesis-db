@@ -27,15 +27,14 @@ class TestPDF(TestCase):
         date_format = "%d.%m.%Y"
 
         self.assertEqual(xfdf.fields["Titel"], thesis.title)
-        self.assertEqual(xfdf.fields["Name"], thesis.student.last_name)
-        self.assertEqual(xfdf.fields["Vorname"], thesis.student.first_name)
+        self.assertEqual(xfdf.fields["NameVorname"], thesis.student.last_name + ", " + thesis.student.first_name)
         self.assertEqual(xfdf.fields["BeginnDerArbeit"],
                          thesis.begin_date.strftime(date_format))
         self.assertEqual(xfdf.fields["AbgabeDerArbeit"],
                          thesis.due_date.strftime(date_format))
         self.assertEqual(xfdf.fields["MatrNr"], thesis.student.id)
         self.assertEqual(xfdf.fields["EMail"], thesis.student_contact)
-        self.assertEqual(xfdf.fields["Studiengang"], thesis.student.program)
+        self.assertEqual(xfdf.fields["Studiengang"], "Fakultät für Informatik / " + thesis.student.program)
         self.assertEqual(
             xfdf.fields["KürzelErstkorrektor"], supervisor.initials)
         self.assertEqual(

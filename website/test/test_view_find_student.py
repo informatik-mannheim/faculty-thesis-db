@@ -5,6 +5,7 @@ from website.models import Student, User
 
 
 class ViewFindStudentTests(TestCase):
+    databases = {'default', 'faculty'}
 
     def setUp(self):
         user = User(username="t.smits", password="pass")

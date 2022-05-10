@@ -27,9 +27,9 @@ class ViewPdfTests(LoggedInTestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual('application/pdf',
-                         response._headers['content-type'][1])
-        self.assertIn(expected_filename, response._headers[
-                      'content-disposition'][1])
+                         response.headers['content-type'])
+        self.assertIn(expected_filename, response.headers[
+                      'content-disposition'])
 
     def test_generates_prolongation_pdf(self):
         supervisor = Supervisor(
@@ -50,9 +50,9 @@ class ViewPdfTests(LoggedInTestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual('application/pdf',
-                         response._headers['content-type'][1])
-        self.assertIn(expected_filename, response._headers[
-                      'content-disposition'][1])
+                         response.headers['content-type'])
+        self.assertIn(expected_filename, response.headers[
+                      'content-disposition'])
 
     def test_generates_grading_pdf(self):
         supervisor = Supervisor(
@@ -71,6 +71,6 @@ class ViewPdfTests(LoggedInTestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual('application/pdf',
-                         response._headers['content-type'][1])
-        self.assertIn(expected_filename, response._headers[
-                      'content-disposition'][1])
+                         response.headers['content-type'])
+        self.assertIn(expected_filename, response.headers[
+                      'content-disposition'])
