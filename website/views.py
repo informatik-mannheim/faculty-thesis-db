@@ -3,13 +3,21 @@ from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse, get_object_or_404
-from sendfile import sendfile
+
+from django_sendfile import sendfile
 
 from website.forms import *
 from website.models import *
 from thesispool.pdf import *
+from django.contrib.auth.views import LoginView
+from django.urls import reverse_lazy
 
 User = get_user_model()
+
+class ThesispoolLoginView(LoginView):
+    models = User
+    template_name = 'website/login.html'
+    next_page = reverse_lazy('overview')
 
 
 def index(request):
@@ -93,11 +101,11 @@ class PdfView(View):
     type = None
 
     def send(self, request, pdf):
-        """Call xsendfile wrapper to send PDF (in attachment mode)"""
-        return sendfile(request,
-                        pdf.path,
-                        attachment=True,
-                        attachment_filename=pdf.filename)
+       """Call xsendfile wrapper to send PDF (in attachment mode)"""
+       return sendfile(request,
+                       pdf.path,
+                       attachment=True,
+                       attachment_filename=pdf.filename)
 
     def get(self, request, *args, **kwargs):
         """Create PDF of requested type (passed by urls.py) for selected thesis

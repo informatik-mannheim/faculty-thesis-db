@@ -33,42 +33,44 @@ class SupervisorManager(models.Manager):
     def fetch_supervisor(self, uid, con=None):
         need_unbind = False
 
-        if not con:
+        try:
             con = ldap.initialize(AUTH_LDAP_SERVER_URI, trace_level=0)
             con.start_tls_s()
             need_unbind = True
-
-        dn = AUTH_LDAP_USER_DN_TEMPLATE % {'user': uid}
-
-        results = con.search_s(dn, ldap.SCOPE_SUBTREE, "(objectClass=*)")
-
-        try:
-            entity = results[0][1]
-            return Supervisor(first_name=entity["givenName"][0].decode(),
-                              last_name=entity["sn"][0].decode(),
-                              initials=entity["initials"][0].decode(),
-                              id=entity["uid"][0].decode())
-        except Exception:
-            return None
-
         finally:
-            if need_unbind:
-                con.unbind()
+
+            dn = AUTH_LDAP_USER_DN_TEMPLATE % {'user': uid}
+
+            results = con.search_s(dn, ldap.SCOPE_SUBTREE, "(objectClass=*)")
+
+            try:
+                entity = results[0][1]
+                return Supervisor(first_name=entity["givenName"][0].decode(),
+                                  last_name=entity["sn"][0].decode(),
+                                  initials=entity["initials"][0].decode(),
+                                  id=entity["uid"][0].decode())
+            except Exception:
+                return None
+
+            finally:
+                if need_unbind:
+                    con.unbind()
 
     def fetch_supervisors_from_ldap(self):
         con = ldap.initialize(AUTH_LDAP_SERVER_URI, trace_level=0)
+        
+        try:
+            con.start_tls_s()
+        finally:
+            _, entry = con.search_s(AUTH_LDAP_PROF_DN, ldap.SCOPE_BASE)[0]
 
-        con.start_tls_s()
+            uids = [uid.decode() for uid in entry['memberUid']]
 
-        _, entry = con.search_s(AUTH_LDAP_PROF_DN, ldap.SCOPE_BASE)[0]
+            supervisors = [self.fetch_supervisor(uid, con) for uid in uids]
 
-        uids = [uid.decode() for uid in entry['memberUid']]
+            con.unbind()
 
-        supervisors = [self.fetch_supervisor(uid, con) for uid in uids]
-
-        con.unbind()
-
-        return [s for s in supervisors if s is not None]
+            return [s for s in supervisors if s is not None]
 
 
 class StudentManager(models.Manager):
@@ -198,6 +200,13 @@ class Thesis(models.Model):
                                 validators=[
                                     MinValueValidator(1.0),
                                     MaxValueValidator(5.0)])
+    second_grade = models.DecimalField(max_digits=2,
+                                decimal_places=1,
+                                blank=True,
+                                null=True,
+                                validators=[
+                                    MinValueValidator(1.0),
+                                    MaxValueValidator(5.0)])
     prolongation_date = models.DateField(blank=True, null=True)
     prolongation_reason = models.CharField(
         blank=True,
@@ -206,7 +215,9 @@ class Thesis(models.Model):
     prolongation_weeks = models.IntegerField(blank=True, null=True)
     examination_date = models.DateField(blank=True, null=True)
     handed_in_date = models.DateField(blank=True, null=True)
-    restriction_note = models.NullBooleanField(blank=True)
+    # formerly models.NullBooleanField(blank=Null)
+    # changed since check identified Error
+    restriction_note = models.BooleanField(null=True)
 
     objects = ThesisManager()
 
@@ -243,13 +254,14 @@ class Thesis(models.Model):
 
         return True
 
-    def assign_grade(self, grade, examination_date, restriction_note=False):
+    def assign_grade(self, grade, second_grade, examination_date, restriction_note=False):
         """Assign grade and set status to GRADED
         if grade is valid and thesis hasn't been graded yet"""
         if self.status >= Thesis.GRADED:
             return False
 
         self.grade = grade
+        self.second_grade = second_grade
         self.examination_date = examination_date
         self.restriction_note = restriction_note
         self.clean_fields()

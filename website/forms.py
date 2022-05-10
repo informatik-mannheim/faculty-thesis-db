@@ -99,6 +99,15 @@ class GradeForm(forms.Form):
                                widget=forms.NumberInput(
                                    attrs={'autofocus': 'autofocus'}))
 
+    second_grade = forms.DecimalField(label="Zweitkorrektor-Note",
+                               decimal_places=1,
+                               max_digits=2,
+                               required=False,
+                               min_value=1.0,
+                               max_value=5.0,
+                               widget=forms.NumberInput(
+                                   attrs={'autofocus': 'autofocus'}))
+
     restriction_note = forms.BooleanField(label="Sperrvermerk", required=False)
 
     examination_date = forms.DateField(
@@ -117,6 +126,10 @@ class GradeForm(forms.Form):
             if 4 < self.cleaned_data["grade"] < 5.0:
                 raise forms.ValidationError({'grade': 'Ungültige Note'})
 
+        if 'second_grade' in self.cleaned_data and self.cleaned_data["second_grade"] is not None:
+            if 4 < self.cleaned_data["second_grade"] < 5.0:
+                raise forms.ValidationError({'second_grade': 'Ungültige Note'})
+
     @classmethod
     def initialize_from(cls, thesis):
         initials = {
@@ -129,13 +142,13 @@ class GradeForm(forms.Form):
 
     def persist(self, thesis):
         grade = self.cleaned_data["grade"]
+        second_grade = self.cleaned_data["second_grade"]
         examination_date = self.cleaned_data["examination_date"]
         restriction_note = self.cleaned_data["restriction_note"]
         handed_in_date = self.cleaned_data["handed_in_date"]
 
         thesis.hand_in(handed_in_date, restriction_note)
-        thesis.assign_grade(grade, examination_date, restriction_note)
-
+        thesis.assign_grade(grade, second_grade, examination_date, restriction_note)
 
 class CheckStudentIdForm(forms.Form):
     student_id = forms.IntegerField(label="Matrikelnummer",
