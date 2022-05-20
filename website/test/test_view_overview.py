@@ -44,3 +44,84 @@ class ViewOverviewTests(LoggedInTestCase):
         response = self.client.get(reverse('overview'))
 
         self.assertNotIn('class="icon-link"', str(response.content))
+
+    def test_search_due_date(self):
+        thesis = ThesisStub.applied(self.supervisor)
+        thesis.save()
+
+        response = self.client.post(reverse('overview'), {"due_date": date(2018, 1, 30), "status": "", "title": "",
+                                                          "student": "", "assessor": ""})
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context["theses"]))
+
+    def test_search_status(self):
+        thesis = ThesisStub.applied(self.supervisor)
+        thesis.save()
+
+        for value in ["1", "2", "3"]:
+            response = self.client.post(reverse('overview'), {"due_date": "", "status": value, "title": "",
+                                                              "student": "", "assessor": ""})
+
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(0, len(response.context["theses"]))
+
+        for value in ["", "0"]:
+            response = self.client.post(reverse('overview'), {"due_date": "", "status": value, "title": "",
+                                                              "student": "", "assessor": ""})
+
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(1, len(response.context["theses"]))
+
+    def test_search_student_id(self):
+        thesis = ThesisStub.applied(self.supervisor)
+        thesis.save()
+
+        for id in range(0, 4):
+            response = self.client.post(reverse('overview'), {"due_date": "", "status": "", "title": "",
+                                                              "student": id, "assessor": ""})
+
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(0, len(response.context["theses"]))
+
+        for id in range(5, 10):
+            response = self.client.post(reverse('overview'), {"due_date": "", "status": "", "title": "",
+                                                              "student": id, "assessor": ""})
+
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(1, len(response.context["theses"]))
+
+    def test_search_student_name(self):
+        thesis = ThesisStub.applied(self.supervisor)
+        thesis.save()
+
+        for name in ["L", "Larry", "Langzeitstudent", "Larry Langzeitstudent"]:
+            response = self.client.post(reverse('overview'), {"due_date": "", "status": "", "title": "",
+                                                              "student": name, "assessor": ""})
+
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(1, len(response.context["theses"]))
+
+
+    def test_search_thesis_name(self):
+        thesis = ThesisStub.applied(self.supervisor)
+        thesis.save()
+
+        for title in ["Eine", "einzelne", "Thesis", "Eine einzelne", "Eine einzelne Thesis"]:
+            response = self.client.post(reverse('overview'), {"due_date": "", "status": "", "title": title,
+                                                              "student": "", "assessor": ""})
+
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(1, len(response.context["theses"]))
+
+
+    def test_search_assessor_name(self):
+        thesis = ThesisStub.applied(self.supervisor)
+        thesis.save()
+
+        for name in ["H", "Hansi", "Schmidt", "Hansi Schmidt"]:
+            response = self.client.post(reverse('overview'), {"due_date": "", "status": "", "title": "",
+                                                              "student": "", "assessor": name})
+
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(1, len(response.context["theses"]))
