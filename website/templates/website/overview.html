@@ -17,13 +17,42 @@
 		<table class="ui celled table">
 			<thead>
 				<tr>
-					<th>Abgabedatum</span></th>
-					<th>Status</th>
-					<th>Student</th>
-					<th>Thema</th>
-					<th>Zweitkorrektor</th>
-					<th>Dokumente</th>
+                    <th onclick="location.assign('due_date')" style="cursor: pointer">Abgabedatum</th>
+                    <th onclick="location.assign('status')" style="cursor: pointer">Status</th>
+                    <th onclick="location.assign('student')" style="cursor: pointer">Student</th>
+                    <th onclick="location.assign('title')" style="cursor: pointer">Thema</th>
+                    <th onclick="location.assign('assessor')" style="cursor: pointer">Zweitkorrektor</th>
+                    <th>Dokumente</th>
 				</tr>
+                <tr>
+                    <form action="" method="POST">
+                    {% csrf_token %}
+                    <th>
+                        <input type="date" name="due_date" id="due_date">
+                    </th>
+                    <th>
+                        <select name="status">
+                            <option value=""></option>
+                            <option value="0">Angemeldet</option>
+                            <option value="1">Verlängert</option>
+                            <option value="2">Abgegeben</option>
+                            <option value="3">Benotet</option>
+                        </select>
+                    </th>
+                    <th>
+                        <input type="text" name="student" id="student" placeholder="MatrNr/Name" size="10">
+                    </th>
+                    <th>
+                        <input type="text" name="title" id="title" placeholder="Thema" size="10">
+                    </th>
+                    <th>
+                        <input type="text" name="assessor" id="assessor" placeholder="Name" size="10">
+                    </th>
+                    <th>
+                        <input class="btn btn-primary" type="submit" value="Suchen">
+                    </th>
+                    </form>
+                </tr>
 			</thead>
 			
 			<tbody>
@@ -37,9 +66,9 @@
 							{% if thesis.is_graded %}
 								<span class="badge">
                                     {{ thesis.grade }}
-                                    {% if thesis.second_grade is not None %}
+                                    {% if thesis.assessor_grade is not None %}
                                     |
-                                    {{ thesis.second_grade }}
+                                    {{ thesis.assessor_grade }}
                                     {% endif %}
 								</span>
 							{% elif thesis.is_prolonged %}
@@ -67,7 +96,7 @@
 							<a class="document-link" target="_blank" href="/download/prolongation/{{thesis.surrogate_key}}">
 								<span class="glyphicon glyphicon-file"></span>&nbsp; Verlängerung
 							</a>
-							<br />
+                            <br />
 							<a class="document-link" target="_blank" href="/download/grading/{{thesis.surrogate_key}}">
 								<span class="glyphicon glyphicon-file"></span>&nbsp; Bewertung
 							</a>
