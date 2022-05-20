@@ -1,6 +1,8 @@
+import operator
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.views import View
+from django.views.generic.list import ListView
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 
@@ -14,14 +16,16 @@ from django.urls import reverse_lazy
 
 User = get_user_model()
 
+
+def index(request):
+    return redirect(reverse('overview'))
+
+
+# Login-view
 class ThesispoolLoginView(LoginView):
     models = User
     template_name = 'website/login.html'
     next_page = reverse_lazy('overview')
-
-
-def index(request):
-    return redirect(reverse('overview'))
 
 
 @login_required
@@ -88,11 +92,56 @@ def handin(request, key):
 
 
 @login_required
-def overview(request):
+def overview(request, key=None):
     if request.user.is_secretary:
         theses = Thesis.objects.all()
     else:
         theses = Thesis.objects.for_supervisor(request.user.username)
+    if request.method == "POST":
+        if request.POST["due_date"] != "":
+            theses = theses.filter(due_date=request.POST["due_date"])
+        if request.POST["status"] != "":
+            theses = theses.filter(status=request.POST["status"])
+        if request.POST["student"] != "":
+            # value may contain either and id or a name
+            if True in [char.isdigit() for char in request.POST["student"]]:
+                students = Student.objects.filter(id__contains=request.POST["student"])
+                theses = theses.filter(student__in=[student.id for student in students])
+            else:
+                if " " in request.POST["student"]:
+                    # split under the assumption, that there are no spaces in names, but possibly in surnames
+                    ssurname, sname = request.POST["student"].rsplit(" ", 1)
+                    sname = Student.objects.filter(last_name__contains=sname)
+                    ssurname = Student.objects.filter(first_name__contains=ssurname)
+                else:
+                    ssurname = Student.objects.filter(last_name__contains=request.POST["student"])
+                    sname = Student.objects.filter(first_name__contains=request.POST["student"])
+                student = [student.id for student in ssurname | sname]
+                theses = theses.filter(student__in=student)
+        if request.POST["title"] != "":
+            theses = theses.filter(title__contains=request.POST["title"])
+        if request.POST["assessor"] != "":
+            if " " in request.POST["assessor"]:
+                # split under the assumption, that there are no spaces in names, but possibly in surnames
+                asurname, aname = request.POST["assessor"].rsplit(" ", 1)
+                aname = Assessor.objects.filter(last_name__contains=aname)
+                asurname = Assessor.objects.filter(first_name__contains=asurname)
+            else:
+                asurname = Assessor.objects.filter(last_name__contains=request.POST["assessor"])
+                aname = Assessor.objects.filter(first_name__contains=request.POST["assessor"])
+            theses = theses.filter(assessor__in=[assessor.id for assessor in asurname | aname])
+    if key is not None:
+        if key == "student":
+            # order by last_name
+            theses = sorted(theses, key=operator.attrgetter("student.last_name"))
+        elif key == "assessor":
+            # order by last_name, theses with no assessor at the back
+            has_assessor = theses.exclude(assessor=None)
+            no_assessor = theses.filter(assessor=None)
+            has_assessor_sorted = sorted(has_assessor, key=operator.attrgetter("assessor.last_name"))
+            theses = has_assessor_sorted + list(no_assessor)
+        else:
+            theses = theses.order_by(key)
 
     return render(request, 'website/overview.html', {"theses": theses})
 

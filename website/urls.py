@@ -10,7 +10,7 @@ urlpatterns = [
     path('accounts/login/', views.ThesispoolLoginView.as_view(),
          name='login'),
     path('accounts/logout/', LogoutView.as_view(), name='logout'),
-    path('overview/', views.overview, name='overview'),
+    re_path(r'overview/(?P<key>student|title|due_date|status|assessor)?', views.overview, name='overview'),
     path('find-student/', views.find_student, name='find_student'),
     re_path(r'create/(?P<student_id>\d+)',
         login_required(views.CreateThesis.as_view()), name='create'),
