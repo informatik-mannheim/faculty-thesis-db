@@ -12,7 +12,7 @@
 		<table class="ui celled table">
 			<thead>
 				<tr>
-					<th>Abgabedatum</span></th>
+					<th>Abgabedatum</th>
 					<th>Status</th>
 					<th>Student</th>
 					<th>Thema</th>
@@ -32,6 +32,10 @@
 							{% if thesis.is_graded %}
 								<span class="badge">
 									{{thesis.grade}}
+                                    {% if thesis.assessor_grade is not None %}
+                                    |
+                                    {{ thesis.assessor_grade }}
+                                    {% endif %}
 								</span>
 							{% elif thesis.is_prolonged %}
 								<div style="margin-top: 10px; font-size: 16px;">
