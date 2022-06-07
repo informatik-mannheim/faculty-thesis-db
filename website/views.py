@@ -91,59 +91,91 @@ def handin(request, key):
     return render(request, 'website/handin.html', context)
 
 
-@login_required
-def overview(request, key=None):
-    if request.user.is_secretary:
-        theses = Thesis.objects.all()
-    else:
-        theses = Thesis.objects.for_supervisor(request.user.username)
-    if request.method == "POST":
+class Overview(ListView):
+    model = Thesis
+    template_name = "overview.html"
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_secretary:
+            theses = Thesis.objects.all()
+        else:
+            theses = Thesis.objects.for_supervisor(request.user.username)
+
+        return render(request, 'website/overview.html', {"theses": theses})
+
+    def post(self, request, *args, **kwargs):
+        if request.user.is_secretary:
+            theses = Thesis.objects.all()
+        else:
+            theses = Thesis.objects.for_supervisor(request.user.username)
+
         if request.POST["due_date"] != "":
-            theses = theses.filter(due_date=request.POST["due_date"])
+            theses = theses.filter(due_date__gte=request.POST["due_date"])
+
         if request.POST["status"] != "":
             theses = theses.filter(status=request.POST["status"])
-        if request.POST["student"] != "":
-            # value may contain either and id or a name
-            if True in [char.isdigit() for char in request.POST["student"]]:
-                students = Student.objects.filter(id__contains=request.POST["student"])
-                theses = theses.filter(student__in=[student.id for student in students])
-            else:
-                if " " in request.POST["student"]:
-                    # split under the assumption, that there are no spaces in names, but possibly in surnames
-                    ssurname, sname = request.POST["student"].rsplit(" ", 1)
-                    sname = Student.objects.filter(last_name__contains=sname)
-                    ssurname = Student.objects.filter(first_name__contains=ssurname)
-                else:
-                    ssurname = Student.objects.filter(last_name__contains=request.POST["student"])
-                    sname = Student.objects.filter(first_name__contains=request.POST["student"])
-                student = [student.id for student in ssurname | sname]
-                theses = theses.filter(student__in=student)
+
         if request.POST["title"] != "":
-            theses = theses.filter(title__contains=request.POST["title"])
+            theses = theses.filter(title=request.POST["title"])
+
+        # search-parameter for assessors is either a name or their id
+        if request.POST["student"] != "":
+            if True in [char.isdigit() for char in request.POST["student"]]:
+                # get all students whose id starts with request.POST["student"]
+                students_with_id = Student.objects.filter(
+                    id__iregex=r'^'+request.POST["student"]+'[0-9]*')
+            else:
+                # assumption: no spaces in surnames
+                if " " in request.POST["student"]:
+                    student_name, student_surname = request.POST["student"].rsplit(" ", 1)
+                    students_with_name = Student.objects.filter(
+                        first_name__contains=student_name)
+                    students_with_surname = Student.objects.filter(
+                        last_name__contains=student_surname)
+                else:
+                    students_with_name = Student.objects.filter(
+                        first_name__contains=request.POST["student"])
+                    students_with_surname = Student.objects.filter(
+                        last_name__contains=request.POST["student"])
+                students_with_id = [student.id for student in students_with_name | students_with_surname]
+            theses = theses.filter(student__in=students_with_id)
+
+        # search-parameter for assessors is a name
         if request.POST["assessor"] != "":
             if " " in request.POST["assessor"]:
-                # split under the assumption, that there are no spaces in names, but possibly in surnames
-                asurname, aname = request.POST["assessor"].rsplit(" ", 1)
-                aname = Assessor.objects.filter(last_name__contains=aname)
-                asurname = Assessor.objects.filter(first_name__contains=asurname)
+                assessor_name, assessor_surname = request.POST["assessor"].rsplit(" ", 1)
+                assessors_with_name = Assessor.objects.filter(
+                    first_name__contains=assessor_name)
+                assessors_with_surname = Assessor.objects.filter(
+                    last_name__contains=assessor_surname)
             else:
-                asurname = Assessor.objects.filter(last_name__contains=request.POST["assessor"])
-                aname = Assessor.objects.filter(first_name__contains=request.POST["assessor"])
-            theses = theses.filter(assessor__in=[assessor.id for assessor in asurname | aname])
-    if key is not None:
-        if key == "student":
-            # order by last_name
-            theses = sorted(theses, key=operator.attrgetter("student.last_name"))
-        elif key == "assessor":
-            # order by last_name, theses with no assessor at the back
-            has_assessor = theses.exclude(assessor=None)
-            no_assessor = theses.filter(assessor=None)
-            has_assessor_sorted = sorted(has_assessor, key=operator.attrgetter("assessor.last_name"))
-            theses = has_assessor_sorted + list(no_assessor)
-        else:
-            theses = theses.order_by(key)
+                assessors_with_name = Assessor.objects.filter(
+                    first_name__contains=request.POST["assessor"])
+                assessors_with_surname = Assessor.objects.filter(
+                    last_name__contains=request.POST["assessor"])
+            theses = theses.filter(
+                assessor__in=[assessor.id for assessor in assessors_with_name | assessors_with_surname])
 
-    return render(request, 'website/overview.html', {"theses": theses})
+        if request.POST["sort"] != "":
+            # students are ordered by surname
+            if request.POST["sort"] == "student":
+                theses = sorted(theses, key=operator.attrgetter("student.last_name"))
+            # assessors are ordered by surname, theses with no assessors are ordered at the back
+            elif request.POST["sort"] == "assessor":
+                theses_has_assessor = sorted(theses.exclude(assessor=None),
+                                             key=operator.attrgetter("assessor.last_name"))
+                theses = theses_has_assessor + list(theses.filter(assessor=None))
+            else:
+                theses = theses.order_by(request.POST["sort"])
+
+        context = {"theses": theses,
+                   "due_date": request.POST["due_date"],
+                   "status": request.POST["status"],
+                   "student": request.POST["student"],
+                   "title": request.POST["title"],
+                   "assessor": request.POST["assessor"]}
+
+        return render(request, 'website/overview.html', context)
 
 
 class PdfView(View):
