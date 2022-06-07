@@ -15,46 +15,87 @@
 		</div>
 
 		<table class="ui celled table">
-			<thead>
-				<tr>
-                    <th onclick="location.assign('due_date')" style="cursor: pointer">Abgabedatum</th>
-                    <th onclick="location.assign('status')" style="cursor: pointer">Status</th>
-                    <th onclick="location.assign('student')" style="cursor: pointer">Student</th>
-                    <th onclick="location.assign('title')" style="cursor: pointer">Thema</th>
-                    <th onclick="location.assign('assessor')" style="cursor: pointer">Zweitkorrektor</th>
-                    <th>Dokumente</th>
-				</tr>
-                <tr>
-                    <form action="" method="POST">
-                    {% csrf_token %}
-                    <th>
-                        <input type="date" name="due_date" id="due_date">
-                    </th>
-                    <th>
-                        <select name="status">
-                            <option value=""></option>
-                            <option value="0">Angemeldet</option>
-                            <option value="1">Verlängert</option>
-                            <option value="2">Abgegeben</option>
-                            <option value="3">Benotet</option>
-                        </select>
-                    </th>
-                    <th>
-                        <input type="text" name="student" id="student" placeholder="MatrNr/Name" size="10" value="{{ student }}">
-                    </th>
-                    <th>
-                        <input type="text" name="title" id="title" placeholder="Thema" size="10">
-                    </th>
-                    <th>
-                        <input type="text" name="assessor" id="assessor" placeholder="Name" size="10">
-                    </th>
-                    <th>
-                        <input class="btn btn-primary" type="submit" value="Suchen" >
-                    </th>
-                    </form>
-                </tr>
-			</thead>
-			
+            <form action="" method="POST">
+            {% csrf_token %}
+                <thead>
+                    <tr>
+                        <input type="hidden" name="sort" id="sort" value="">
+                        <th>
+                            <button type="submit" name="sort" value="due_date" style="background-color: #fafafa; border: none">Abgabedatum</button>
+                        </th>
+                        <th>
+                            <button type="submit" name="sort" value="status" style="background-color: #fafafa; border: none">Status</button>
+                        </th>
+                        <th>
+                            <button type="submit" name="sort" value="student" style="background-color: #fafafa; border: none">Student</button>
+                        </th>
+                        <th>
+                            <button type="submit" name="sort" value="title" style="background-color: #fafafa; border: none">Thema</button>
+                        </th>
+                        <th>
+                            <button type="submit" name="sort" value="assessor" style="background-color: #fafafa; border: none">Zweitkorrektor</button>
+                        </th>
+                        <th>Dokumente</th>
+                    </tr>
+                    <tr>
+                        <th>
+                            <input type="date" name="due_date" id="due_date" value="{{ due_date }}">
+                        </th>
+                        <th>
+                            <select name="status" id="status">
+                                {% if status == "0" or status == "1" or status == "2" or status == "3" %}
+                                    {% if status == "0" %}
+                                        <option value="0">Angemeldet</option>
+                                        <option value=""></option>
+                                        <option value="1">Verlängert</option>
+                                        <option value="2">Abgegeben</option>
+                                        <option value="3">Benotet</option>
+                                    {% endif %}
+                                    {% if status == "1" %}
+                                        <option value="1">Verlängert</option>
+                                        <option value=""></option>
+                                        <option value="0">Angemeldet</option>
+                                        <option value="2">Abgegeben</option>
+                                        <option value="3">Benotet</option>
+                                    {% endif %}
+                                    {% if status == "2" %}
+                                        <option value="2">Abgegeben</option>
+                                        <option value=""></option>
+                                        <option value="0">Angemeldet</option>
+                                        <option value="1">Verlängert</option>
+                                        <option value="3">Benotet</option>
+                                    {% endif %}
+                                    {% if status == "3" %}
+                                        <option value="3">Benotet</option>
+                                        <option value=""></option>
+                                        <option value="0">Angemeldet</option>
+                                        <option value="1">Verlängert</option>
+                                        <option value="2">Abgegeben</option>
+                                    {% endif %}
+                                {% else %}
+                                    <option value=""></option>
+                                    <option value="0">Angemeldet</option>
+                                    <option value="1">Verlängert</option>
+                                    <option value="2">Abgegeben</option>
+                                    <option value="3">Benotet</option>
+                                {% endif %}
+                            </select>
+                        </th>
+                        <th>
+                            <input type="text" name="student" id="student" placeholder="MatrNr/Name" size="10" value="{{ student }}">
+                        </th>
+                        <th>
+                            <input type="text" name="title" id="title" placeholder="Thema" size="10">
+                        </th>
+                        <th>
+                            <input type="text" name="assessor" id="assessor" placeholder="Name" size="10">
+                        </th>
+                        <th>
+                            <input class="btn btn-primary" type="submit" value="Suchen" >
+                        </th>
+                    </tr>
+                </thead>
+			</form>
 			<tbody>
 					{% for thesis in theses %}
 				
@@ -98,7 +139,7 @@
 							</a>
                             <br />
 							<a class="document-link" target="_blank" href="/download/prolong_illness/{{thesis.surrogate_key}}">
-								<span class="glyphicon glyphicon-file"></span>&nbsp; Krankheitsfall
+								<span class="glyphicon glyphicon-file"></span> Krankheitsfall
 							</a>
 							<br />
 							<a class="document-link" target="_blank" href="/download/grading/{{thesis.surrogate_key}}">
