@@ -106,12 +106,24 @@
         <br/>
           
         <input class="btn btn-success" style="float: left;" type="submit" value="Speichern" />
+    </form>
 
-    </form>
-    
-    <form id="form_abort" id="btn_abort" action="{%url 'overview'%}" method="get">
-            <input class="btn btn-danger space-left-small" type="submit" value="Abbrechen"/>
-    </form>
+    <table>
+            <th>
+                <form id="form_abort" id="btn_abort" action="{%url 'overview'%}" method="get">
+                    <input class="btn btn-danger space-left-small" type="submit" value="Abbrechen"/>
+                </form>
+            </th>
+
+            {% if supervisor is not Null and theses.status == 0 and theses.excom_status == 0 %}
+            <th>
+                <form action="{% url 'delete' theses.surrogate_key|slugify %}" method="get">
+                    <input class="btn btn-primary space-left-small" type="submit" value="Thesis löschen"/>
+                </form>
+            </th>
+            {% endif %}
+        </table>
+
 </div>
 
 <script type="text/javascript">

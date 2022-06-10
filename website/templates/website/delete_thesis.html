@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <div class="container">
+    <div class="row">
+        <h1>{{headline}}</h1>
+    </div>
+
+    <form action="" method="post">
+        {% csrf_token %}
+        <p>Möchten Sie die Thesis <strong>{{ theses.title }}</strong> von {{ theses.student }} wirklich löschen?</p>
+        <input class="btn btn-success" style="float: left;" type="submit" value="Löschen" />
+    </form>
+
+    <form action="{%url 'overview'%}" method="get">
+            <input class="btn btn-danger space-left-small" type="submit" value="Abbrechen"/>
+    </form>
+
+    </div>
+
+{% endblock %}
