@@ -33,6 +33,8 @@ urlpatterns = [
     re_path(r'prolong/(?P<key>[0-9a-f\-]+)', views.prolong, name="prolong"),
     re_path(r'grade/(?P<key>[0-9a-f\-]+)', views.grade, name="grade"),
     re_path(r'handin/(?P<key>[0-9a-f\-]+)', views.handin, name="handin"),
+    re_path(r'change/delete/(?P<key>[0-9a-f\-]+)',
+        login_required(views.DeleteThesis.as_view()), name="delete"),
     re_path(r'change/(?P<key>[0-9a-f\-]+)',
         login_required(views.ChangeView.as_view()), name="change"),
 ]

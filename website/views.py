@@ -168,6 +168,10 @@ class Overview(ListView):
             else:
                 theses = theses.order_by(request.POST["sort"])
 
+            # request.POST always returns a String, type casting needed
+            if str(theses) == request.POST["theses"]:
+                theses = reversed(theses)
+
         context = {"theses": theses,
                    "due_date": request.POST["due_date"],
                    "status": request.POST["status"],
@@ -291,6 +295,7 @@ class ChangeView(View):
             a_form = AssessorForm()
 
         context = {
+            'theses': self.thesis,
             'form': form,
             'a_form': a_form,
             'student': self.thesis.student,
@@ -318,6 +323,38 @@ class ChangeView(View):
             'headline': self.headline}
 
         return render(request, 'website/create_or_change.html', context)
+
+
+class DeleteThesis(View):
+
+    def dispatch(self, request, *args, **kwargs):
+        self.thesis = get_object_or_404(Thesis, surrogate_key=kwargs["key"])
+        self.headline = "{0}thesis löschen".format(
+            "Master" if self.thesis.student.is_master() else "Bachelor")
+        return super(DeleteThesis, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+
+        if self.thesis.is_graded() or self.thesis.is_handed_in() or self.thesis.is_prolonged() or \
+            self.thesis.is_approved() or self.thesis.is_rejected():
+            return redirect('overview')
+
+        context = {
+            'headline': self.headline,
+            'theses': self.thesis,
+        }
+
+        return render(request, 'website/delete_thesis.html', context)
+
+    def post(self, request, *args, **kwargs):
+
+        if self.thesis.is_graded() or self.thesis.is_handed_in() or self.thesis.is_prolonged() or \
+            self.thesis.is_approved() or self.thesis.is_rejected():
+            return redirect('overview')
+
+        self.thesis.delete()
+
+        return redirect('overview')
 
 
 @login_required
