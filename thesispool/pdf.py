@@ -137,7 +137,7 @@ class AbstractPDF(object):
         xfdf.add_field("Name Erstprüfer", self.thesis.supervisor.short_name)
         xfdf.add_field("Hochschullehrer/in", self.thesis.supervisor.short_name)
 
-        if self.thesis.student.is_master() == 'IM':
+        if self.thesis.student.is_master():
             xfdf.add_field("Auswahl_Arbeit", "1")
             xfdf.add_field("Wahlt_Arbeit", "Masterarbeit")
         else:
