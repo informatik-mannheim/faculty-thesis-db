@@ -19,7 +19,7 @@
             {% csrf_token %}
                 <thead>
                     <tr>
-                        <input type="hidden" name="sort" id="sort" value="">
+                        <input type="hidden" name="sort" value="">
                         <th>
                             <button type="submit" name="sort" value="due_date" style="background-color: #fafafa; border: none">Abgabedatum</button>
                         </th>
@@ -85,12 +85,13 @@
                             <input type="text" name="student" id="student" placeholder="MatrNr/Name" size="10" value="{{ student }}">
                         </th>
                         <th>
-                            <input type="text" name="title" id="title" placeholder="Thema" size="10">
+                            <input type="text" name="title" id="title" placeholder="Thema" size="10" value="{{ title }}">
                         </th>
                         <th>
-                            <input type="text" name="assessor" id="assessor" placeholder="Name" size="10">
+                            <input type="text" name="assessor" id="assessor" placeholder="Name" size="10" value="{{ assessor }}">
                         </th>
                         <th>
+                            <input type="hidden" name="theses" value="{{ theses }}">
                             <input class="btn btn-primary" type="submit" value="Suchen" >
                         </th>
                     </tr>
@@ -131,11 +132,11 @@
 						
 						<td rowspan="2">
 							<a class="document-link" target="_blank" href="/download/application/{{thesis.surrogate_key}}">
-								<span class="glyphicon glyphicon-file"></span>&nbsp; Anmeldung
+								<span class="glyphicon glyphicon-file"></span> Anmeldung
 							</a>
 							<br />
 							<a class="document-link" target="_blank" href="/download/prolongation/{{thesis.surrogate_key}}">
-								<span class="glyphicon glyphicon-file"></span>&nbsp; Verlängerung
+								<span class="glyphicon glyphicon-file"></span>&nbsp;Verlängerung
 							</a>
                             <br />
 							<a class="document-link" target="_blank" href="/download/prolong_illness/{{thesis.surrogate_key}}">
@@ -143,7 +144,7 @@
 							</a>
 							<br />
 							<a class="document-link" target="_blank" href="/download/grading/{{thesis.surrogate_key}}">
-								<span class="glyphicon glyphicon-file"></span>&nbsp; Bewertung
+								<span class="glyphicon glyphicon-file"></span>&nbsp;Bewertung
 							</a>
 						</td>
 						
