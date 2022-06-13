@@ -113,10 +113,10 @@ class Overview(ListView):
             theses = theses.filter(due_date__gte=request.POST["due_date"])
 
         if request.POST["status"] != "":
-            theses = theses.filter(status=request.POST["status"])
+            theses = theses.filter(status__contains=request.POST["status"])
 
         if request.POST["title"] != "":
-            theses = theses.filter(title=request.POST["title"])
+            theses = theses.filter(title__contains=request.POST["title"])
 
         # search-parameter for assessors is either a name or their id
         if request.POST["student"] != "":
