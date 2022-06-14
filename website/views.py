@@ -113,7 +113,7 @@ class Overview(ListView):
             theses = theses.filter(due_date__gte=request.POST["due_date"])
 
         if request.POST["status"] != "":
-            theses = theses.filter(status__contains=request.POST["status"])
+            theses = theses.filter(status=request.POST["status"])
 
         if request.POST["title"] != "":
             theses = theses.filter(title__contains=request.POST["title"])
@@ -295,7 +295,7 @@ class ChangeView(View):
             a_form = AssessorForm()
 
         context = {
-            'theses': self.thesis,
+            'thesis': self.thesis,
             'form': form,
             'a_form': a_form,
             'student': self.thesis.student,
