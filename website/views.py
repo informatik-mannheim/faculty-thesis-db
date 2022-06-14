@@ -1,31 +1,19 @@
-import operator
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.views import View
-from django.views.generic.list import ListView
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse, get_object_or_404
-
-from django_sendfile import sendfile
+from sendfile import sendfile
 
 from website.forms import *
 from website.models import *
 from thesispool.pdf import *
-from django.contrib.auth.views import LoginView
-from django.urls import reverse_lazy
 
 User = get_user_model()
 
 
 def index(request):
     return redirect(reverse('overview'))
-
-
-# Login-view
-class ThesispoolLoginView(LoginView):
-    models = User
-    template_name = 'website/login.html'
-    next_page = reverse_lazy('overview')
 
 
 @login_required
@@ -91,106 +79,25 @@ def handin(request, key):
     return render(request, 'website/handin.html', context)
 
 
-class Overview(ListView):
-    model = Thesis
-    template_name = "overview.html"
+@login_required
+def overview(request):
+    if request.user.is_secretary:
+        theses = Thesis.objects.all()
+    else:
+        theses = Thesis.objects.for_supervisor(request.user.username)
 
-    def get(self, request, *args, **kwargs):
-        if request.user.is_secretary:
-            theses = Thesis.objects.all()
-        else:
-            theses = Thesis.objects.for_supervisor(request.user.username)
-
-        return render(request, 'website/overview.html', {"theses": theses})
-
-    def post(self, request, *args, **kwargs):
-        if request.user.is_secretary:
-            theses = Thesis.objects.all()
-        else:
-            theses = Thesis.objects.for_supervisor(request.user.username)
-
-        if request.POST["due_date"] != "":
-            theses = theses.filter(due_date__gte=request.POST["due_date"])
-
-        if request.POST["status"] != "":
-            theses = theses.filter(status=request.POST["status"])
-
-        if request.POST["title"] != "":
-            theses = theses.filter(title__contains=request.POST["title"])
-
-        # search-parameter for assessors is either a name or their id
-        if request.POST["student"] != "":
-            if True in [char.isdigit() for char in request.POST["student"]]:
-                # get all students whose id starts with request.POST["student"]
-                students_with_id = Student.objects.filter(
-                    id__iregex=r'^'+request.POST["student"]+'[0-9]*')
-            else:
-                # assumption: no spaces in surnames
-                if " " in request.POST["student"]:
-                    student_name, student_surname = request.POST["student"].rsplit(" ", 1)
-                    students_with_name = Student.objects.filter(
-                        first_name__contains=student_name)
-                    students_with_surname = Student.objects.filter(
-                        last_name__contains=student_surname)
-                else:
-                    students_with_name = Student.objects.filter(
-                        first_name__contains=request.POST["student"])
-                    students_with_surname = Student.objects.filter(
-                        last_name__contains=request.POST["student"])
-                students_with_id = [student.id for student in students_with_name | students_with_surname]
-            theses = theses.filter(student__in=students_with_id)
-
-        # search-parameter for assessors is a name
-        if request.POST["assessor"] != "":
-            if " " in request.POST["assessor"]:
-                assessor_name, assessor_surname = request.POST["assessor"].rsplit(" ", 1)
-                assessors_with_name = Assessor.objects.filter(
-                    first_name__contains=assessor_name)
-                assessors_with_surname = Assessor.objects.filter(
-                    last_name__contains=assessor_surname)
-            else:
-                assessors_with_name = Assessor.objects.filter(
-                    first_name__contains=request.POST["assessor"])
-                assessors_with_surname = Assessor.objects.filter(
-                    last_name__contains=request.POST["assessor"])
-            theses = theses.filter(
-                assessor__in=[assessor.id for assessor in assessors_with_name | assessors_with_surname])
-
-        if request.POST["sort"] != "":
-            # students are ordered by surname
-            if request.POST["sort"] == "student":
-                theses = sorted(theses, key=operator.attrgetter("student.last_name"))
-            # assessors are ordered by surname, theses with no assessors are ordered at the back
-            elif request.POST["sort"] == "assessor":
-                theses_has_assessor = sorted(theses.exclude(assessor=None),
-                                             key=operator.attrgetter("assessor.last_name"))
-                theses = theses_has_assessor + list(theses.filter(assessor=None))
-            else:
-                theses = theses.order_by(request.POST["sort"])
-
-            # request.POST always returns a String, type casting needed
-            if str(theses) == request.POST["theses"]:
-                theses = reversed(theses)
-
-        context = {"theses": theses,
-                   "due_date": request.POST["due_date"],
-                   "status": request.POST["status"],
-                   "student": request.POST["student"],
-                   "title": request.POST["title"],
-                   "assessor": request.POST["assessor"]}
-
-        return render(request, 'website/overview.html', context)
+    return render(request, 'website/overview.html', {"theses": theses})
 
 
 class PdfView(View):
     type = None
 
     def send(self, request, pdf):
-       """Call xsendfile wrapper to send PDF (in attachment mode)"""
-       return sendfile(request,
-                       pdf.path,
-                       attachment=True,
-                       attachment_filename=pdf.filename)
+        """Call xsendfile wrapper to send PDF (in attachment mode)"""
+        return sendfile(request,
+                        pdf.path,
+                        attachment=True,
+                        attachment_filename=pdf.filename)
 
     def get(self, request, *args, **kwargs):
         """Create PDF of requested type (passed by urls.py) for selected thesis
@@ -295,7 +202,6 @@ class ChangeView(View):
             a_form = AssessorForm()
 
         context = {
-            'thesis': self.thesis,
             'form': form,
             'a_form': a_form,
             'student': self.thesis.student,
@@ -323,38 +229,6 @@ class ChangeView(View):
             'headline': self.headline}
 
         return render(request, 'website/create_or_change.html', context)
-
-
-class DeleteThesis(View):
-
-    def dispatch(self, request, *args, **kwargs):
-        self.thesis = get_object_or_404(Thesis, surrogate_key=kwargs["key"])
-        self.headline = "{0}thesis löschen".format(
-            "Master" if self.thesis.student.is_master() else "Bachelor")
-        return super(DeleteThesis, self).dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-
-        if self.thesis.is_graded() or self.thesis.is_handed_in() or self.thesis.is_prolonged() or \
-            self.thesis.is_approved() or self.thesis.is_rejected():
-            return redirect('overview')
-
-        context = {
-            'headline': self.headline,
-            'theses': self.thesis,
-        }
-
-        return render(request, 'website/delete_thesis.html', context)
-
-    def post(self, request, *args, **kwargs):
-
-        if self.thesis.is_graded() or self.thesis.is_handed_in() or self.thesis.is_prolonged() or \
-            self.thesis.is_approved() or self.thesis.is_rejected():
-            return redirect('overview')
-
-        self.thesis.delete()
-
-        return redirect('overview')
 
 
 @login_required
