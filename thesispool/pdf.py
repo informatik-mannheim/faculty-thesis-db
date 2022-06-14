@@ -124,8 +124,8 @@ class AbstractPDF(object):
                        self.__date_format(self.thesis.due_date))
         xfdf.add_field("Matrikelnr", self.thesis.student.id)
         xfdf.add_field("Matrikelnummer", self.thesis.student.id)
-        xfdf.add_field("Thema_der_Arbeit", self.thesis.title)
-        xfdf.add_field("Kurztitel der Arbeit", self.thesis.title)
+        xfdf.add_field("Thema_der_Arbeit", self.thesis.title.replace("<", "&lt;").replace(">", "&gt;"))
+        xfdf.add_field("Kurztitel der Arbeit", self.thesis.title.replace("<", "&lt;").replace(">", "&gt;"))
         xfdf.add_field("Email", self.thesis.student_contact)
         xfdf.add_field("Fakultät Studiengang", "Fakultät für Informatik / " + self.thesis.student.program)
         xfdf.add_field("Fakultät_Studiengang", "Fakultät für Informatik / " + self.thesis.student.program)
@@ -147,6 +147,8 @@ class AbstractPDF(object):
         if self.thesis.assessor:
             xfdf.add_field("Name Zweitprüfer", self.thesis.assessor.short_name)
             xfdf.add_field("Zweitkorrektor/in", self.thesis.assessor.short_name)
+            xfdf.add_field("Kurzzeichen_Zweit", self.thesis.assessor.first_name[0] + self.thesis.assessor.last_name[0])
+            xfdf.add_field("Kurzzeichen2", self.thesis.assessor.first_name[0] + self.thesis.assessor.last_name[0])
 
         if self.thesis.external:
             if self.form_name == "bewertung":
