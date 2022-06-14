@@ -106,24 +106,12 @@
         <br/>
           
         <input class="btn btn-success" style="float: left;" type="submit" value="Speichern" />
+
     </form>
-
-    <table>
-            <th>
-                <form id="form_abort" id="btn_abort" action="{%url 'overview'%}" method="get">
-                    <input class="btn btn-danger space-left-small" type="submit" value="Abbrechen"/>
-                </form>
-            </th>
-            <!-- add no delete button in create thesis -->
-            {% if supervisor is not Null and thesis.status == 0 and thesis.excom_status == 0 %}
-            <th>
-                <form action="{% url 'delete' thesis.surrogate_key|slugify %}" method="get">
-                    <input class="btn btn-primary space-left-small" type="submit" value="Thesis löschen"/>
-                </form>
-            </th>
-            {% endif %}
-        </table>
-
+    
+    <form id="form_abort" id="btn_abort" action="{%url 'overview'%}" method="get">
+            <input class="btn btn-danger space-left-small" type="submit" value="Abbrechen"/>
+    </form>
 </div>
 
 <script type="text/javascript">
