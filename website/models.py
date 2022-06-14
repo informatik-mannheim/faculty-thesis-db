@@ -200,7 +200,7 @@ class Thesis(models.Model):
                                 validators=[
                                     MinValueValidator(1.0),
                                     MaxValueValidator(5.0)])
-    second_grade = models.DecimalField(max_digits=2,
+    assessor_grade = models.DecimalField(max_digits=2,
                                 decimal_places=1,
                                 blank=True,
                                 null=True,
@@ -215,9 +215,7 @@ class Thesis(models.Model):
     prolongation_weeks = models.IntegerField(blank=True, null=True)
     examination_date = models.DateField(blank=True, null=True)
     handed_in_date = models.DateField(blank=True, null=True)
-    # formerly models.NullBooleanField(blank=Null)
-    # changed since check identified Error
-    restriction_note = models.BooleanField(null=True)
+    restriction_note = models.BooleanField(blank=True, null=True)
 
     objects = ThesisManager()
 
@@ -254,14 +252,14 @@ class Thesis(models.Model):
 
         return True
 
-    def assign_grade(self, grade, second_grade, examination_date, restriction_note=False):
+    def assign_grade(self, grade, assessor_grade, examination_date, restriction_note=False):
         """Assign grade and set status to GRADED
         if grade is valid and thesis hasn't been graded yet"""
         if self.status >= Thesis.GRADED:
             return False
 
         self.grade = grade
-        self.second_grade = second_grade
+        self.assessor_grade = assessor_grade
         self.examination_date = examination_date
         self.restriction_note = restriction_note
         self.clean_fields()
