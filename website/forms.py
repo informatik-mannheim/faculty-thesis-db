@@ -29,11 +29,10 @@ class HandInForm(forms.Form):
                                           required=False)
 
     new_title = forms.CharField(label="Neuer Titel",
-                                max_length=300,
+                                max_length=200,
                                 required=True,
                                 widget=forms.TextInput(
-                                    attrs={'max_length': '200',
-                                           'class': 'title'})
+                                    attrs={'class': 'title'})
                                 )
 
     @classmethod
@@ -99,7 +98,7 @@ class GradeForm(forms.Form):
                                widget=forms.NumberInput(
                                    attrs={'autofocus': 'autofocus'}))
 
-    second_grade = forms.DecimalField(label="Zweitkorrektor-Note",
+    assessor_grade = forms.DecimalField(label="Zweitkorrektor-Note",
                                decimal_places=1,
                                max_digits=2,
                                required=False,
@@ -126,9 +125,9 @@ class GradeForm(forms.Form):
             if 4 < self.cleaned_data["grade"] < 5.0:
                 raise forms.ValidationError({'grade': 'Ungültige Note'})
 
-        if 'second_grade' in self.cleaned_data and self.cleaned_data["second_grade"] is not None:
-            if 4 < self.cleaned_data["second_grade"] < 5.0:
-                raise forms.ValidationError({'second_grade': 'Ungültige Note'})
+        if 'assessor_grade' in self.cleaned_data and self.cleaned_data["assessor_grade"] is not None:
+            if 4 < self.cleaned_data["assessor_grade"] < 5.0:
+                raise forms.ValidationError({'assessor_grade': 'Ungültige Note'})
 
     @classmethod
     def initialize_from(cls, thesis):
@@ -142,13 +141,13 @@ class GradeForm(forms.Form):
 
     def persist(self, thesis):
         grade = self.cleaned_data["grade"]
-        second_grade = self.cleaned_data["second_grade"]
+        assessor_grade = self.cleaned_data["assessor_grade"]
         examination_date = self.cleaned_data["examination_date"]
         restriction_note = self.cleaned_data["restriction_note"]
         handed_in_date = self.cleaned_data["handed_in_date"]
 
         thesis.hand_in(handed_in_date, restriction_note)
-        thesis.assign_grade(grade, second_grade, examination_date, restriction_note)
+        thesis.assign_grade(grade, assessor_grade, examination_date, restriction_note)
 
 class CheckStudentIdForm(forms.Form):
     student_id = forms.IntegerField(label="Matrikelnummer",
@@ -206,7 +205,7 @@ class AssessorForm(forms.Form):
 
 class ThesisApplicationForm(forms.Form):
     title = forms.CharField(label="Titel",
-                            max_length=300,
+                            max_length=200,
                             widget=forms.TextInput(
                                 attrs={'placeholder': 'Titel der Arbeit...',
                                        'autofocus': 'autofocus'}))
