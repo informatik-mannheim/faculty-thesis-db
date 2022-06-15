@@ -47,13 +47,10 @@ class XFDF(object):
         return "\n".join(fields)
 
     def add_field(self, key, value):
+        """adds value to field; convert xml-used chars to their entity-equivalents"""
+        value = str(value).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        value = value.replace("'", "&apos;").replace("\"", "&quot;")
         self.fields[key] = value
-
-    def check(self, field):
-        self.fields[field] = self._checkbox_yes
-
-    def uncheck(self, field):
-        self.fields[field] = "Off"
 
     def generate(self):
         return self._header() + self._fields() + self._footer()
@@ -124,8 +121,8 @@ class AbstractPDF(object):
                        self.__date_format(self.thesis.due_date))
         xfdf.add_field("Matrikelnr", self.thesis.student.id)
         xfdf.add_field("Matrikelnummer", self.thesis.student.id)
-        xfdf.add_field("Thema_der_Arbeit", self.thesis.title.replace("<", "&lt;").replace(">", "&gt;"))
-        xfdf.add_field("Kurztitel der Arbeit", self.thesis.title.replace("<", "&lt;").replace(">", "&gt;"))
+        xfdf.add_field("Thema_der_Arbeit", self.thesis.title)
+        xfdf.add_field("Kurztitel der Arbeit", self.thesis.title)
         xfdf.add_field("Email", self.thesis.student_contact)
         xfdf.add_field("Fakultät Studiengang", "Fakultät für Informatik / " + self.thesis.student.program)
         xfdf.add_field("Fakultät_Studiengang", "Fakultät für Informatik / " + self.thesis.student.program)
