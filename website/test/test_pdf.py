@@ -36,8 +36,8 @@ class TestPDF(TestCase):
         self.assertEqual(xfdf.fields["Abgabedatum"], thesis.due_date.strftime(date_format))
         self.assertEqual(xfdf.fields["Ende_Arbeit"], thesis.due_date.strftime(date_format))
         self.assertEqual(xfdf.fields["Datum_urspruengliche_Abgabe"], thesis.due_date.strftime(date_format))
-        self.assertEqual(xfdf.fields["Matrikelnr"], thesis.student.id)
-        self.assertEqual(xfdf.fields["Matrikelnummer"], thesis.student.id)
+        self.assertEqual(xfdf.fields["Matrikelnr"], str(thesis.student.id))
+        self.assertEqual(xfdf.fields["Matrikelnummer"], str(thesis.student.id))
         self.assertEqual(xfdf.fields["Email"], thesis.student_contact)
         self.assertEqual(xfdf.fields["Fakultät Studiengang"], "Fakultät für Informatik / " + thesis.student.program)
         self.assertEqual(xfdf.fields["Fakultät_Studiengang"], "Fakultät für Informatik / " + thesis.student.program)
@@ -112,7 +112,7 @@ class TestPDF(TestCase):
         self.assertEqual(
             xfdf.fields['Symtome / Auswirkung'], thesis.prolongation_reason)
         self.assertEqual(
-            xfdf.fields['Zeitraum_Verlängerung'], thesis.prolongation_weeks)
+            xfdf.fields['Zeitraum_Verlängerung'], str(thesis.prolongation_weeks))
         self.assertEqual(
             xfdf.fields['Zeitraum'], "Wochen")
         self.assertEqual(xfdf.fields['Datum_neue_Abgabe'],

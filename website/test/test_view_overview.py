@@ -50,7 +50,7 @@ class ViewOverviewTests(LoggedInTestCase):
         thesis.save()
 
         response = self.client.post(reverse('overview'), {"due_date": date(2018, 1, 30), "status": "", "title": "",
-                                                          "student": "", "assessor": ""})
+                                                          "student": "", "assessor": "", "sort": ""})
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.context["theses"]))
@@ -61,14 +61,14 @@ class ViewOverviewTests(LoggedInTestCase):
 
         for value in ["1", "2", "3"]:
             response = self.client.post(reverse('overview'), {"due_date": "", "status": value, "title": "",
-                                                              "student": "", "assessor": ""})
+                                                              "student": "", "assessor": "", "sort": ""})
 
             self.assertEqual(200, response.status_code)
             self.assertEqual(0, len(response.context["theses"]))
 
         for value in ["", "0"]:
             response = self.client.post(reverse('overview'), {"due_date": "", "status": value, "title": "",
-                                                              "student": "", "assessor": ""})
+                                                              "student": "", "assessor": "", "sort": ""})
 
             self.assertEqual(200, response.status_code)
             self.assertEqual(1, len(response.context["theses"]))
@@ -79,14 +79,14 @@ class ViewOverviewTests(LoggedInTestCase):
 
         for id in range(0, 4):
             response = self.client.post(reverse('overview'), {"due_date": "", "status": "", "title": "",
-                                                              "student": id, "assessor": ""})
+                                                              "student": id, "assessor": "", "sort": ""})
 
             self.assertEqual(200, response.status_code)
             self.assertEqual(0, len(response.context["theses"]))
 
-        for id in range(5, 10):
+        for id in {"9", "98", "987", "9876", "98765", "987654"}:
             response = self.client.post(reverse('overview'), {"due_date": "", "status": "", "title": "",
-                                                              "student": id, "assessor": ""})
+                                                              "student": id, "assessor": "", "sort": ""})
 
             self.assertEqual(200, response.status_code)
             self.assertEqual(1, len(response.context["theses"]))
@@ -97,7 +97,7 @@ class ViewOverviewTests(LoggedInTestCase):
 
         for name in ["L", "Larry", "Langzeitstudent", "Larry Langzeitstudent"]:
             response = self.client.post(reverse('overview'), {"due_date": "", "status": "", "title": "",
-                                                              "student": name, "assessor": ""})
+                                                              "student": name, "assessor": "", "sort": ""})
 
             self.assertEqual(200, response.status_code)
             self.assertEqual(1, len(response.context["theses"]))
@@ -109,7 +109,7 @@ class ViewOverviewTests(LoggedInTestCase):
 
         for title in ["Eine", "einzelne", "Thesis", "Eine einzelne", "Eine einzelne Thesis"]:
             response = self.client.post(reverse('overview'), {"due_date": "", "status": "", "title": title,
-                                                              "student": "", "assessor": ""})
+                                                              "student": "", "assessor": "", "sort": ""})
 
             self.assertEqual(200, response.status_code)
             self.assertEqual(1, len(response.context["theses"]))
@@ -121,7 +121,7 @@ class ViewOverviewTests(LoggedInTestCase):
 
         for name in ["H", "Hansi", "Schmidt", "Hansi Schmidt"]:
             response = self.client.post(reverse('overview'), {"due_date": "", "status": "", "title": "",
-                                                              "student": "", "assessor": name})
+                                                              "student": "", "assessor": name, "sort": ""})
 
             self.assertEqual(200, response.status_code)
             self.assertEqual(1, len(response.context["theses"]))
