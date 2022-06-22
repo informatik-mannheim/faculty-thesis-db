@@ -23,7 +23,7 @@ SENDFILE_BACKEND = 'django_sendfile.backends.xsendfile'
 SENDFILE_ROOT = '/tmp/thesispool'
 
 # insert generated SECRET_KEY
-SECRET_KEY = ''
+SECRET_KEY = '688g+cxl4lo57+wym1*(v%agjlqcuin$90_5*-4(vn(enfah!'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -82,7 +82,14 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     },
-    # insert data to faculty-db
+    # replace with real faculty-DB data
+    'faculty': {
+    	'ENGINE': 'django.db.backends.mysql',
+    	'NAME': 'sl',
+    	'USER': 'linus',
+    	'PASSWORD': 'thesispool',
+    	'HOST': 'localhost',
+    }
 }
 
 AUTH_USER_MODEL = 'website.User'
@@ -122,8 +129,8 @@ AUTH_LDAP_GROUP_SEARCH = LDAPSearch("ou=groups,dc=informatik,dc=hs-mannheim,dc=d
 AUTH_LDAP_GROUP_TYPE = PosixGroupType()
 
 # LDAP connection data
-# replace URI with correct URI
-AUTH_LDAP_SERVER_URI = "ldap://ldap-master.sv.hs-mannheim.de"
+#AUTH_LDAP_SERVER_URI = "ldap://ldap-master.sv.hs-mannheim.de"
+AUTH_LDAP_SERVER_URI = "ldaps://141.19.140.62"
 AUTH_LDAP_USER_DN_TEMPLATE = "uid=%(user)s,ou=Users,dc=informatik,dc=hs-mannheim,dc=de"
 AUTH_LDAP_USER_ATTR_MAP = {"first_name": "givenName",
                            "last_name": "sn",
@@ -166,9 +173,13 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRs = [
     os.path.join(BASE_DIR, "static"),
+    "/usr/local/lib/python3.8/dist-packages/django/contrib/admin/static",
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = [
+    os.path.join(BASE_DIR, "static"),
+    "/usr/local/lib/python3.8/dist-packages/django/contrib/admin/static",
+]
 
 # from .settings_secret import *  #noqa
 
