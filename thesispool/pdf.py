@@ -3,6 +3,7 @@
 import subprocess
 import tempfile
 import os
+import math
 from thesispool.settings import BASE_DIR
 from datetime import datetime
 
@@ -144,8 +145,6 @@ class AbstractPDF(object):
         if self.thesis.assessor:
             xfdf.add_field("Name Zweitprüfer", self.thesis.assessor.short_name)
             xfdf.add_field("Zweitkorrektor/in", self.thesis.assessor.short_name)
-            xfdf.add_field("Kurzzeichen_Zweit", self.thesis.assessor.first_name[0] + self.thesis.assessor.last_name[0])
-            xfdf.add_field("Kurzzeichen2", self.thesis.assessor.first_name[0] + self.thesis.assessor.last_name[0])
 
         if self.thesis.external:
             if self.form_name == "bewertung":
@@ -165,7 +164,8 @@ class AbstractPDF(object):
             if self.thesis.assessor_grade is not None:
                 assessor_grade = ('%.1f' % self.thesis.assessor_grade).replace('.', ',')
                 xfdf.add_field("Note Zweitprüfer", assessor_grade)
-                grade = ('%.1f' % ((self.thesis.grade + self.thesis.assessor_grade) / 2)).replace('.', ',')
+                grade = str((self.thesis.grade + self.thesis.assessor_grade) / 2).replace('.', ',')
+                grade = grade[:len(grade) - 1]
             xfdf.add_field("Gesamtnote", grade)
 
         if self.thesis.external_where:
