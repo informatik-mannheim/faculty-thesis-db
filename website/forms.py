@@ -178,6 +178,7 @@ class AssessorForm(forms.Form):
         max_length=300,
         required=False,
         widget=forms.TextInput(attrs={'placeholder': 'Nachname'}))
+
     email = forms.CharField(
         label="E-Mail",
         max_length=300,
@@ -230,7 +231,7 @@ class ThesisApplicationForm(forms.Form):
     )
 
     external_where = forms.CharField(
-        label="bei", max_length=300, required=False)
+        label="bei", max_length=200, required=False)
 
     def clean(self):
         super(ThesisApplicationForm, self).clean()
