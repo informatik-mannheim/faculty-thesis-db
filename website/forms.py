@@ -169,19 +169,18 @@ class CheckStudentIdForm(forms.Form):
 class AssessorForm(forms.Form):
     first_name = forms.CharField(
         label="Vorname",
-        max_length=300,
+        max_length=30,
         required=False,
         widget=forms.TextInput(attrs={'placeholder': 'Vorname'}))
 
     last_name = forms.CharField(
         label="Nachname",
-        max_length=300,
+        max_length=30,
         required=False,
         widget=forms.TextInput(attrs={'placeholder': 'Nachname'}))
-
     email = forms.CharField(
         label="E-Mail",
-        max_length=300,
+        max_length=80,
         required=False,
         widget=forms.TextInput(attrs={'placeholder': 'E-Mail'}))
 
