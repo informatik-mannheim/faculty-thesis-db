@@ -165,13 +165,9 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRs = [
     os.path.join(BASE_DIR, "static"),
-    "/usr/local/lib/python3.8/dist-packages/django/contrib/admin/static",
 ]
 
-STATIC_ROOT = [
-    os.path.join(BASE_DIR, "static"),
-    "/usr/local/lib/python3.8/dist-packages/django/contrib/admin/static",
-]
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # from .settings_secret import *  #noqa
 
