@@ -158,12 +158,8 @@ class TestPDF(TestCase):
         thesis.assessor_grade = Decimal("1.7")
         thesis.handed_in_date = thesis.due_date
         thesis.examination_date = date(2020, 3, 13)
-        thesis.restriction_note = True
 
         xfdf = AbstractPDF(thesis, "gibtsnich")._generate_xfdf()
 
-        date_format = "%d.%m.%Y"
-
         self.assertEqual(xfdf.fields["Note Zweitprüfer"], "1,7")
-        full_grade = ('%.1f' % ((thesis.grade + thesis.assessor_grade) / 2)).replace('.', ',')
-        self.assertEqual(xfdf.fields["Gesamtnote"], full_grade)
+        self.assertEqual(xfdf.fields["Gesamtnote"], "1,5")
