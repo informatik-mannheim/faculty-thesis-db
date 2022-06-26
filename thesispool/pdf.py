@@ -164,8 +164,8 @@ class AbstractPDF(object):
             if self.thesis.assessor_grade is not None:
                 assessor_grade = ('%.1f' % self.thesis.assessor_grade).replace('.', ',')
                 xfdf.add_field("Note Zweitprüfer", assessor_grade)
-                grade = str((self.thesis.grade + self.thesis.assessor_grade) / 2).replace('.', ',')
-                grade = grade[:len(grade) - 1]
+                grade = math.floor(((self.thesis.grade + self.thesis.assessor_grade) / 2)*10)/10
+                grade = str(grade).replace('.', ',')
             xfdf.add_field("Gesamtnote", grade)
 
         if self.thesis.external_where:
