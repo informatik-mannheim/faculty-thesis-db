@@ -32,6 +32,7 @@ a2enmod ssl
 a2enmod xsendfile
 
 # make db and folder above it owned by www-data
+python3 manage.py makemigrations
 python3 manage.py migrate
 python3 manage.py collectstatic --no-input
 
