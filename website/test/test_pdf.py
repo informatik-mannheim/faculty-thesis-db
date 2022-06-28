@@ -84,6 +84,7 @@ class TestPDF(TestCase):
 
         self.assertNotIn("Name Zweitprüfer", xfdf.fields)
         self.assertNotIn("Zweitkorrektor/in", xfdf.fields)
+        self.assertNotIn("assessor_grade", xfdf.fields)
 
     def test_no_grade(self):
         supervisor = Supervisor(
@@ -92,7 +93,8 @@ class TestPDF(TestCase):
 
         xfdf = AbstractPDF(thesis, "gibtsnich")._generate_xfdf()
 
-        self.assertNotIn('Note', xfdf.fields)
+        self.assertNotIn('Note Erstprüfer', xfdf.fields)
+        self.assertNotIn('Gesamtnote', xfdf.fields)
 
     def test_prolonged_thesis(self):
         supervisor = Supervisor(
@@ -158,8 +160,43 @@ class TestPDF(TestCase):
         thesis.assessor_grade = Decimal("1.7")
         thesis.handed_in_date = thesis.due_date
         thesis.examination_date = date(2020, 3, 13)
+        thesis.restriction_note = True
 
         xfdf = AbstractPDF(thesis, "gibtsnich")._generate_xfdf()
 
         self.assertEqual(xfdf.fields["Note Zweitprüfer"], "1,7")
-        self.assertEqual(xfdf.fields["Gesamtnote"], "1,5")
+
+    def test_full_grade(self):
+        supervisor = Supervisor(
+            first_name="Max", last_name="Muster", initials="MMU")
+        thesis = ThesisStub.applied(supervisor)
+        thesis.student_contact = 'student@example.com'
+        thesis.grade = Decimal("1.3")
+        thesis.assessor_grade = Decimal("1.4")
+        thesis.handed_in_date = thesis.due_date
+        thesis.examination_date = date(2020, 3, 13)
+
+        thesis2 = ThesisStub.applied(supervisor)
+        thesis2.student_contact = 'student@example.com'
+        thesis2.grade = Decimal("1.4")
+        thesis2.assessor_grade = Decimal("1.4")
+        thesis2.handed_in_date = thesis.due_date
+        thesis2.examination_date = date(2020, 3, 13)
+
+        xfdf = AbstractPDF(thesis, "gibtsnich")._generate_xfdf()
+        xfdf2= AbstractPDF(thesis2, "gibtsnich")._generate_xfdf()
+
+
+        self.assertEqual(xfdf.fields["Gesamtnote"], "1,3")
+        self.assertEqual(xfdf2.fields["Gesamtnote"], "1,4")
+
+    def test_entity_replacement(self):
+        supervisor = Supervisor(
+            first_name="Max", last_name="Muster", initials="MMU")
+        thesis = ThesisStub.applied(supervisor)
+        thesis.student_contact = 'student@example.com'
+        thesis.title = '<&"\'>Test'
+
+        xfdf = AbstractPDF(thesis, "gibtsnich")._generate_xfdf()
+
+        self.assertEqual(xfdf.fields["Thema_der_Arbeit"], "&lt;&amp;&quot;&apos;&gt;Test")
