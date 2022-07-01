@@ -178,6 +178,7 @@ class AssessorForm(forms.Form):
         max_length=30,
         required=False,
         widget=forms.TextInput(attrs={'placeholder': 'Nachname'}))
+
     email = forms.CharField(
         label="E-Mail",
         max_length=80,
@@ -218,6 +219,10 @@ class ThesisApplicationForm(forms.Form):
         widget=forms.SelectDateWidget(years=YEARS),
         label="Abgabe")
 
+    prolongation_date = forms.DateField(
+        widget=forms.HiddenInput(),
+        required = False)
+
     external = forms.BooleanField(
         label="extern",
         initial=False,
@@ -237,10 +242,15 @@ class ThesisApplicationForm(forms.Form):
 
         begin = self.cleaned_data.get('begin_date')
         end = self.cleaned_data.get('due_date')
+        prolong = self.cleaned_data.get('prolongation_date')
 
         if begin is not None and end is not None and begin >= end:
             raise forms.ValidationError(
                 {'due_date': 'Abgabe muss später als der Beginn sein'})
+
+        if prolong is not None and end is not None and prolong < end:
+            raise forms.ValidationError(
+                {'due_date': 'Abgabe muss bevor dem %s liegen' % prolong})
 
     def create_thesis(self, assessor, supervisor, student):
         if not self.is_valid():
@@ -274,6 +284,7 @@ class ThesisApplicationForm(forms.Form):
 
         if assessor:
             assessor.save()
+
         thesis.title = self.cleaned_data['title']
         thesis.begin_date = self.cleaned_data['begin_date']
         thesis.due_date = self.cleaned_data['due_date']
@@ -282,8 +293,10 @@ class ThesisApplicationForm(forms.Form):
         thesis.external_where = self.cleaned_data['external_where']
         thesis.student_contact = self.cleaned_data[
             "student_email"] or student.email
+
         thesis.full_clean()
         thesis.save()
+
         return thesis
 
     @classmethod

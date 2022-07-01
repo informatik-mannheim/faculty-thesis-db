@@ -285,6 +285,17 @@ class ChangeView(View):
             'external_where': self.thesis.external_where,
             'student_email': self.thesis.student_contact})
 
+        if self.thesis.is_prolonged():
+            form = ThesisApplicationForm(initial={
+                'student_id': student.id,
+                'begin_date': self.thesis.begin_date,
+                'due_date': self.thesis.due_date,
+                'prolongation_date': self.thesis.prolongation_date,
+                'title': self.thesis.title,
+                'external': self.thesis.external,
+                'external_where': self.thesis.external_where,
+                'student_email': self.thesis.student_contact})
+
         if assessor:
             a_form = AssessorForm(initial={
                 'first_name': assessor.first_name,
