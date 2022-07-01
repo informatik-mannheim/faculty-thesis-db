@@ -65,11 +65,10 @@
         <div class="row">
             <div class="fieldWrapper">
                 <div class="col-md-1">
-                    
                     {{ form.begin_date.label_tag }}
                 </div>
                 <div class="col-md-8">
-                {{ form.begin_date.errors }}
+                    {{ form.begin_date.errors }}
                     {{ form.begin_date }}
                 </div>
             </div>
@@ -88,6 +87,15 @@
                 </div>
             </div>
         </div>
+
+        <div class="row">
+            <div class="fieldWrapper">
+                <div class="col-md-8">
+                    {{ form.prolongation_date }}
+                </div>
+            </div>
+        </div>
+
         <br />
         <div class="row">
             <div class="col-md-12">
