@@ -269,21 +269,12 @@ class ChangeView(View):
     def dispatch(self, request, *args, **kwargs):
         self.thesis = get_object_or_404(Thesis, surrogate_key=kwargs["key"])
         self.headline = "{0}thesis ändern".format(
-            "Master" if self.thesis.student.is_master() else "Bachelor")
+            "Master" if self.thesis.is_master() else "Bachelor")
         return super(ChangeView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         student = self.thesis.student
         assessor = self.thesis.assessor
-
-        form = ThesisApplicationForm(initial={
-            'student_id': student.id,
-            'begin_date': self.thesis.begin_date,
-            'due_date': self.thesis.due_date,
-            'title': self.thesis.title,
-            'external': self.thesis.external,
-            'external_where': self.thesis.external_where,
-            'student_email': self.thesis.student_contact})
 
         if self.thesis.is_prolonged():
             form = ThesisApplicationForm(initial={
@@ -291,6 +282,15 @@ class ChangeView(View):
                 'begin_date': self.thesis.begin_date,
                 'due_date': self.thesis.due_date,
                 'prolongation_date': self.thesis.prolongation_date,
+                'title': self.thesis.title,
+                'external': self.thesis.external,
+                'external_where': self.thesis.external_where,
+                'student_email': self.thesis.student_contact})
+        else:
+            form = ThesisApplicationForm(initial={
+                'student_id': student.id,
+                'begin_date': self.thesis.begin_date,
+                'due_date': self.thesis.due_date,
                 'title': self.thesis.title,
                 'external': self.thesis.external,
                 'external_where': self.thesis.external_where,
@@ -341,7 +341,7 @@ class DeleteThesis(View):
     def dispatch(self, request, *args, **kwargs):
         self.thesis = get_object_or_404(Thesis, surrogate_key=kwargs["key"])
         self.headline = "{0}thesis löschen".format(
-            "Master" if self.thesis.student.is_master() else "Bachelor")
+            "Master" if self.thesis.is_master() else "Bachelor")
         return super(DeleteThesis, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):

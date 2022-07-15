@@ -220,6 +220,7 @@ class ThesisApplicationForm(forms.Form):
         label="Abgabe")
 
     prolongation_date = forms.DateField(
+        label="Verlängerungsdatum",
         widget=forms.HiddenInput(),
         required = False)
 
@@ -269,6 +270,7 @@ class ThesisApplicationForm(forms.Form):
                         due_date=self.cleaned_data['due_date'],
                         assessor=assessor,
                         student=student,
+                        thesis_program=student.program,
                         supervisor=supervisor,
                         external=self.cleaned_data['external'],
                         external_where=self.cleaned_data['external_where'],

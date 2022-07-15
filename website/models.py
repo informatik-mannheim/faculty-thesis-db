@@ -38,7 +38,6 @@ class SupervisorManager(models.Manager):
             con.start_tls_s()
             need_unbind = True
         finally:
-
             dn = AUTH_LDAP_USER_DN_TEMPLATE % {'user': uid}
 
             results = con.search_s(dn, ldap.SCOPE_SUBTREE, "(objectClass=*)")
@@ -171,6 +170,7 @@ class Thesis(models.Model):
         null=True,
         blank=True)
     student = models.ForeignKey('Student', on_delete=models.CASCADE)
+    thesis_program = models.CharField(max_length=3)
     begin_date = models.DateField()
     due_date = models.DateField()
     external = models.BooleanField(default=False)
@@ -302,8 +302,11 @@ class Thesis(models.Model):
     def deadline(self):
         return self.prolongation_date if self.is_prolonged() else self.due_date
 
+    def status_changed(self):
+        return self.status == 0 and self.excom_status == 0
+
     def is_handed_in(self):
-        return self.handed_in_date
+        return self.handed_in_date is not None
 
     def is_graded(self):
         return self.status == Thesis.GRADED
@@ -325,6 +328,12 @@ class Thesis(models.Model):
 
     def is_rejected(self):
         return self.excom_status == Thesis.EXCOM_REJECTED
+
+    def is_master(self):
+        return self.thesis_program == 'IM'
+
+    def is_bachelor(self):
+        return not self.is_master()
 
     def clean(self):
         self.clean_fields()
