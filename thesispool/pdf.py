@@ -125,8 +125,8 @@ class AbstractPDF(object):
         xfdf.add_field("Thema_der_Arbeit", self.thesis.title)
         xfdf.add_field("Kurztitel der Arbeit", self.thesis.title)
         xfdf.add_field("Email", self.thesis.student_contact)
-        xfdf.add_field("Fakultät Studiengang", "Fakultät für Informatik / " + self.thesis.student.program)
-        xfdf.add_field("Fakultät_Studiengang", "Fakultät für Informatik / " + self.thesis.student.program)
+        xfdf.add_field("Fakultät Studiengang", "Fakultät für Informatik / " + self.thesis.thesis_program)
+        xfdf.add_field("Fakultät_Studiengang", "Fakultät für Informatik / " + self.thesis.thesis_program)
         xfdf.add_field("Kurzzeichen_Fakultät", "I")
         xfdf.add_field("Fakultät", "I")
         xfdf.add_field("Kurzzeichen1", self.thesis.supervisor.initials)
@@ -135,7 +135,7 @@ class AbstractPDF(object):
         xfdf.add_field("Name Erstprüfer", self.thesis.supervisor.short_name)
         xfdf.add_field("Hochschullehrer/in", self.thesis.supervisor.short_name)
 
-        if self.thesis.student.is_master():
+        if self.thesis.is_master():
             xfdf.add_field("Auswahl_Arbeit", "1")
             xfdf.add_field("Wahlt_Arbeit", "Masterarbeit")
         else:
@@ -164,7 +164,7 @@ class AbstractPDF(object):
             if self.thesis.assessor_grade is not None:
                 assessor_grade = ('%.1f' % self.thesis.assessor_grade).replace('.', ',')
                 xfdf.add_field("Note Zweitprüfer", assessor_grade)
-                grade = math.floor(((self.thesis.grade + self.thesis.assessor_grade) / 2)*10)/10
+                grade = math.floor(((self.thesis.grade + self.thesis.assessor_grade) / 2) * 10) / 10
                 grade = str(grade).replace('.', ',')
             xfdf.add_field("Gesamtnote", grade)
 
