@@ -118,41 +118,36 @@ class Overview(ListView):
         if request.POST["title"] != "":
             theses = theses.filter(title__contains=request.POST["title"])
 
-        # search-parameter for assessors is either a name or their id
+        # search-parameter for students is either a name, surname, both the of the previous or their id
         if request.POST["student"] != "":
             if True in [char.isdigit() for char in request.POST["student"]]:
-                # get all students whose id starts with request.POST["student"]
                 students_with_id = Student.objects.filter(
-                    id__iregex=r'^'+request.POST["student"]+'[0-9]*')
+                    id__startswith=request.POST["student"])
             else:
                 # assumption: no spaces in surnames
                 if " " in request.POST["student"]:
                     student_name, student_surname = request.POST["student"].rsplit(" ", 1)
                     students_with_name = Student.objects.filter(
-                        first_name__contains=student_name)
-                    students_with_surname = Student.objects.filter(
-                        last_name__contains=student_surname)
+                        first_name__startswith=student_name, last_name__startswith=student_surname)
                 else:
                     students_with_name = Student.objects.filter(
-                        first_name__contains=request.POST["student"])
+                        first_name__startswith=request.POST["student"])
                     students_with_surname = Student.objects.filter(
-                        last_name__contains=request.POST["student"])
+                        last_name__startswith=request.POST["student"])
                 students_with_id = [student.id for student in students_with_name or students_with_surname]
             theses = theses.filter(student__in=students_with_id)
 
-        # search-parameter for assessors is a name
+        # search-parameter for assessors is a name, surname or both
         if request.POST["assessor"] != "":
             if " " in request.POST["assessor"]:
                 assessor_name, assessor_surname = request.POST["assessor"].rsplit(" ", 1)
                 assessors_with_name = Assessor.objects.filter(
-                    first_name__contains=assessor_name)
-                assessors_with_surname = Assessor.objects.filter(
-                    last_name__contains=assessor_surname)
+                    first_name__startswith=assessor_name, last_name__startswith=assessor_surname)
             else:
                 assessors_with_name = Assessor.objects.filter(
-                    first_name__contains=request.POST["assessor"])
+                    first_name__startswith=request.POST["assessor"])
                 assessors_with_surname = Assessor.objects.filter(
-                    last_name__contains=request.POST["assessor"])
+                    last_name__startswith=request.POST["assessor"])
             theses = theses.filter(
                 assessor__in=[assessor.id for assessor in assessors_with_name or assessors_with_surname])
 
