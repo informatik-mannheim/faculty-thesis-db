@@ -96,7 +96,7 @@ class Overview(ListView):
     template_name = "overview.html"
 
     def get(self, request, *args, **kwargs):
-        if request.user.is_secretary:
+        if request.user.is_secretary or request.user.is_head:
             theses = Thesis.objects.all()
         else:
             theses = Thesis.objects.for_supervisor(request.user.username)
@@ -104,7 +104,7 @@ class Overview(ListView):
         return render(request, 'website/overview.html', {"theses": theses})
 
     def post(self, request, *args, **kwargs):
-        if request.user.is_secretary:
+        if request.user.is_secretary or request.user.is_head:
             theses = Thesis.objects.all()
         else:
             theses = Thesis.objects.for_supervisor(request.user.username)
@@ -137,7 +137,7 @@ class Overview(ListView):
                         first_name__contains=request.POST["student"])
                     students_with_surname = Student.objects.filter(
                         last_name__contains=request.POST["student"])
-                students_with_id = [student.id for student in students_with_name | students_with_surname]
+                students_with_id = [student.id for student in students_with_name or students_with_surname]
             theses = theses.filter(student__in=students_with_id)
 
         # search-parameter for assessors is a name
@@ -154,7 +154,7 @@ class Overview(ListView):
                 assessors_with_surname = Assessor.objects.filter(
                     last_name__contains=request.POST["assessor"])
             theses = theses.filter(
-                assessor__in=[assessor.id for assessor in assessors_with_name | assessors_with_surname])
+                assessor__in=[assessor.id for assessor in assessors_with_name or assessors_with_surname])
 
         if request.POST["sort"] != "":
             # students are ordered by surname
