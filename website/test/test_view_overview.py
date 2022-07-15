@@ -37,6 +37,42 @@ class ViewOverviewTests(LoggedInTestCase):
         self.assertTrue(not_visible not in response.context["theses"])
         self.assertIn('class="icon-link"', str(response.content))
 
+    def test_overview_for_secretary(self):
+        """Overview should display all theses for secretaries"""
+        self.user.is_secretary = True
+        self.user.save()
+
+        other_supervisor = Supervisor(first_name="Peter",
+                                      last_name="Müller",
+                                      id="p.mueller")
+
+        other_supervisor.save()
+
+        ThesisStub.small(other_supervisor)
+
+        response = self.client.get(reverse('overview'))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(3, len(response.context["theses"]))
+
+    def test_overview_for_head(self):
+        """Overview should display all theses for head of examination board"""
+        self.user.is_head = True
+        self.user.save()
+
+        other_supervisor = Supervisor(first_name="Peter",
+                                      last_name="Müller",
+                                      id="p.mueller")
+
+        other_supervisor.save()
+
+        ThesisStub.small(other_supervisor)
+
+        response = self.client.get(reverse('overview'))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(3, len(response.context["theses"]))
+
     def test_no_operations_possible_for_graded_thesis(self):
         thesis = ThesisStub.applied(self.supervisor)
         thesis.save()
@@ -96,7 +132,7 @@ class ViewOverviewTests(LoggedInTestCase):
         thesis = ThesisStub.applied(self.supervisor)
         thesis.save()
 
-        for name in ["L", "Larry", "Langzeitstudent", "Larry Langzeitstudent"]:
+        for name in ["L", "L L", "Larry", "Langzeitstudent", "Larry Langzeitstudent"]:
             response = self.client.post(reverse('overview'), {"due_date": "", "status": "", "title": "",
                                                               "student": name, "assessor": "", "sort": ""})
 
@@ -108,7 +144,7 @@ class ViewOverviewTests(LoggedInTestCase):
         thesis = ThesisStub.applied(self.supervisor)
         thesis.save()
 
-        for title in ["Eine", "einzelne", "Thesis", "Eine einzelne", "Eine einzelne Thesis"]:
+        for title in ["Eine", "Thesis", "Eine einzelne Thesis"]:
             response = self.client.post(reverse('overview'), {"due_date": "", "status": "", "title": title,
                                                               "student": "", "assessor": "", "sort": ""})
 
@@ -120,45 +156,9 @@ class ViewOverviewTests(LoggedInTestCase):
         thesis = ThesisStub.applied(self.supervisor)
         thesis.save()
 
-        for name in ["H", "Hansi", "Schmidt", "Hansi Schmidt"]:
+        for name in ["H", "H S", "Hansi", "Schmidt", "Hansi Schmidt"]:
             response = self.client.post(reverse('overview'), {"due_date": "", "status": "", "title": "",
                                                               "student": "", "assessor": name, "sort": ""})
 
             self.assertEqual(200, response.status_code)
             self.assertEqual(1, len(response.context["theses"]))
-
-    def test_overview_for_secretary(self):
-        """Overview should display all theses for secretaries"""
-        self.user.is_secretary = True
-        self.user.save()
-
-        other_supervisor = Supervisor(first_name="Peter",
-                                      last_name="Müller",
-                                      id="p.mueller")
-
-        other_supervisor.save()
-
-        ThesisStub.small(other_supervisor)
-
-        response = self.client.get(reverse('overview'))
-
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(3, len(response.context["theses"]))
-
-    def test_overview_for_head(self):
-        """Overview should display all theses for head of examination board"""
-        self.user.is_head = True
-        self.user.save()
-
-        other_supervisor = Supervisor(first_name="Peter",
-                                      last_name="Müller",
-                                      id="p.mueller")
-
-        other_supervisor.save()
-
-        ThesisStub.small(other_supervisor)
-
-        response = self.client.get(reverse('overview'))
-
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(3, len(response.context["theses"]))
