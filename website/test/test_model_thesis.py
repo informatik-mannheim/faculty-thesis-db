@@ -13,7 +13,7 @@ class ThesisModelTests(TestCase):
         """
         Create dependencies to reduce redundancy in tests
         """
-        self.student = Student(first_name="Eva", last_name="Maier", id=123456)
+        self.student = Student(first_name="Eva", last_name="Maier", id=123456, program="IB")
         self.assessor = Assessor(first_name="Peter", last_name="Müller")
         self.supervisor = Supervisor(first_name="Thomas",
                                      last_name="Smits", id="t.smits")
@@ -30,6 +30,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title=title,
+                        thesis_program=self.student.program,
                         begin_date=datetime.now().date(),
                         due_date=datetime(2019, 1, 30),
                         external=True,
@@ -42,6 +43,7 @@ class ThesisModelTests(TestCase):
         self.assertEqual(self.assessor, Thesis.objects.first().assessor)
         self.assertEqual(self.student, Thesis.objects.first().student)
         self.assertEqual(title, Thesis.objects.first().title)
+        self.assertEqual("IB", Thesis.objects.first().thesis_program)
         self.assertEqual("John Deere", Thesis.objects.first().external_where)
         self.assertEqual(True, Thesis.objects.first().external)
 
@@ -56,6 +58,7 @@ class ThesisModelTests(TestCase):
                         supervisor=self.supervisor,
                         student=self.student,
                         title=title,
+                        thesis_program=self.student.program,
                         begin_date=datetime.now().date(),
                         due_date=datetime(2019, 1, 30))
         thesis.save()
@@ -75,6 +78,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title=title,
+                        thesis_program=self.student.program,
                         begin_date=datetime.now().date(),
                         due_date=datetime(2019, 1, 30))
         thesis.save()
@@ -93,6 +97,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title=title,
+                        thesis_program=self.student.program,
                         begin_date=datetime.now().date(),
                         due_date=datetime(2019, 1, 30))
         thesis.save()
@@ -110,6 +115,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title=title,
+                        thesis_program=self.student.program,
                         begin_date=datetime.now().date(),
                         due_date=datetime(2018, 1, 30))
 
@@ -117,6 +123,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title=title,
+                        thesis_program=self.student.program,
                         begin_date=datetime.now().date(),
                         due_date=datetime(2019, 1, 30))
 
@@ -124,6 +131,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title=title,
+                        thesis_program=self.student.program,
                         begin_date=datetime.now().date(),
                         due_date=datetime(2017, 1, 30))
 
@@ -137,6 +145,7 @@ class ThesisModelTests(TestCase):
                                   assessor=self.assessor,
                                   supervisor=supervisor,
                                   title=title,
+                                  thesis_program=self.student.program,
                                   begin_date=datetime.now().date(),
                                   due_date=datetime(2017, 1, 30))
 
@@ -163,6 +172,7 @@ class ThesisModelTests(TestCase):
                         assessor=None,
                         supervisor=self.supervisor,
                         title=title,
+                        thesis_program=self.student.program,
                         begin_date=datetime.now().date(),
                         due_date=datetime(2018, 1, 30))
 
@@ -179,6 +189,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title=title,
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=datetime(2017, 11, 30).date(),
                         due_date=datetime(2018, 1, 30).date())
@@ -205,6 +216,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title=title,
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=timezone.now().date(),
                         due_date=datetime(2018, 1, 30))
@@ -231,6 +243,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title=title,
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=timezone.now().date(),
                         due_date=datetime(2018, 1, 30))
@@ -257,6 +270,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title=title,
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=datetime.now().date(),
                         due_date=datetime(2018, 1, 30))
@@ -277,6 +291,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=datetime.now().date(),
                         due_date=datetime(2018, 1, 30))
@@ -305,6 +320,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=datetime.now().date(),
                         due_date=datetime(2018, 1, 30))
@@ -335,6 +351,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=datetime(2018, 1, 30),
                         due_date=datetime(2018, 6, 30),
@@ -360,6 +377,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=datetime(2018, 1, 30),
                         due_date=datetime(2018, 6, 30),
@@ -390,6 +408,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.HANDED_IN,
                         begin_date=datetime(2018, 1, 30),
                         due_date=datetime(2018, 6, 30))
@@ -413,6 +432,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.GRADED,
                         begin_date=datetime(2018, 1, 30),
                         due_date=datetime(2018, 6, 30))
@@ -436,6 +456,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=datetime(2018, 1, 30),
                         due_date=datetime(2018, 6, 30))
@@ -454,6 +475,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=datetime(2018, 1, 30),
                         due_date=datetime(2018, 6, 30))
@@ -472,6 +494,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=datetime(2018, 1, 30),
                         due_date=datetime(2018, 6, 30))
@@ -488,6 +511,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30),
@@ -500,6 +524,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30),
@@ -512,6 +537,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30),
@@ -524,6 +550,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30),
@@ -536,6 +563,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=datetime(2018, 1, 30).date(),
                         due_date=datetime(2018, 6, 30).date(),
@@ -549,6 +577,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30),
@@ -562,6 +591,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30))
@@ -579,6 +609,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30))
@@ -598,6 +629,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.PROLONGED,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30),
@@ -616,6 +648,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.HANDED_IN,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30),
@@ -636,6 +669,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.GRADED,
                         grade=Decimal("1.3"),
                         begin_date=date(2018, 1, 30),
@@ -657,6 +691,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30))
@@ -668,9 +703,28 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.PROLONGED,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30),
                         prolongation_date=date(2018, 9, 30))
 
         self.assertEqual(thesis.prolongation_date, thesis.deadline)
+
+    def test_stuent_is_now_master(self):
+        """id stays the same if the student changes his program.
+        The program of old theses has to stay the same."""
+        thesis = Thesis(student=self.student,
+                        assessor=self.assessor,
+                        supervisor=self.supervisor,
+                        title="Some title",
+                        thesis_program=self.student.program,
+                        status=Thesis.PROLONGED,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30),
+                        prolongation_date=date(2018, 9, 30))
+
+        self.student.program = "IM"
+
+        self.assertEqual(self.student.program, "IM")
+        self.assertEqual(thesis.thesis_program, "IB")

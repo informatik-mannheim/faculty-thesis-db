@@ -39,8 +39,8 @@ class TestPDF(TestCase):
         self.assertEqual(xfdf.fields["Matrikelnr"], str(thesis.student.id))
         self.assertEqual(xfdf.fields["Matrikelnummer"], str(thesis.student.id))
         self.assertEqual(xfdf.fields["Email"], thesis.student_contact)
-        self.assertEqual(xfdf.fields["Fakultät Studiengang"], "Fakultät für Informatik / " + thesis.student.program)
-        self.assertEqual(xfdf.fields["Fakultät_Studiengang"], "Fakultät für Informatik / " + thesis.student.program)
+        self.assertEqual(xfdf.fields["Fakultät Studiengang"], "Fakultät für Informatik / " + thesis.thesis_program)
+        self.assertEqual(xfdf.fields["Fakultät_Studiengang"], "Fakultät für Informatik / " + thesis.thesis_program)
         self.assertEqual(xfdf.fields["Kurzzeichen_Fakultät"], "I")
         self.assertEqual(xfdf.fields["Fakultät"], "I")
         self.assertEqual(xfdf.fields["Kurzzeichen1"], supervisor.initials)
@@ -194,9 +194,19 @@ class TestPDF(TestCase):
         supervisor = Supervisor(
             first_name="Max", last_name="Muster", initials="MMU")
         thesis = ThesisStub.applied(supervisor)
-        thesis.student_contact = 'student@example.com'
         thesis.title = '<&"\'>Test'
 
         xfdf = AbstractPDF(thesis, "gibtsnich")._generate_xfdf()
 
         self.assertEqual(xfdf.fields["Thema_der_Arbeit"], "&lt;&amp;&quot;&apos;&gt;Test")
+
+    def test_old_thesis_master_student(self):
+        supervisor = Supervisor(
+            first_name="Max", last_name="Muster", initials="MMU")
+        thesis = ThesisStub.applied(supervisor)
+        thesis.student.program = 'IM'
+
+        xfdf = AbstractPDF(thesis, "gibtsnich")._generate_xfdf()
+
+        self.assertEqual(thesis.student.program, "IM")
+        self.assertEqual(xfdf.fields["Fakultät Studiengang"], "Fakultät für Informatik / " + "IB")

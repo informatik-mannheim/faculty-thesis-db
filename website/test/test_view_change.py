@@ -29,6 +29,7 @@ class ViewChangeTests(LoggedInTestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Eine einzelne Thesis",
+                        thesis_program=self.student.program,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 3, 30),
                         status=Thesis.APPLIED,
@@ -66,6 +67,7 @@ class ViewChangeTests(LoggedInTestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Eine einzelne Thesis",
+                        thesis_program=self.student.program,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 3, 30),
                         status=Thesis.APPLIED)
@@ -88,6 +90,7 @@ class ViewChangeTests(LoggedInTestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Eine einzelne Thesis",
+                        thesis_program=self.student.program,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 3, 30),
                         prolongation_date=date(2018, 4, 30),
@@ -106,3 +109,33 @@ class ViewChangeTests(LoggedInTestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertIn('due_date', response.context["form"].errors)
+
+    def test_theses_program_does_not_change_after_creation(self):
+        """when the student changes his program, the theses_program does not change.
+        theses_program is only set when creating a thesis."""
+        thesis = Thesis(student=self.student,
+                        assessor=self.assessor,
+                        supervisor=self.supervisor,
+                        title="Eine einzelne Thesis",
+                        thesis_program=self.student.program,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 3, 30),
+                        prolongation_date=date(2018, 4, 30),
+                        status=Thesis.APPLIED)
+
+        self.student.program = "IM"
+
+        new_values = {
+            'title': 'Ein ganz anderer Titel',
+            'thesis_program': self.student.program,
+            'begin_date': date(2019, 1, 30),
+            'due_date': date(2018, 5, 30),
+        }
+
+        thesis.save()
+
+        response = self.client.post(
+            reverse('change', args=[thesis.surrogate_key]), new_values)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("IB", thesis.thesis_program)
