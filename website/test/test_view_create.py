@@ -277,6 +277,21 @@ class ViewCreateTests(TestCase):
         self.assertIn("s_form", response.context)
         self.assertIsNone(response.context["supervisor"])
 
+    def test_supervisor_choices_for_head(self):
+        user = User(username="t.prof", password="p4&&", initials="TPF")
+
+        user.head = True
+        user.save()
+
+        client = Client()
+        client.force_login(user)
+
+        response = client.get(reverse('create', args=['123456']))
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("s_form", response.context)
+        self.assertIn(response.context["supervisor"], Supervisor.objects.fetch_supervisors_from_ldap())
+
     def test_supervisor_choice_is_validated(self):
         user = User(username="t.sekretariat", password="pass", initials="SEK")
 

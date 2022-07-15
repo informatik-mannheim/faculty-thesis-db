@@ -1,4 +1,5 @@
 from django.urls import reverse
+from django.test import TestCase, Client
 
 from datetime import date
 from decimal import Decimal
@@ -125,3 +126,39 @@ class ViewOverviewTests(LoggedInTestCase):
 
             self.assertEqual(200, response.status_code)
             self.assertEqual(1, len(response.context["theses"]))
+
+    def test_overview_for_secretary(self):
+        """Overview should display all theses for secretaries"""
+        self.user.is_secretary = True
+        self.user.save()
+
+        other_supervisor = Supervisor(first_name="Peter",
+                                      last_name="Müller",
+                                      id="p.mueller")
+
+        other_supervisor.save()
+
+        ThesisStub.small(other_supervisor)
+
+        response = self.client.get(reverse('overview'))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(3, len(response.context["theses"]))
+
+    def test_overview_for_head(self):
+        """Overview should display all theses for head of examination board"""
+        self.user.is_head = True
+        self.user.save()
+
+        other_supervisor = Supervisor(first_name="Peter",
+                                      last_name="Müller",
+                                      id="p.mueller")
+
+        other_supervisor.save()
+
+        ThesisStub.small(other_supervisor)
+
+        response = self.client.get(reverse('overview'))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(3, len(response.context["theses"]))
