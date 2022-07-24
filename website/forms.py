@@ -251,7 +251,7 @@ class ThesisApplicationForm(forms.Form):
 
         if prolong is not None and end is not None and prolong < end:
             raise forms.ValidationError(
-                {'due_date': 'Abgabe muss bevor dem %s liegen' % prolong})
+                {'due_date': 'Verlängerung liegt vor der Abgabe'})
 
     def create_thesis(self, assessor, supervisor, student):
         if not self.is_valid():
@@ -294,7 +294,7 @@ class ThesisApplicationForm(forms.Form):
         thesis.external = self.cleaned_data['external']
         thesis.external_where = self.cleaned_data['external_where']
         thesis.student_contact = self.cleaned_data[
-            "student_email"] or student.email
+            "student_email"] or thesis.student.email
 
         thesis.full_clean()
         thesis.save()
