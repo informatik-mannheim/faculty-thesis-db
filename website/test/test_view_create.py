@@ -14,11 +14,11 @@ class ViewCreateTests(TestCase):
             reverse('create', args=['123456']), post_data)
 
     def setUp(self):
-        user = User(username="t.smits", password="pass", initials="SHO")
-        user.save()
+        self.user = User(username="t.smits", password="pass", initials="SHO")
+        self.user.save()
 
         self.client = Client()
-        self.client.force_login(user)
+        self.client.force_login(self.user)
 
         self.student = Student(
             id=123456, first_name="Peter", last_name="Petermann", program="IB")
@@ -79,9 +79,10 @@ class ViewCreateTests(TestCase):
             'Zweitkorrektor unvollständig' in assessor_form.errors['__all__'])
         self.assertFalse(Thesis.objects.count())
 
-    def test_must_provide_complete_assessor_email(self):
+    def test_assessor_email_is_optional(self):
         post_data = {
-            'email': 'h.schneider@example.com',
+            'first_name': 'Max',
+            'last_name': 'Mustermann',
         }
 
         response = self.send(post_data)
@@ -89,10 +90,7 @@ class ViewCreateTests(TestCase):
         assessor_form = response.context["a_form"]
 
         self.assertEqual(200, response.status_code)
-        self.assertFalse(assessor_form.is_valid())
-        self.assertTrue(
-            'Zweitkorrektor unvollständig' in assessor_form.errors['__all__'])
-        self.assertFalse(Thesis.objects.count())
+        self.assertTrue(assessor_form.is_valid())
 
     def test_must_provide_valid_begin_date(self):
         post_data = {
@@ -103,6 +101,9 @@ class ViewCreateTests(TestCase):
             'begin_date_day': '31',
             'begin_date_month': '2',
             'begin_date_year': '2017',
+            'due_date_day': '30',
+            'due_date_month': '3',
+            'due_date_year': '2017',
             'external_where': 'Alstom',
             'student_email': 'student@example.com'
         }
@@ -263,60 +264,46 @@ class ViewCreateTests(TestCase):
                          "headline"], "Masterthesis anlegen")
 
     def test_supervisor_choices_for_sekretariat(self):
-        user = User(username="t.sekretariat", password="pass", initials="SEK")
+        self.user.is_secretary = True
+        self.user.save()
 
-        user.is_secretary = True
-        user.save()
-
-        client = Client()
-        client.force_login(user)
-
-        response = client.get(reverse('create', args=['123456']))
+        response = self.client.get(reverse('create', args=['123456']))
 
         self.assertEqual(200, response.status_code)
         self.assertIn("s_form", response.context)
         self.assertIsNone(response.context["supervisor"])
 
     def test_supervisor_choices_for_head(self):
-        user = User(username="t.prof", password="p4&&", initials="TPF")
+        supervisor = Supervisor(
+            first_name="Peter", last_name="Professor", id=self.user.username)
 
-        user.head = True
-        user.save()
+        self.user.is_head = True
+        self.user.save()
+        supervisor.save()
 
-        client = Client()
-        client.force_login(user)
-
-        response = client.get(reverse('create', args=['123456']))
+        response = self.client.get(reverse('create', args=['123456']))
 
         self.assertEqual(200, response.status_code)
         self.assertIn("s_form", response.context)
-        self.assertIn(response.context["supervisor"], Supervisor.objects.fetch_supervisors_from_ldap())
+        self.assertEqual(supervisor, response.context["supervisor"])
+        self.assertIn(supervisor, Supervisor.objects.fetch_supervisors_from_ldap())
 
     def test_supervisor_choice_is_validated(self):
-        user = User(username="t.sekretariat", password="pass", initials="SEK")
+        self.user.is_secretary = True
+        self.user.save()
 
-        user.is_secretary = True
-        user.save()
+        post_data = {'title': 'eine thesis',
+                     'supervisor': 'not.existant'}
 
-        client = Client()
-        client.force_login(user)
-
-        post_data = {'title': 'eine thesis', 'supervisors': 'not.existant'}
-
-        response = client.post(reverse('create', args=['123456']), post_data)
+        response = self.client.post(reverse('create', args=['123456']), post_data)
 
         self.assertEqual(200, response.status_code)
         self.assertFalse(response.context["s_form"].is_valid())
-        self.assertIn("supervisors", response.context["s_form"].errors)
+        self.assertIn("supervisor", str(response.context["s_form"].errors))
 
     def test_supervisor_choice_is_attached_to_thesis(self):
-        user = User(username="t.sekretariat", password="pass", initials="SEK")
-
-        user.is_secretary = True
-        user.save()
-
-        client = Client()
-        client.force_login(user)
+        self.user.is_secretary = True
+        self.user.save()
 
         post_data = {
             'title': "Ein Titel",
@@ -330,17 +317,15 @@ class ViewCreateTests(TestCase):
             'due_date_month': '6',
             'due_date_year': '2017',
             'external_where': 'Alstom',
-            'student_email': ''
+            'student_email': '',
         }
 
         post_data["supervisors"] = "t.prof"
 
-        response = client.post(reverse('create', args=['123456']), post_data)
-
-        self.assertEqual(302, response.status_code)
+        response = self.send(post_data)
 
         thesis = Thesis.objects.first()
-
         all_supervisors = Supervisor.objects.fetch_supervisors_from_ldap()
 
+        self.assertEqual(302, response.status_code)
         self.assertIn(thesis.supervisor, all_supervisors)

@@ -98,8 +98,9 @@ class ViewChangeTests(LoggedInTestCase):
 
         new_values = {
             'title': 'Ein ganz anderer Titel',
-            'begin_date': date(2019, 1, 30),
+            'begin_date': date(2018, 1, 30),
             'due_date': date(2018, 5, 30),
+            'prolongation_date': date(2018, 4, 30)
         }
 
         thesis.save()
@@ -109,6 +110,8 @@ class ViewChangeTests(LoggedInTestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertIn('due_date', response.context["form"].errors)
+        self.assertTrue(
+            'Verlängerung liegt vor der Abgabe' in str(response.context["form"].errors))
 
     def test_theses_program_does_not_change_after_creation(self):
         """when the student changes his program, the theses_program does not change.
@@ -120,7 +123,6 @@ class ViewChangeTests(LoggedInTestCase):
                         thesis_program=self.student.program,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 3, 30),
-                        prolongation_date=date(2018, 4, 30),
                         status=Thesis.APPLIED)
 
         self.student.program = "IM"
@@ -129,7 +131,7 @@ class ViewChangeTests(LoggedInTestCase):
             'title': 'Ein ganz anderer Titel',
             'thesis_program': self.student.program,
             'begin_date': date(2019, 1, 30),
-            'due_date': date(2018, 5, 30),
+            'due_date': date(2018, 3, 30)
         }
 
         thesis.save()
