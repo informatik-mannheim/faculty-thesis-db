@@ -260,7 +260,8 @@ class Thesis(models.Model):
             return False
 
         self.grade = grade
-        self.assessor_grade = assessor_grade
+        if self.assessor is not None:
+            self.assessor_grade = assessor_grade
         self.examination_date = examination_date
         self.restriction_note = restriction_note
         self.clean_fields()

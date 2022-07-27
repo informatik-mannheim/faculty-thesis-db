@@ -118,6 +118,11 @@ class GradeForm(forms.Form):
         label="Abgabedatum",
         required=True)
 
+    assessor = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False
+    )
+
     def clean(self):
         super(GradeForm, self).clean()
 
@@ -125,9 +130,11 @@ class GradeForm(forms.Form):
             if 4 < self.cleaned_data["grade"] < 5.0:
                 raise forms.ValidationError({'grade': 'Ungültige Note'})
 
-        if 'assessor_grade' in self.cleaned_data and self.cleaned_data["assessor_grade"] is not None:
-            if 4 < self.cleaned_data["assessor_grade"] < 5.0:
+        if 'assessor' in self.cleaned_data and 'assessor_grade' in self.cleaned_data and self.cleaned_data["assessor"] != '':
+            if self.cleaned_data["assessor_grade"] is not None and 4 < self.cleaned_data["assessor_grade"] < 5.0:
                 raise forms.ValidationError({'assessor_grade': 'Ungültige Note'})
+            elif self.cleaned_data["assessor_grade"] is None:
+                raise forms.ValidationError({'assessor_grade': 'Note benötigt'})
 
     @classmethod
     def initialize_from(cls, thesis):

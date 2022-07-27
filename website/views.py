@@ -317,7 +317,6 @@ class ChangeView(View):
 
         if form.is_valid() and a_form.is_valid():
             assessor = a_form.cleaned_data["assessor"]
-
             form.change_thesis(self.thesis, assessor)
 
             return HttpResponseRedirect('/overview/')
