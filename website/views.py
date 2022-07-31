@@ -1,6 +1,8 @@
 import operator
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
+from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.generic.list import ListView
 from django.http import HttpResponseRedirect
@@ -11,24 +13,22 @@ from django_sendfile import sendfile
 from website.forms import *
 from website.models import *
 from thesispool.pdf import *
+from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 
 User = get_user_model()
 
-
 def index(request):
     return redirect(reverse('overview'))
 
-
-# Login-view
 class ThesispoolLoginView(LoginView):
     models = User
     template_name = 'website/login.html'
     next_page = reverse_lazy('overview')
 
-
 @login_required
+@never_cache
 def prolong(request, key):
     thesis = get_object_or_404(Thesis, surrogate_key=key)
 
@@ -51,6 +51,7 @@ def prolong(request, key):
 
 
 @login_required
+@never_cache
 def grade(request, key):
     thesis = get_object_or_404(Thesis, surrogate_key=key)
 
@@ -69,6 +70,7 @@ def grade(request, key):
 
 
 @login_required
+@never_cache
 def handin(request, key):
     thesis = get_object_or_404(Thesis, surrogate_key=key)
 
@@ -90,19 +92,19 @@ def handin(request, key):
 
     return render(request, 'website/handin.html', context)
 
-
 class Overview(ListView):
     model = Thesis
     template_name = "overview.html"
 
+    @method_decorator(never_cache)
     def get(self, request, *args, **kwargs):
         if request.user.is_secretary or request.user.is_head:
             theses = Thesis.objects.all()
         else:
             theses = Thesis.objects.for_supervisor(request.user.username)
-
         return render(request, 'website/overview.html', {"theses": theses})
 
+    @method_decorator(never_cache)
     def post(self, request, *args, **kwargs):
         if request.user.is_secretary or request.user.is_head:
             theses = Thesis.objects.all()
@@ -187,6 +189,7 @@ class PdfView(View):
                        attachment=True,
                        attachment_filename=pdf.filename)
 
+    @method_decorator(never_cache)
     def get(self, request, *args, **kwargs):
         """Create PDF of requested type (passed by urls.py) for selected thesis
         and send it via xsendfile"""
@@ -213,6 +216,7 @@ class CreateThesis(View):
         prefix = ("Master", "Bachelor")[self.student.is_bachelor()]
         return "%sthesis anlegen" % prefix
 
+    @method_decorator(never_cache)
     def get(self, request, *args, **kwargs):
         form = ThesisApplicationForm.initialize_from(self.student)
         s_form = SupervisorsForm() if not self.supervisor else None
@@ -228,6 +232,7 @@ class CreateThesis(View):
 
         return render(request, 'website/create_or_change.html', context)
 
+    @method_decorator(never_cache)
     def post(self, request, *args, **kwargs):
         form = ThesisApplicationForm(request.POST)
         a_form = AssessorForm(request.POST)
@@ -267,6 +272,7 @@ class ChangeView(View):
             "Master" if self.thesis.is_master() else "Bachelor")
         return super(ChangeView, self).dispatch(request, *args, **kwargs)
 
+    @method_decorator(never_cache)
     def get(self, request, *args, **kwargs):
         student = self.thesis.student
         assessor = self.thesis.assessor
@@ -311,6 +317,7 @@ class ChangeView(View):
 
         return render(request, 'website/create_or_change.html', context)
 
+    @method_decorator(never_cache)
     def post(self, request, *args, **kwargs):
         form = ThesisApplicationForm(request.POST)
         a_form = AssessorForm(request.POST)
@@ -338,6 +345,7 @@ class DeleteThesis(View):
             "Master" if self.thesis.is_master() else "Bachelor")
         return super(DeleteThesis, self).dispatch(request, *args, **kwargs)
 
+    @method_decorator(never_cache)
     def get(self, request, *args, **kwargs):
 
         if self.thesis.is_graded() or self.thesis.is_handed_in() or self.thesis.is_prolonged() or \
@@ -351,6 +359,7 @@ class DeleteThesis(View):
 
         return render(request, 'website/delete_thesis.html', context)
 
+    @method_decorator(never_cache)
     def post(self, request, *args, **kwargs):
 
         if self.thesis.is_graded() or self.thesis.is_handed_in() or self.thesis.is_prolonged() or \
@@ -363,6 +372,7 @@ class DeleteThesis(View):
 
 
 @login_required
+@never_cache
 def find_student(request):
     student, form = None, None
 
