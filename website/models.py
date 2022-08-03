@@ -254,11 +254,7 @@ class Thesis(models.Model):
         return True
 
     def assign_grade(self, grade, assessor_grade, examination_date, restriction_note=False):
-        """Assign grade and set status to GRADED
-        if grade is valid and thesis hasn't been graded yet"""
-        if self.status >= Thesis.GRADED:
-            return False
-
+        """Assign grade and set status to GRADED, validation performed in GradeForm"""
         self.grade = grade
         if self.assessor is not None:
             self.assessor_grade = assessor_grade
