@@ -1,13 +1,14 @@
 # Datenbank für Abschlussarbeiten
 
 ## Installation (für Ubuntu 16.04.2 LTS)
-## aktualisierte Version für django4, nicht Vollständig
+## aktualisierte Version für django4
 
 1. Per ssh auf Zielserver einloggen
 2. Verzeichnis `/var/www` anlegen (wenn nicht vorhanden)
 3. in `/var/www` git-Projekt klonen und ggf. in `thesispool/` umbenennen
 4. Neuen `SECRET_KEY` generieren und in der `settings.py` unter SECRET_KEY hinterlegen
-5. install.sh ausführen
+5. Datenbank für Studenten in `settings.py` eintragen
+6. install.sh ausführen
 
 ## ToDo / Zu beachten
 
