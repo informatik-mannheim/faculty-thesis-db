@@ -271,7 +271,7 @@ class ThesisModelTests(TestCase):
         self.assertTrue(result)
         self.assertEqual(examination_date, thesis.examination_date)
 
-    def test_can_not_grade_a_graded_thesis(self):
+    def test_can_change_a_graded_thesis(self):
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
@@ -283,16 +283,19 @@ class ThesisModelTests(TestCase):
         thesis.save()
 
         grade = Decimal("1.1")
+        grade2 = Decimal("5.0")
         examination_date = date(2018, 2, 15)
+        examination_date2 = date(2018, 2, 16)
 
-        result = thesis.assign_grade(grade, None, examination_date)
-        result = thesis.assign_grade(5.0, None, examination_date)
+        result = thesis.assign_grade(grade, grade, examination_date)
+        result = thesis.assign_grade(grade2, grade2, examination_date2)
 
         thesis = Thesis.objects.first()
 
-        self.assertEqual(thesis.grade, grade)
+        self.assertEqual(thesis.grade, grade2)
+        self.assertEqual(thesis.examination_date, examination_date2)
         self.assertEqual(thesis.status, Thesis.GRADED)
-        self.assertFalse(result)
+        self.assertTrue(result)
 
     def test_can_prolong_a_thesis(self):
         prolongation_date = date(2019, 1, 1)

@@ -73,15 +73,6 @@ class ViewOverviewTests(LoggedInTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(3, len(response.context["theses"]))
 
-    def test_no_operations_possible_for_graded_thesis(self):
-        thesis = ThesisStub.applied(self.supervisor)
-        thesis.save()
-        thesis.assign_grade(Decimal("1.3"), None, date(2020, 3, 1))
-
-        response = self.client.get(reverse('overview'))
-
-        self.assertNotIn('class="icon-link"', str(response.content))
-
     def test_search_due_date(self):
         thesis = ThesisStub.applied(self.supervisor)
         thesis.save()

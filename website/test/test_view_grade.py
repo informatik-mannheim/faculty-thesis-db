@@ -158,7 +158,7 @@ class ViewGradeTests(LoggedInTestCase):
 
         self.assertEqual(Thesis.APPLIED, thesis.status)
 
-    def test_cannpt_grade_assessor_grade_without_assessor(self):
+    def test_cannot_grade_assessor_grade_without_assessor(self):
         thesis = ThesisStub.applied(self.supervisor)
         thesis.assessor = None
 
@@ -186,7 +186,7 @@ class ViewGradeTests(LoggedInTestCase):
         self.assertEqual(None, thesis.assessor)
         self.assertFalse(thesis.restriction_note)
 
-    def test_cannot_omit_assessor_grade_with_assessor(self):
+    def test_cannot_omit_assessor_grade_thesis_has_assessor(self):
         thesis = ThesisStub.applied(self.supervisor)
 
         thesis.save()
@@ -242,6 +242,7 @@ class ViewGradeTests(LoggedInTestCase):
             'assessor': thesis.assessor,
             'restriction_note': False,
             'grade': Decimal("1.2"),
+            'assessor_grade': Decimal("1.2"),
             'examination_date': date(2019, 2, 1),
         }
 
