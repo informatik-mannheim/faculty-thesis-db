@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <h1>{{headline}}</h1>
+    </div>
+
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="row">
+            <div class="col-md-12">
+                <br />
+                {{ s_form.non_field_errors }}
+
+                 <div class="fieldWrapper inline space-top-small">
+                    {{ s_form.id.errors }}
+                    {{ s_form.id }}
+                </div>
+                 <div class="fieldWrapper inline space-top-small">
+                    {{ s_form.first_name.errors }}
+                    {{ s_form.first_name }}
+                </div>
+                <div class="fieldWrapper inline space-top-small">
+                    {{ s_form.last_name.errors }}
+                    {{ s_form.last_name }}
+                </div>
+                <div class="fieldWrapper inline space-top-small">
+                    {{ s_form.program.errors }}
+                    {{ s_form.program }}
+                </div>
+            </div>
+        </div>
+        <br />
+        <input class="btn btn-success" style="float: left;" type="submit" value="Speichern" />
+    </form>
+
+    <table>
+        <th>
+            <form id="form_abort" id="btn_abort" action="{%url 'overview'%}" method="get">
+                <input class="btn btn-danger space-left-small" type="submit" value="Abbrechen"/>
+            </form>
+        </th>
+    </table>
+
+</div>
+{% endblock %}
