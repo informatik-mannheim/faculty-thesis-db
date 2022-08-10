@@ -199,10 +199,43 @@ class PdfView(View):
         return self.send(request, pdf_type(thesis).get())
 
 
+class CreateStudent(View):
+
+    @property
+    def headline(self):
+        return "Externen Studenten anlegen"
+
+    @method_decorator(never_cache)
+    def get(self, request, *args, **kwargs):
+        s_form = StudentForm()
+
+        context = {
+            's_form': s_form,
+            'headline': self.headline}
+
+        return render(request, 'website/create_student.html', context)
+
+    @method_decorator(never_cache)
+    def post(self, request, *args, **kwargs):
+        s_form = StudentForm(request.POST)
+
+        if s_form.is_valid():
+            s_form.create_student()
+
+            return HttpResponseRedirect('/find-student/')
+
+        context = {
+            'headline': self.headline,
+            's_form': s_form}
+
+        return render(request, 'website/create_student.html', context)
+
+
 class CreateThesis(View):
 
     def dispatch(self, request, *args, **kwargs):
         self.student = Student.objects.find(kwargs["student_id"])
+
 
         if request.user.is_secretary:
             self.supervisor = None
@@ -218,9 +251,10 @@ class CreateThesis(View):
 
     @method_decorator(never_cache)
     def get(self, request, *args, **kwargs):
-        form = ThesisApplicationForm.initialize_from(self.student)
         s_form = SupervisorsForm() if not self.supervisor else None
         a_form = AssessorForm()
+
+        form = ThesisApplicationForm.initialize_from(self.student)
 
         context = {
             'form': form,

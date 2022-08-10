@@ -142,6 +142,8 @@ class GradeForm(forms.Form):
             'restriction_note': thesis.restriction_note,
             'examination_date': thesis.handed_in_date or thesis.deadline,
             'handed_in_date': thesis.handed_in_date or thesis.deadline,
+            'grade': thesis.grade or None,
+            'assessor_grade': thesis.assessor_grade or None,
         }
 
         return cls(initial=initials)
@@ -209,6 +211,51 @@ class AssessorForm(forms.Form):
                 self.cleaned_data['assessor'] = assessor
             except ValidationError:
                 raise forms.ValidationError('Zweitkorrektor unvollständig')
+
+
+class StudentForm(forms.Form):
+    id = forms.IntegerField(
+        label="Matrikelnr",
+        widget=forms.TextInput(attrs={'placeholder': 'Matrikelnr'}))
+
+    first_name = forms.CharField(
+        label="Vorname",
+        max_length=30,
+        widget=forms.TextInput(attrs={'placeholder': 'Vorname'}))
+
+    last_name = forms.CharField(
+        label="Nachname",
+        max_length=30,
+        widget=forms.TextInput(attrs={'placeholder': 'Nachname'}))
+
+    program = forms.CharField(
+        label="program",
+        min_length=2,
+        widget=forms.TextInput(attrs={'placeholder': 'Studiengang'}))
+
+    def clean(self):
+        super(StudentForm, self).clean()
+
+        if not "program" in self.cleaned_data or self.cleaned_data["program"][-1] not in ["B", "M"]:
+            raise forms.ValidationError('unvollständiger Studiengang')
+
+        manager = StudentManager()
+
+        if "id" in self.cleaned_data and manager.find(self.cleaned_data["id"]) is not None:
+            raise forms.ValidationError('Matrikelnummer bereits vorhanden')
+
+    def create_student(self):
+        if not self.is_valid():
+            return None
+
+        student = Student(id=self.cleaned_data["id"],
+                          first_name=self.cleaned_data["first_name"],
+                          last_name=self.cleaned_data["last_name"],
+                          program=self.cleaned_data["program"])
+
+        student.save()
+
+        return student
 
 
 class ThesisApplicationForm(forms.Form):

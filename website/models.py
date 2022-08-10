@@ -90,7 +90,11 @@ class StudentManager(models.Manager):
         cursor.execute(sql, [matnr],)
         row = cursor.fetchone()
 
-        return None if not row else Student.from_raw(row)
+        try:
+            student = Student.objects.get(id=matnr)
+            return student
+        except:
+            return None if not row else Student.from_raw(row)
 
 
 class Student(models.Model):
@@ -119,7 +123,7 @@ class Student(models.Model):
 
     def is_master(self):
         """Checks if the student is a master student"""
-        return self.program == 'IM'
+        return self.program[-1] == 'M'
 
     def is_bachelor(self):
         """Checks if the student is a bachelor student"""
@@ -328,7 +332,7 @@ class Thesis(models.Model):
         return self.excom_status == Thesis.EXCOM_REJECTED
 
     def is_master(self):
-        return self.thesis_program == 'IM'
+        return self.thesis_program[-1] == 'M'
 
     def is_bachelor(self):
         return not self.is_master()
