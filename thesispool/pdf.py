@@ -125,10 +125,13 @@ class AbstractPDF(object):
         xfdf.add_field("Thema_der_Arbeit", self.thesis.title)
         xfdf.add_field("Kurztitel der Arbeit", self.thesis.title)
         xfdf.add_field("Email", self.thesis.student_contact)
-        xfdf.add_field("Fakultät Studiengang", "Fakultät für Informatik / " + self.thesis.thesis_program)
-        xfdf.add_field("Fakultät_Studiengang", "Fakultät für Informatik / " + self.thesis.thesis_program)
-        xfdf.add_field("Kurzzeichen_Fakultät", "I")
-        xfdf.add_field("Fakultät", "I")
+
+        if self.thesis.thesis_program in ["IB", "CSB", "UIB", "IMB", "IM"]:
+            xfdf.add_field("Fakultät Studiengang", "Fakultät für Informatik / " + self.thesis.thesis_program)
+            xfdf.add_field("Fakultät_Studiengang", "Fakultät für Informatik / " + self.thesis.thesis_program)
+            xfdf.add_field("Kurzzeichen_Fakultät", "I")
+            xfdf.add_field("Fakultät", "I")
+
         xfdf.add_field("Kurzzeichen1", self.thesis.supervisor.initials)
         xfdf.add_field("Kurzzeichen_erst", self.thesis.supervisor.initials)
         xfdf.add_field("Kurzzeichen_Prof", self.thesis.supervisor.initials)
