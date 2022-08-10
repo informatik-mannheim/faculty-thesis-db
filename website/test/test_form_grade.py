@@ -28,6 +28,23 @@ class GradeFormTests(TestCase):
         self.assertEqual(thesis.restriction_note, form["restriction_note"].value())
         self.assertEqual(thesis.due_date, form["examination_date"].value())
         self.assertEqual(thesis.due_date, form["handed_in_date"].value())
+        self.assertEqual(None, form["grade"].value())
+        self.assertEqual(None, form["assessor_grade"].value())
+
+    def test_initilization_with_grades(self):
+        thesis = Thesis(title="Some title",
+                        assessor=self.assessor,
+                        status=Thesis.PROLONGED,
+                        restriction_note=True,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30),
+                        grade=1.0,
+                        assessor_grade=1.0)
+
+        form = GradeForm.initialize_from(thesis)
+
+        self.assertEqual(1.0, form["grade"].value())
+        self.assertEqual(1.0, form["assessor_grade"].value())
 
     def test_validate_grade(self):
         valid_grades = ["1.0", "1.1", "1.2", "2.0", "2.5",
