@@ -229,20 +229,26 @@ class StudentForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': 'Nachname'}))
 
     program = forms.CharField(
-        label="program",
+        label="Studiengang",
         min_length=2,
         widget=forms.TextInput(attrs={'placeholder': 'Studiengang'}))
 
     def clean(self):
         super(StudentForm, self).clean()
-
-        if not "program" in self.cleaned_data or self.cleaned_data["program"][-1] not in ["B", "M"]:
-            raise forms.ValidationError('unvollständiger Studiengang')
-
         manager = StudentManager()
+
+        for str in ["first_name", "last_name", "program"]:
+            if str in self.cleaned_data and False in [char.isalpha() for char in self.cleaned_data[str]]:
+                raise forms.ValidationError(str + ': Zeichen/Ziffern nicht erlaubt')
 
         if "id" in self.cleaned_data and manager.find(self.cleaned_data["id"]) is not None:
             raise forms.ValidationError('Matrikelnummer bereits vorhanden')
+
+        if not "program" in self.cleaned_data or self.cleaned_data["program"][-1] not in ["B", "M"]:
+            raise forms.ValidationError('Studiengang muss mit "B" (Bachelor) order "M" (Master) enden')
+
+        if not "program" in self.cleaned_data or self.cleaned_data["program"] in ["IB", "IM", "IMB", "CSB", "UIB"]:
+            raise forms.ValidationError('Studenten der Fakultät I sind bereits in der Datenbank vorhanden')
 
     def create_student(self):
         if not self.is_valid():
@@ -305,7 +311,7 @@ class ThesisApplicationForm(forms.Form):
 
         if prolong is not None and end is not None and prolong < end:
             raise forms.ValidationError(
-                {'due_date': 'Verlängerung liegt vor der Abgabe'})
+                {'due_date': 'Verlängerung muss später als der Beginn sein'})
 
     def create_thesis(self, assessor, supervisor, student):
         if not self.is_valid():

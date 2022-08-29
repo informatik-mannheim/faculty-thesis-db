@@ -92,9 +92,7 @@ def handin(request, key):
 
     return render(request, 'website/handin.html', context)
 
-class Overview(ListView):
-    model = Thesis
-    template_name = "overview.html"
+class Overview(View):
 
     @method_decorator(never_cache)
     def get(self, request, *args, **kwargs):
@@ -102,79 +100,72 @@ class Overview(ListView):
             theses = Thesis.objects.all()
         else:
             theses = Thesis.objects.for_supervisor(request.user.username)
-        return render(request, 'website/overview.html', {"theses": theses})
 
-    @method_decorator(never_cache)
-    def post(self, request, *args, **kwargs):
-        if request.user.is_secretary or request.user.is_head:
-            theses = Thesis.objects.all()
-        else:
-            theses = Thesis.objects.for_supervisor(request.user.username)
+        if "due_date" in request.GET and request.GET["due_date"] != "":
+            theses = theses.filter(due_date__gte=request.GET["due_date"])
 
-        if request.POST["due_date"] != "":
-            theses = theses.filter(due_date__gte=request.POST["due_date"])
+        if "status" in request.GET and request.GET["status"] != "":
+            theses = theses.filter(status=request.GET["status"])
 
-        if request.POST["status"] != "":
-            theses = theses.filter(status=request.POST["status"])
+        if "title" in request.GET and request.GET["title"] != "":
+            theses = theses.filter(title__contains=request.GET["title"])
 
-        if request.POST["title"] != "":
-            theses = theses.filter(title__contains=request.POST["title"])
-
-        # search-parameter for students is either a name, surname, both the of the previous or their id
-        if request.POST["student"] != "":
-            if True in [char.isdigit() for char in request.POST["student"]]:
-                students_with_id = Student.objects.filter(
-                    id__startswith=request.POST["student"])
+        # search-parameter for students can be either a name, surname, both
+        # or an id
+        if "student" in request.GET and request.GET["student"] != "":
+            if True in [char.isdigit() for char in request.GET["student"]]:
+                students_with_id = Student.objects.filter(id__startswith=request.GET["student"])
             else:
-                # assumption: no spaces in surnames
-                if " " in request.POST["student"]:
-                    student_name, student_surname = request.POST["student"].rsplit(" ", 1)
+                # following code based on assumption: no spaces in surnames
+                if " " in request.GET["student"]:
+                    students_name, students_surname = request.GET["student"].rsplit(" ", 1)
                     students_with_name = Student.objects.filter(
-                        first_name__startswith=student_name, last_name__startswith=student_surname)
+                        first_name__startswith=students_name)
+                    students_with_surname = Student.objects.filter(
+                        last_name__startswith=students_name)
                 else:
                     students_with_name = Student.objects.filter(
-                        first_name__startswith=request.POST["student"])
+                        first_name__startswith=request.GET["student"])
                     students_with_surname = Student.objects.filter(
-                        last_name__startswith=request.POST["student"])
-                students_with_id = [student.id for student in students_with_name or students_with_surname]
+                        last_name__startswith=request.GET["student"])
+                students_with_id = [students.id for students in students_with_name or students_with_surname]
+
             theses = theses.filter(student__in=students_with_id)
 
-        # search-parameter for assessors is a name, surname or both
-        if request.POST["assessor"] != "":
-            if " " in request.POST["assessor"]:
-                assessor_name, assessor_surname = request.POST["assessor"].rsplit(" ", 1)
+        # search-parameter for assessors can be either a name and/or surname
+        if "assessor" in request.GET and request.GET["assessor"] != "":
+            if " " in request.GET["assessor"]:
+                assessor_name, assessor_surname = request.GET["assessor"].rsplit(" ", 1)
                 assessors_with_name = Assessor.objects.filter(
-                    first_name__startswith=assessor_name, last_name__startswith=assessor_surname)
+                    first_name__startswith=assessor_name)
+                assessors_with_surname = Assessor.objects.filter(
+                    last_name__startswith=assessor_surname)
             else:
                 assessors_with_name = Assessor.objects.filter(
-                    first_name__startswith=request.POST["assessor"])
+                    first_name__startswith=request.GET["assessor"])
                 assessors_with_surname = Assessor.objects.filter(
-                    last_name__startswith=request.POST["assessor"])
+                    last_name__startswith=request.GET["assessor"])
             theses = theses.filter(
                 assessor__in=[assessor.id for assessor in assessors_with_name or assessors_with_surname])
 
-        if request.POST["sort"] != "":
+        if "sort" in request.GET and request.GET["sort"] != "":
             # students are ordered by surname
-            if request.POST["sort"] == "student":
+            if request.GET["sort"] == "student":
                 theses = sorted(theses, key=operator.attrgetter("student.last_name"))
             # assessors are ordered by surname, theses with no assessors are ordered at the back
-            elif request.POST["sort"] == "assessor":
+            elif request.GET["sort"] == "assessor":
                 theses_has_assessor = sorted(theses.exclude(assessor=None),
                                              key=operator.attrgetter("assessor.last_name"))
                 theses = theses_has_assessor + list(theses.filter(assessor=None))
             else:
-                theses = theses.order_by(request.POST["sort"])
-
-            # request.POST always returns a String, type casting needed
-            if str(theses) == request.POST["theses"]:
-                theses = reversed(theses)
+                theses = theses.order_by(request.GET["sort"])
 
         context = {"theses": theses,
-                   "due_date": request.POST["due_date"],
-                   "status": request.POST["status"],
-                   "student": request.POST["student"],
-                   "title": request.POST["title"],
-                   "assessor": request.POST["assessor"]}
+                   "due_date": request.GET["due_date"] if "due_date" in request.GET else "",
+                   "status": request.GET["status"] if "status" in request.GET else "",
+                   "title": request.GET["title"] if "title" in request.GET else "",
+                   "student": request.GET["student"] if "student" in request.GET else "",
+                   "assessor": request.GET["assessor"] if "assessor" in request.GET else ""}
 
         return render(request, 'website/overview.html', context)
 
