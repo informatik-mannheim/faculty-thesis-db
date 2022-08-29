@@ -111,7 +111,7 @@ class ViewChangeTests(LoggedInTestCase):
         self.assertEqual(200, response.status_code)
         self.assertIn('due_date', response.context["form"].errors)
         self.assertTrue(
-            'Verlängerung liegt vor der Abgabe' in str(response.context["form"].errors))
+            'Verlängerung muss später als der Beginn sein' in str(response.context["form"].errors))
 
     def test_theses_program_does_not_change_after_creation(self):
         """when the student changes his program, the theses_program does not change.

@@ -32,7 +32,7 @@ class ViewCreateStudent(TestCase):
             "id": 123456,
             "first_name": "Linus",
             "last_name": "Kanstein",
-            "program": "IB"
+            "program": "IJB"
         }
 
         response = self.client.post(reverse('create_student'), post_data)
@@ -45,7 +45,7 @@ class ViewCreateStudent(TestCase):
             "id": 123456,
             "first_name": "Linus",
             "last_name": "Kanstein",
-            "program": "IM"
+            "program": "IMM"
         }
 
         response = self.client.post(reverse('create_student'), post_data)
@@ -57,7 +57,7 @@ class ViewCreateStudent(TestCase):
         post_data = {
             "first_name": "Linus",
             "last_name": "Kanstein",
-            "program": "IB"
+            "program": "IJB"
         }
 
         response = self.client.post(reverse('create_student'), post_data)
@@ -70,7 +70,7 @@ class ViewCreateStudent(TestCase):
         post_data = {
             "id": 123456,
             "last_name": "Kanstein",
-            "program": "IB"
+            "program": "IJB"
         }
 
         response = self.client.post(reverse('create_student'), post_data)
@@ -106,13 +106,57 @@ class ViewCreateStudent(TestCase):
         self.assertEqual(0, Student.objects.count())
 
     def test_invalid_if_error_in_program(self):
-
-        for program in ["IE", "B"]:
+        for program in ["IE", "B", "IB", "IM", "CSB", "UIB", "IMB", "1IB", "_IB"]:
             post_data = {
                 "id": 123456,
                 "first_name": "Linus",
                 "last_name": "Kanstein",
                 "program": program
+            }
+
+            response = self.client.post(reverse('create_student'), post_data)
+
+            self.assertEqual(200, response.status_code)
+            self.assertFalse(response.context["s_form"].is_valid())
+            self.assertEqual(0, Student.objects.count())
+
+    def test_invalid_if_error_in_program(self):
+        for program in ["IE", "B", "IB", "IM", "CSB", "UIB", "IMB", "1IB", "_IB"]:
+            post_data = {
+                "id": 123456,
+                "first_name": "Linus",
+                "last_name": "Kanstein",
+                "program": program
+            }
+
+            response = self.client.post(reverse('create_student'), post_data)
+
+            self.assertEqual(200, response.status_code)
+            self.assertFalse(response.context["s_form"].is_valid())
+            self.assertEqual(0, Student.objects.count())
+
+    def test_invalid_if_number_or_sign_in_first_name(self):
+        for name in ["L1nus", "L_inus"]:
+            post_data = {
+                "id": 123456,
+                "first_name": name,
+                "last_name": "Kanstein",
+                "program": "IJB"
+            }
+
+            response = self.client.post(reverse('create_student'), post_data)
+
+            self.assertEqual(200, response.status_code)
+            self.assertFalse(response.context["s_form"].is_valid())
+            self.assertEqual(0, Student.objects.count())
+
+    def test_invalid_if_number_or_sign_in_last_name(self):
+        for name in ["K4nstein", "K_anstein"]:
+            post_data = {
+                "id": 123456,
+                "first_name": "Linus",
+                "last_name": name,
+                "program": "IJB"
             }
 
             response = self.client.post(reverse('create_student'), post_data)
