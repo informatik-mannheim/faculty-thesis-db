@@ -34,11 +34,17 @@
 
 		    <input class="btn btn-primary" type="submit" value="Matrikelnummer überprüfen" style="float: left; margin-top: 40px;"/>
 		</form>
-        <form action="{%url 'create_student'%}" method="get">
-            <input class="btn btn-primary space-left-small" type="submit" value="Student erstellen" style="margin-top: 40px;" />
-        </form>
+        <div style="margin-top: 40px">
+            <form action="{%url 'create_student'%}" method="get">
+                <input class="btn btn-primary space-left-small" type="submit" value="Student erstellen"/>
+                <button type="button"  class="btn"
+                        onclick="alert('Studenten anderer Fakultäten müssen manuell erstellt werden, ' +
+                         'da zunächst nur Studenten der Fakultät I in der Datenbank vorhanden sind.');">?</button>
+            </form>
+        </div>
+
         <form id="form_abort" action="{%url 'overview'%}" method="get">
-            <input id="btn_abort" class="btn btn-danger" type="submit" value="Abbrechen" style="margin-top: 40px;" />
+            <input id="btn_abort" class="btn btn-danger" type="submit" value="Abbrechen" style="margin-top: 20px;" />
         </form>
 	</div>
 </div>

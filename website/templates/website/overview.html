@@ -15,11 +15,9 @@
 		</div>
 
 		<table class="ui celled table">
-            <form action="" method="POST">
-            {% csrf_token %}
+            <form action="" method="GET">
                 <thead>
                     <tr>
-                        <input type="hidden" name="sort" value="">
                         <th>
                             <button type="submit" name="sort" value="due_date" style="background-color: #fafafa; border: none">Abgabedatum</button>
                         </th>
@@ -91,7 +89,6 @@
                             <input type="text" name="assessor" id="assessor" placeholder="Name" size="10" value="{{ assessor }}">
                         </th>
                         <th>
-                            <input type="hidden" name="theses" value="{{ theses }}">
                             <input class="btn btn-primary" type="submit" value="Suchen" >
                         </th>
                     </tr>
@@ -123,7 +120,7 @@
 
 						</td>
 						<td>{{thesis.student}}</td>
-						<td>{{thesis.title}}</td>
+						<td style="max-width: 350px">{{thesis.title}}</td>
 						{% if thesis.assessor %}
 							<td>{{thesis.assessor.first_name}} {{thesis.assessor.last_name}}</td>
 						{% else %}

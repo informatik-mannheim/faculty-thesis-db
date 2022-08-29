@@ -15,23 +15,27 @@
             <div class="col-md-12">
                 <br />
                 {{ s_form.non_field_errors }}
+                {{ s_form.first_name.errors }}
+                {{ s_form.last_name.errors }}
+                {{ s_form.program.errors }}
 
-                 <div class="fieldWrapper inline space-top-small">
-                    {{ s_form.id.errors }}
-                    {{ s_form.id }}
+                <div class="column">
+                    <div class="fieldWrapper inline space-top-small">
+                        {{ s_form.id.errors }}
+                        {{ s_form.id }}
+                    </div>
+                     <div class="fieldWrapper inline space-top-small">
+                        {{ s_form.first_name }}
+                    </div>
+                    <div class="fieldWrapper inline space-top-small">
+                        {{ s_form.last_name }}
+                    </div>
+                    <div class="fieldWrapper inline space-top-small">
+                        {{ s_form.program }}
+                    </div>
                 </div>
-                 <div class="fieldWrapper inline space-top-small">
-                    {{ s_form.first_name.errors }}
-                    {{ s_form.first_name }}
-                </div>
-                <div class="fieldWrapper inline space-top-small">
-                    {{ s_form.last_name.errors }}
-                    {{ s_form.last_name }}
-                </div>
-                <div class="fieldWrapper inline space-top-small">
-                    {{ s_form.program.errors }}
-                    {{ s_form.program }}
-                </div>
+
+
             </div>
         </div>
         <br />
