@@ -160,7 +160,7 @@ class Overview(View):
             else:
                 theses = theses.order_by(request.GET["sort"])
 
-        context = {"theses": theses,
+        context = {"theses": list(theses),
                    "due_date": request.GET["due_date"] if "due_date" in request.GET else "",
                    "status": request.GET["status"] if "status" in request.GET else "",
                    "title": request.GET["title"] if "title" in request.GET else "",
@@ -226,7 +226,6 @@ class CreateThesis(View):
 
     def dispatch(self, request, *args, **kwargs):
         self.student = Student.objects.find(kwargs["student_id"])
-
 
         if request.user.is_secretary:
             self.supervisor = None
