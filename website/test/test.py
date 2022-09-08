@@ -87,19 +87,19 @@ class ThesisStub(object):
 class LoggedInTestCase(TestCase):
 
     def setUp(self):
-        user = User(username="prof", password="pass", initials="PPP")
-        user.save()
+        self.user = User(username="prof", password="pass", initials="PPP")
+        self.user.save()
 
         self.student = Student(
             id=123456, first_name="Larry", last_name="Langzeitstudent", program="IB")
         self.assessor = Assessor(
             first_name="Max", last_name="Mustermann", email="mm@example.com")
         self.supervisor = Supervisor(
-            first_name="Peter", last_name="Professpr", id=user.username)
+            first_name="Peter", last_name="Professpr", id=self.user.username)
 
         self.supervisor.save()
         self.student.save()
         self.assessor.save()
 
         self.client = Client()
-        self.client.force_login(user)
+        self.client.force_login(self.user)
