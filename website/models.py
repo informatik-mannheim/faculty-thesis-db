@@ -34,31 +34,31 @@ class SupervisorManager(models.Manager):
     def fetch_supervisor(self, uid, con=None):
         need_unbind = False
 
-        try:
+        if not con:
             con = ldap.initialize(AUTH_LDAP_SERVER_URI, trace_level=0)
             con.start_tls_s()
             need_unbind = True
+
+        dn = AUTH_LDAP_USER_DN_TEMPLATE % {'user': uid}
+
+        results = con.search_s(dn, ldap.SCOPE_SUBTREE, "(objectClass=*)")
+
+        try:
+            entity = results[0][1]
+            return Supervisor(first_name=entity["givenName"][0].decode(),
+                              last_name=entity["sn"][0].decode(),
+                              initials=entity["initials"][0].decode(),
+                              id=entity["uid"][0].decode())
+        except Exception:
+            return None
+
         finally:
-            dn = AUTH_LDAP_USER_DN_TEMPLATE % {'user': uid}
-
-            results = con.search_s(dn, ldap.SCOPE_SUBTREE, "(objectClass=*)")
-
-            try:
-                entity = results[0][1]
-                return Supervisor(first_name=entity["givenName"][0].decode(),
-                                  last_name=entity["sn"][0].decode(),
-                                  initials=entity["initials"][0].decode(),
-                                  id=entity["uid"][0].decode())
-            except Exception:
-                return None
-
-            finally:
-                if need_unbind:
-                    con.unbind()
+            if need_unbind:
+                con.unbind()
 
     def fetch_supervisors_from_ldap(self):
         con = ldap.initialize(AUTH_LDAP_SERVER_URI, trace_level=0)
-        
+
         try:
             con.start_tls_s()
         finally:
