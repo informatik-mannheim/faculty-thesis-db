@@ -14,7 +14,7 @@
 			<div class="inline space-left">
 				<form action="{% url 'create' student_id=student.id %}" method="get">
 				  	<button class="btn btn-success" type="submit" autofocus>
-						<span class="glyphicon glyphicon-arrow-right"></span> Fortfahren
+						<span class="glyphicon glyphicon-arrow-right"></span> Abschlussarbeit anlegen
 					</button>
 				</form>
 			</div>
@@ -31,12 +31,11 @@
 	            {{ form.student_id.label_tag }}
 	            {{ form.student_id }}
 	        </div>
-
 		    <input class="btn btn-primary" type="submit" value="Matrikelnummer überprüfen" style="float: left; margin-top: 40px;"/>
 		</form>
         <div style="margin-top: 40px">
             <form action="{%url 'create_student'%}" method="get">
-                <input class="btn btn-primary space-left-small" type="submit" value="Student erstellen"/>
+                <input class="btn btn-primary space-left-small" type="submit" value="externen Student erstellen"/>
                 <button type="button"  class="btn"
                         onclick="alert('Studenten anderer Fakultäten müssen manuell erstellt werden, ' +
                          'da zunächst nur Studenten der Fakultät I in der Datenbank vorhanden sind.');">?</button>
