@@ -215,23 +215,19 @@ class AssessorForm(forms.Form):
 
 class StudentForm(forms.Form):
     id = forms.IntegerField(
-        label="Matrikelnr",
-        widget=forms.TextInput(attrs={'placeholder': 'Matrikelnr'}))
+        label="Matrikelnummer")
 
     first_name = forms.CharField(
         label="Vorname",
-        max_length=30,
-        widget=forms.TextInput(attrs={'placeholder': 'Vorname'}))
+        max_length=30)
 
     last_name = forms.CharField(
         label="Nachname",
-        max_length=30,
-        widget=forms.TextInput(attrs={'placeholder': 'Nachname'}))
+        max_length=30)
 
     program = forms.CharField(
         label="Studiengang",
-        min_length=2,
-        widget=forms.TextInput(attrs={'placeholder': 'Studiengang'}))
+        min_length=2)
 
     def clean(self):
         super(StudentForm, self).clean()

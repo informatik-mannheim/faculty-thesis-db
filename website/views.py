@@ -1,21 +1,23 @@
 import operator
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django.views import View
 from django.views.generic.list import ListView
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse, get_object_or_404
+from django.urls import reverse_lazy
 
 from django_sendfile import sendfile
 
 from website.forms import *
 from website.models import *
 from thesispool.pdf import *
+
 from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
-from django.urls import reverse_lazy
 
 User = get_user_model()
 
@@ -110,8 +112,7 @@ class Overview(View):
         if "title" in request.GET and request.GET["title"] != "":
             theses = theses.filter(title__contains=request.GET["title"])
 
-        # search-parameter for students can be either a name, surname, both
-        # or an id
+        # parameters: id, first_name and/or last_name
         if "student" in request.GET and request.GET["student"] != "":
             if True in [char.isdigit() for char in request.GET["student"]]:
                 students_with_id = Student.objects.filter(id__startswith=request.GET["student"])
@@ -132,7 +133,7 @@ class Overview(View):
 
             theses = theses.filter(student__in=students_with_id)
 
-        # search-parameter for assessors can be either a name and/or surname
+        # parameters: first_name and/or last_name
         if "assessor" in request.GET and request.GET["assessor"] != "":
             if " " in request.GET["assessor"]:
                 assessor_name, assessor_surname = request.GET["assessor"].rsplit(" ", 1)
@@ -160,7 +161,7 @@ class Overview(View):
             else:
                 theses = theses.order_by(request.GET["sort"])
 
-        context = {"theses": list(theses),
+        context = {"theses": theses,
                    "due_date": request.GET["due_date"] if "due_date" in request.GET else "",
                    "status": request.GET["status"] if "status" in request.GET else "",
                    "title": request.GET["title"] if "title" in request.GET else "",
