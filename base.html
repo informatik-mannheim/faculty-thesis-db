@@ -1,0 +1,56 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <title>Thesispool</title>
+        <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+
+        <link rel="stylesheet" type="text/css" href="{% static 'website/bootstrap-3.3.7-dist/css/bootstrap.min.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'website/bootstrap-3.3.7-dist/css/bootstrap-theme.css' %}">
+        <link rel="stylesheet" href="{% static 'website/style.css' %}">
+        <script type="text/javascript" src="{% static 'website/bootstrap-3.3.7-dist/js/calculate-end-date.min.js' %}"></script>
+
+        <meta charset="utf-8">
+
+        {% block header %}
+        {% endblock header %}
+	</head>
+	<body>
+		<div class="row">
+			<div class="col-xs-12 col-md-12 dark-primary-color" style="height: 80px;">
+				<h1 class="text-primary-color header" style="margin-top: 20px">Thesispool</h1>
+			</div>	
+		</div>
+		{% if user.is_authenticated %}
+			<div class="col-xs-12 col-md-12 light-primary-color ribbon">
+                <span class="text-secondary-color" style="margin-top: 25px;">Angemeldet als <strong>{{ user.first_name }} {{ user.last_name }}</strong>
+                </span>
+                <span>
+                    <a href="/accounts/logout">(logout)</a>
+                </span>
+			</div>
+		{% endif %}
+
+		{% block content %}
+		{% endblock content %}
+
+		<script type="text/javascript">
+			var escape_key = 27;
+
+			document.addEventListener("keyup", function(event) {
+				eventt = event || window.event;
+
+    			if (event.keyCode == escape_key) {
+    				
+        			var abort_form = document.getElementById("form_abort");
+
+					if(abort_form !== null) {
+						abort_form.submit();
+					}
+    			}
+
+			}, false);
+		</script>
+	</body>
+</html>

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <h1>{{headline}}</h1>
+    </div>
+
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-2">
+                <div class="fieldWrapper">
+                    {{ s_form.id.label_tag }}
+                </div>
+            </div>
+            <div class="col-md-10">
+                <div class="fieldWrapper">
+                    {{ s_form.id }}
+                    {{ s_form.id.errors }}
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-2">
+                <div class="fieldWrapper">
+                    {{ s_form.first_name.label_tag }}
+                </div>
+            </div>
+            <div class="col-md-10">
+                <div class="fieldWrapper">
+                    {{ s_form.first_name }}
+                    {{ s_form.first_name.errors }}
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-2">
+                <div class="fieldWrapper">
+                    {{ s_form.last_name.label_tag }}
+                </div>
+            </div>
+            <div class="col-md-10">
+                <div class="fieldWrapper">
+                    {{ s_form.last_name }}
+                    {{ s_form.last_name.errors }}
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-2">
+                <div class="fieldWrapper">
+                    {{ s_form.program.label_tag }}
+                </div>
+            </div>
+            <div class="col-md-10">
+                <div class="fieldWrapper">
+                    {{ s_form.program }}
+                    {{ s_form.program.errors }}
+                </div>
+            </div>
+        </div>
+        <br />
+        <input class="btn btn-success" style="float: left;" type="submit" value="Speichern" />
+    </form>
+
+    <table>
+        <th>
+            <form id="form_abort" id="btn_abort" action="{%url 'overview'%}" method="get">
+                <input class="btn btn-danger space-left-small" type="submit" value="Abbrechen"/>
+            </form>
+        </th>
+    </table>
+
+</div>
+{% endblock %}

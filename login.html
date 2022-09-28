@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+  <div class="col-sm-2 col-md-4"></div>
+
+  <div class="row" id="pwd-container">
+    <div class="col-xs-4 col-md-4 col-md-4">
+      <section class="login-form">
+         {% if next %}
+          <form action="/accounts/login/?next={{next}}" method="post" role="login">
+        {% else %}
+          <form action="/accounts/login/" method="post" role="login">
+        {% endif %}
+           {% csrf_token %}
+
+            {% if form.errors %}
+                <p class="alert alert-danger">Account nicht gefunden</p>
+            {% endif %}
+
+            {% if next %}
+                {% if user.is_authenticated %}
+                    <p>Your account doesn't have access to this page. To proceed, please login with an account that has access.</p>
+                {% else %}
+                    <p>Please login to see this page.</p>
+                {% endif %}
+            {% endif %}
+
+            <span>{{ form.username.label_tag }}</span>
+            <span>{{ form.username }}</span>
+            <span>{{ form.password.label_tag }}</span>
+            <span>{{ form.password }}</span>
+
+          <button type="submit" name="go" class="btn btn-lg btn-primary btn-block">Anmelden</button>
+        </form>
+
+      </section>
+    </div>
+  </div>
+<div class="col-sm-2 col-md-4"></div>
+</div>
+
+{% endblock %}
