@@ -1,4 +1,4 @@
-    {% load static %}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="de">
@@ -18,17 +18,17 @@
 	</head>
 	<body>
 		<div class="row">
-			<div class="col-md-12 dark-primary-color" style="height: 80px;">
+			<div class="col-xs-12 col-md-12 dark-primary-color" style="height: 80px;">
 				<h1 class="text-primary-color header" style="margin-top: 20px">Thesispool</h1>
 			</div>	
 		</div>
 		{% if user.is_authenticated %}
-			<div class="col-md-12 light-primary-color ribbon">
-			        <span class="text-secondary-color" style="margin-top: 25px;">Angemeldet als <strong>{{ user.first_name }} {{ user.last_name }}</strong>
-			        </span> 
-			        <span>
-			            <a href="/accounts/logout">(logout)</a>
-			        </span>
+			<div class="col-xs-12 col-md-12 light-primary-color ribbon">
+                <span class="text-secondary-color" style="margin-top: 25px;">Angemeldet als <strong>{{ user.first_name }} {{ user.last_name }}</strong>
+                </span>
+                <span>
+                    <a href="/accounts/logout">(logout)</a>
+                </span>
 			</div>
 		{% endif %}
 
