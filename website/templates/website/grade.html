@@ -69,19 +69,24 @@
 	      		</div>	
 			</div>
 		</div>
+        {% if thesis.assessor is not None %}
         <div class="row">
 			<div class="col-md-2">
 				<div class="fieldWrapper">
-		          	{{ form.second_grade.label_tag }}
+		          	{{ form.assessor_grade.label_tag }}
 	      		</div>
 			</div>
 			<div class="col-md-10">
 				<div class="fieldWrapper">
-		            {{ form.second_grade }}
-		            {{ form.second_grade.errors }}
+		            {{ form.assessor_grade }}
+		            {{ form.assessor_grade.errors }}
 	      		</div>
 			</div>
 		</div>
+        {% endif %}
+        <div class="col-md-10">
+				{{ form.assessor }}
+        </div>
 		<br />
 		<div style="display: {{thesis.handed_in_date|yesno:'none,visible'}}">
 			<div class="row">
