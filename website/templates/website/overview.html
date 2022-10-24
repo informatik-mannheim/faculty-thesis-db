@@ -15,29 +15,30 @@
 		</div>
 
 		<table class="ui celled table" style="margin-top: 10px">
-            <form action="" method="GET">
+            <form name="search_and_sort" action="" method="GET">
                 <thead>
                     <tr>
+                        <input type="hidden" name="sort_by" id="sort" value="{{ sort_by }}">
                         <th>
-                            <button type="submit" name="sort" value="due_date" style="background-color: #fafafa; border: none">Abgabedatum</button>
+                            <button id="sort_due_date" onclick="setSort('due_date');" style="background: none; border: none">Abgabedatum</button>
                         </th>
                         <th>
-                            <button type="submit" name="sort" value="status" style="background-color: #fafafa; border: none">Status</button>
+                            <button id="sort_status" onclick="setSort('status');" style="background: none; border: none">Status</button>
                         </th>
                         <th>
-                            <button type="submit" name="sort" value="student" style="background-color: #fafafa; border: none">Student</button>
+                            <button id="sort_student" onclick="setSort('student');" style="background: none; border: none">Student</button>
                         </th>
                         <th>
-                            <button type="submit" name="sort" value="title" style="background-color: #fafafa; border: none">Thema</button>
+                            <button id="sort_title" onclick="setSort('title');" style="background: none; border: none">Thema</button>
                         </th>
                         <th>
-                            <button type="submit" name="sort" value="assessor" style="background-color: #fafafa; border: none">Zweitkorrektor</button>
+                            <button id="sort_assessor" onclick="setSort('assessor');" style="background: none; border: none">Zweitkorrektor</button>
                         </th>
                         <th>Dokumente</th>
                     </tr>
                     <tr>
                         <th>
-                            <input type="date" name="due_date" id="due_date" value="{{ due_date }}">
+                            <input type="text" name="due_date" id="due_date" pattern="\d{2}.\d{4}|\d{4}" title="dd.yyyy or yyyy" placeholder="mm.yyyy / yyyy" value="{{ due_date }}" style="max-width: 150px">
                         </th>
                         <th>
                             <select name="status" id="status">
@@ -101,7 +102,7 @@
                             <span class="badge">
                                 {{ thesis.grade }}
                                 {% if thesis.assessor_grade is not None %}
-                                |{{ thesis.assessor_grade }}
+                                | {{ thesis.assessor_grade }}
                                 {% endif %}
                             </span>
                         {% elif thesis.is_prolonged %}
@@ -150,9 +151,6 @@
                         <a href="{% url 'prolong' thesis.surrogate_key|slugify %}" class="icon-link">
                             <span class="glyphicon glyphicon-hourglass" title="Verlängern" style="margin-left: 20px;"></span>
                         </a>
-                        <a href="{% url 'handin' thesis.surrogate_key|slugify %}" class="icon-link">
-                            <span class="glyphicon glyphicon-envelope" title="Einreichen" style="margin-left: 20px;"></span>
-                        </a>
                         {% endif %}
                         <a href="{% url 'grade' thesis.surrogate_key|slugify %}" class="icon-link">
                             <span class="glyphicon glyphicon-education" title="Benoten" style="margin-left: 20px;"></span>
@@ -182,12 +180,32 @@
 
 	<script type="text/javascript">
 		document.body.addEventListener("keydown", function(event) {
-			var plus_key = 171;
-			var plus_key_numpad = 107;
+            const plus_key = 171;
+            const plus_key_numpad = 107;
 
-			if(event.which === plus_key || event.which === plus_key_numpad) {
+            if(event.which === plus_key || event.which === plus_key_numpad) {
 				document.getElementById("create_new_thesis").click();
 			}
-		});		
+		})
+        // mark the current sort param an the sort order
+        let sort_by = "";
+        let arrow = "";
+        if('{{ sort_by }}'.includes('r_')) {
+            sort_by = '{{ sort_by }}'.split('r_')[1];
+            arrow = "↑";
+        } else {
+            sort_by = '{{ sort_by }}';
+            arrow = "↓";
+        }
+        const element = document.getElementById('sort_' + sort_by);
+        element.innerText = element.innerText + arrow;
+        function setSort(param) {
+            if(document.search_and_sort.sort_by.value === param) {
+                // r_ translates in code to reverse
+                document.search_and_sort.sort_by.value = ("r_" + param);
+            } else {
+                document.search_and_sort.sort_by.value = (param);
+            }
+        }
 	</script>
 {% endblock content %}
