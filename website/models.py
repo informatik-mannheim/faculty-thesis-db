@@ -92,7 +92,7 @@ class StudentManager(models.Manager):
                 from student where id = %s"""
 
         cursor = connections['faculty'].cursor()
-        cursor.execute(sql, [matnr],)
+        cursor.execute(sql, [matnr], )
         row = cursor.fetchone()
 
         try:
@@ -103,7 +103,7 @@ class StudentManager(models.Manager):
 
 
 class Student(models.Model):
-    """Model for students. Model is a little bit tricky as students are read from
+    """Model for students. Model is a little tricky as students are read from
     a read-only MySQL DB (a.k.a. the faculty DB) and saved to the internal
     database. In order to make it testable the table name and all column names
     need to be the same internally and externally so that all mappings work
@@ -150,7 +150,6 @@ class Student(models.Model):
 
 
 class Thesis(models.Model):
-
     class Meta:
         verbose_name_plural = "theses"
 
@@ -211,12 +210,12 @@ class Thesis(models.Model):
                                     MinValueValidator(1.0),
                                     MaxValueValidator(5.0)])
     assessor_grade = models.DecimalField(max_digits=2,
-                                decimal_places=1,
-                                blank=True,
-                                null=True,
-                                validators=[
-                                    MinValueValidator(1.0),
-                                    MaxValueValidator(5.0)])
+                                         decimal_places=1,
+                                         blank=True,
+                                         null=True,
+                                         validators=[
+                                             MinValueValidator(1.0),
+                                             MaxValueValidator(5.0)])
     prolongation_date = models.DateField(blank=True, null=True)
     prolongation_reason = models.CharField(
         blank=True,
@@ -348,7 +347,7 @@ class Thesis(models.Model):
         if self.is_prolonged() and self.prolongation_date <= self.due_date:
             raise ValidationError(
                 {'prolongation_date':
-                    'prolongation date must be later than due date'})
+                     'prolongation date must be later than due date'})
 
     def __str__(self):
         return "'{0}' ({1})".format(self.title, self.student)
@@ -415,6 +414,8 @@ class Assessor(models.Model):
         max_length=30, verbose_name="Vorname")
     last_name = models.CharField(
         max_length=30, verbose_name="Nachname")
+    a_title = models.CharField(
+        max_length=30, verbose_name="akad. Grad", blank=True, null=True)
     email = models.EmailField(
         max_length=80, verbose_name="E-Mail", blank=True, null=True)
 
@@ -423,8 +424,11 @@ class Assessor(models.Model):
         return "{0}.{1}".format(self.first_name[0], self.last_name)
 
     def __str__(self):
-        return "{0} {1} ({2})".format(self.first_name,
-                                      self.last_name,
-                                      self.email)
+        if self.email != "":
+            return "{0} {1} ({2})".format(self.first_name,
+                                          self.last_name,
+                                          self.email)
+        return "{0} {1}".format(self.first_name,
+                                self.last_name)
 
     __repr__ = __str__

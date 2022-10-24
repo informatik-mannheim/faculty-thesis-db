@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views import View
-from django.views.generic.list import ListView
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.urls import reverse_lazy
@@ -14,20 +13,21 @@ from django_sendfile import sendfile
 
 from website.forms import *
 from website.models import *
-from thesispool.pdf import *
 
-from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
 
 User = get_user_model()
 
+
 def index(request):
     return redirect(reverse('overview'))
+
 
 class ThesispoolLoginView(LoginView):
     models = User
     template_name = 'website/login.html'
     next_page = reverse_lazy('overview')
+
 
 @login_required
 @never_cache
@@ -71,29 +71,6 @@ def grade(request, key):
     return render(request, 'website/grade.html', context)
 
 
-@login_required
-@never_cache
-def handin(request, key):
-    thesis = get_object_or_404(Thesis, surrogate_key=key)
-
-    if request.POST:
-        form = HandInForm(request.POST)
-
-        if form.is_valid():
-            restriction_note = form.cleaned_data["restriction_note"]
-            handed_in_date = form.cleaned_data["handed_in_date"]
-            new_title = form.cleaned_data["new_title"]
-            thesis.title = new_title
-            thesis.hand_in(handed_in_date, restriction_note)
-
-            return HttpResponseRedirect(reverse('overview'))
-    else:
-        form = HandInForm.initialize_from(thesis)
-
-    context = {"thesis": thesis, 'form': form}
-
-    return render(request, 'website/handin.html', context)
-
 class Overview(View):
 
     @method_decorator(never_cache)
@@ -104,7 +81,15 @@ class Overview(View):
             theses = Thesis.objects.for_supervisor(request.user.username)
 
         if "due_date" in request.GET and request.GET["due_date"] != "":
-            theses = theses.filter(due_date__gte=request.GET["due_date"])
+            if "." in request.GET["due_date"]:
+                month, year = request.GET["due_date"].split(".")
+                bound_lower = year + "-" + month + "-" + "01"
+                bound_upper = year + "-" + str(int(month) + 1) + "-" + "01"
+            else:
+                year = request.GET["due_date"]
+                bound_lower = year + "-" + "01" + "-" + "01"
+                bound_upper = str(int(year) + 1) + "-" + "01" + "-" + "01"
+            theses = theses.filter(due_date__gte=bound_lower, due_date__lt=bound_upper)
 
         if "status" in request.GET and request.GET["status"] != "":
             theses = theses.filter(status=request.GET["status"])
@@ -149,24 +134,33 @@ class Overview(View):
             theses = theses.filter(
                 assessor__in=[assessor.id for assessor in assessors_with_name or assessors_with_surname])
 
-        if "sort" in request.GET and request.GET["sort"] != "":
+        if "sort_by" in request.GET and request.GET["sort_by"] != "":
+            sort_by = request.GET["sort_by"]
+            to_reverse = False
+            if "r_" in sort_by:
+                sort_by = sort_by.split("r_")[1]
+                to_reverse = True
             # students are ordered by surname
-            if request.GET["sort"] == "student":
+            if sort_by == "student":
                 theses = sorted(theses, key=operator.attrgetter("student.last_name"))
             # assessors are ordered by surname, theses with no assessors are ordered at the back
-            elif request.GET["sort"] == "assessor":
+            elif sort_by == "assessor":
                 theses_has_assessor = sorted(theses.exclude(assessor=None),
                                              key=operator.attrgetter("assessor.last_name"))
                 theses = theses_has_assessor + list(theses.filter(assessor=None))
             else:
-                theses = theses.order_by(request.GET["sort"])
+                theses = theses.order_by(sort_by)
+
+            if to_reverse:
+                theses = theses[::-1]
 
         context = {"theses": theses,
+                   "sort_by": request.GET["sort_by"] if "sort_by" in request.GET else "",
                    "due_date": request.GET["due_date"] if "due_date" in request.GET else "",
                    "status": request.GET["status"] if "status" in request.GET else "",
                    "title": request.GET["title"] if "title" in request.GET else "",
                    "student": request.GET["student"] if "student" in request.GET else "",
-                   "assessor": request.GET["assessor"] if "assessor" in request.GET else ""}
+                   "assessor": request.GET["assessor"] if "assessor" in request.GET else "",}
 
         return render(request, 'website/overview.html', context)
 
@@ -175,11 +169,11 @@ class PdfView(View):
     type = None
 
     def send(self, request, pdf):
-       """Call xsendfile wrapper to send PDF (in attachment mode)"""
-       return sendfile(request,
-                       pdf.path,
-                       attachment=True,
-                       attachment_filename=pdf.filename)
+        """Call xsendfile wrapper to send PDF (in attachment mode)"""
+        return sendfile(request,
+                        pdf.path,
+                        attachment=True,
+                        attachment_filename=pdf.filename)
 
     @method_decorator(never_cache)
     def get(self, request, *args, **kwargs):
@@ -326,7 +320,8 @@ class ChangeView(View):
             a_form = AssessorForm(initial={
                 'first_name': assessor.first_name,
                 'last_name': assessor.last_name,
-                'email': assessor.email
+                'email': assessor.email,
+                'a_title': assessor.a_title
             })
         else:
             a_form = AssessorForm()
@@ -374,7 +369,7 @@ class DeleteThesis(View):
     def get(self, request, *args, **kwargs):
 
         if self.thesis.is_graded() or self.thesis.is_handed_in() or self.thesis.is_prolonged() or \
-            self.thesis.is_approved() or self.thesis.is_rejected():
+                self.thesis.is_approved() or self.thesis.is_rejected():
             return redirect('overview')
 
         context = {
@@ -388,7 +383,7 @@ class DeleteThesis(View):
     def post(self, request, *args, **kwargs):
 
         if self.thesis.is_graded() or self.thesis.is_handed_in() or self.thesis.is_prolonged() or \
-            self.thesis.is_approved() or self.thesis.is_rejected():
+                self.thesis.is_approved() or self.thesis.is_rejected():
             return redirect('overview')
 
         self.thesis.delete()
