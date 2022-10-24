@@ -1,8 +1,6 @@
 from django.urls import reverse
-from django.test import TestCase, Client
 
 from datetime import date
-from decimal import Decimal
 
 from website.models import *
 from website.test.test import LoggedInTestCase, ThesisStub
@@ -77,8 +75,14 @@ class ViewOverviewTests(LoggedInTestCase):
         thesis = ThesisStub.applied(self.supervisor)
         thesis.save()
 
-        response = self.client.get(reverse('overview'), {"due_date": date(2018, 1, 30), "status": "", "title": "",
-                                                          "student": "", "assessor": "", "sort": ""})
+        response = self.client.get(reverse('overview'), {"due_date": "01.2018", "status": "", "title": "",
+                                                         "student": "", "assessor": "", "sort": ""})
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context["theses"]))
+
+        response = self.client.get(reverse('overview'), {"due_date": "2018", "status": "", "title": "",
+                                                         "student": "", "assessor": "", "sort": ""})
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.context["theses"]))
@@ -89,14 +93,14 @@ class ViewOverviewTests(LoggedInTestCase):
 
         for value in ["1", "2", "3"]:
             response = self.client.get(reverse('overview'), {"due_date": "", "status": value, "title": "",
-                                                              "student": "", "assessor": "", "sort": ""})
+                                                             "student": "", "assessor": "", "sort": ""})
 
             self.assertEqual(200, response.status_code)
             self.assertEqual(0, len(response.context["theses"]))
 
         for value in ["", "0"]:
             response = self.client.get(reverse('overview'), {"due_date": "", "status": value, "title": "",
-                                                              "student": "", "assessor": "", "sort": ""})
+                                                             "student": "", "assessor": "", "sort": ""})
 
             self.assertEqual(200, response.status_code)
             self.assertEqual(1, len(response.context["theses"]))
@@ -108,14 +112,14 @@ class ViewOverviewTests(LoggedInTestCase):
 
         for id in range(0, 9):
             response = self.client.get(reverse('overview'), {"due_date": "", "status": "", "title": "",
-                                                              "student": id, "assessor": "", "sort": ""})
+                                                             "student": id, "assessor": "", "sort": ""})
 
             self.assertEqual(200, response.status_code)
             self.assertEqual(0, len(response.context["theses"]))
 
         for id in {"9", "98", "987", "9876", "98765", "987654"}:
             response = self.client.get(reverse('overview'), {"due_date": "", "status": "", "title": "",
-                                                              "student": id, "assessor": "", "sort": ""})
+                                                             "student": id, "assessor": "", "sort": ""})
 
             self.assertEqual(200, response.status_code)
             self.assertEqual(1, len(response.context["theses"]))
@@ -126,11 +130,10 @@ class ViewOverviewTests(LoggedInTestCase):
 
         for name in ["L", "L L", "Larry", "Langzeitstudent", "Larry Langzeitstudent"]:
             response = self.client.get(reverse('overview'), {"due_date": "", "status": "", "title": "",
-                                                              "student": name, "assessor": "", "sort": ""})
+                                                             "student": name, "assessor": "", "sort": ""})
 
             self.assertEqual(200, response.status_code)
             self.assertEqual(1, len(response.context["theses"]))
-
 
     def test_search_thesis_name(self):
         thesis = ThesisStub.applied(self.supervisor)
@@ -138,11 +141,10 @@ class ViewOverviewTests(LoggedInTestCase):
 
         for title in ["Eine", "Thesis", "Eine einzelne Thesis"]:
             response = self.client.get(reverse('overview'), {"due_date": "", "status": "", "title": title,
-                                                              "student": "", "assessor": "", "sort": ""})
+                                                             "student": "", "assessor": "", "sort": ""})
 
             self.assertEqual(200, response.status_code)
             self.assertEqual(1, len(response.context["theses"]))
-
 
     def test_search_assessor_name(self):
         thesis = ThesisStub.applied(self.supervisor)
@@ -150,7 +152,7 @@ class ViewOverviewTests(LoggedInTestCase):
 
         for name in ["H", "H S", "Hansi", "Schmidt", "Hansi Schmidt"]:
             response = self.client.get(reverse('overview'), {"due_date": "", "status": "", "title": "",
-                                                              "student": "", "assessor": name, "sort": ""})
+                                                             "student": "", "assessor": name, "sort": ""})
 
             self.assertEqual(200, response.status_code)
             self.assertEqual(1, len(response.context["theses"]))

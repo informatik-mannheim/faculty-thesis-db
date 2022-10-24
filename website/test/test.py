@@ -93,7 +93,7 @@ class LoggedInTestCase(TestCase):
         self.student = Student(
             id=123456, first_name="Larry", last_name="Langzeitstudent", program="IB")
         self.assessor = Assessor(
-            first_name="Max", last_name="Mustermann", email="mm@example.com")
+            first_name="Max", last_name="Mustermann", email="mm@example.com", a_title="Dr.")
         self.supervisor = Supervisor(
             first_name="Peter", last_name="Professpr", id=self.user.username)
 
