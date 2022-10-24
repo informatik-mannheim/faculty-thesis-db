@@ -35,12 +35,11 @@ class XFDF(object):
 
     def _header(self):
         header = '<?xml version="1.0" encoding="UTF-8"?>\n' \
-            '<xfdf xmlns="http://ns.adobe.com/xfdf/" xml:space="preserve">\n' \
-            '<fields>\n'
+                 '<xfdf xmlns="http://ns.adobe.com/xfdf/" xml:space="preserve">\n' \
+                 '<fields>\n'
         return header
 
     def _fields(self):
-
         field_str = '<field name="{0}">\n' \
                     '<value>{1}</value>\n' \
                     '</field>'
@@ -148,6 +147,11 @@ class AbstractPDF(object):
         if self.thesis.assessor:
             xfdf.add_field("Name Zweitprüfer", self.thesis.assessor.short_name)
             xfdf.add_field("Zweitkorrektor/in", self.thesis.assessor.short_name)
+            if self.thesis.assessor.a_title is not None:
+                xfdf.add_field("Name Zweitprüfer", self.thesis.assessor.short_name + ", " +
+                               self.thesis.assessor.a_title)
+                xfdf.add_field("Zweitkorrektor/in", self.thesis.assessor.short_name + ", " +
+                               self.thesis.assessor.a_title)
 
         if self.thesis.external:
             if self.form_name == "bewertung":
@@ -261,6 +265,7 @@ class ProlongationPDF(AbstractPDF):
 
     def __init__(self, thesis):
         super(ProlongationPDF, self).__init__(thesis, 'verlaengerung')
+
 
 class ProlongIllnessPDF(AbstractPDF):
     """PDF in case of illness"""
