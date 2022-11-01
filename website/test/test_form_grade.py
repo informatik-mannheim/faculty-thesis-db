@@ -31,7 +31,7 @@ class GradeFormTests(TestCase):
         self.assertEqual(None, form["grade"].value())
         self.assertEqual(None, form["assessor_grade"].value())
 
-    def test_initilization_with_grades(self):
+    def test_initialization_with_grades(self):
         thesis = Thesis(title="Some title",
                         assessor=self.assessor,
                         status=Thesis.PROLONGED,
@@ -104,18 +104,3 @@ class GradeFormTests(TestCase):
 
             self.assertFalse(form.is_valid())
             self.assertIn('assessor_grade', form.errors)
-
-    def test_validate_assessor_without_assessor_grade(self):
-        data = {
-            'assessor': self.assessor,
-            'grade': 1.0,
-            'restriction_note': True,
-            'examination_date': date(2017, 1, 1),
-            'handed_in_date': date(2017, 2, 1)
-        }
-
-        form = GradeForm(data)
-        form.full_clean()
-
-        self.assertFalse(form.is_valid())
-        self.assertIn('assessor_grade', form.errors)

@@ -144,6 +144,7 @@ class ViewGradeTests(LoggedInTestCase):
             'assessor': thesis.assessor,
             'restriction_note': False,
             'examination_date': date(2019, 3, 1),
+            'assessor_grade': Decimal("1.0"),
             'handed_in_date': date(2019, 2, 1),
         }
 
@@ -158,35 +159,7 @@ class ViewGradeTests(LoggedInTestCase):
 
         self.assertEqual(Thesis.APPLIED, thesis.status)
 
-    def test_cannot_grade_assessor_grade_without_assessor(self):
-        thesis = ThesisStub.applied(self.supervisor)
-        thesis.assessor = None
-
-        thesis.save()
-
-        post_data = {
-            'assessor': '',
-            'restriction_note': False,
-            'examination_date': date(2019, 3, 1),
-            'grade': Decimal("1.2"),
-            'assessor_grade': Decimal("1.2"),
-            'handed_in_date': date(2019, 2, 1),
-        }
-
-        response = self.client.post(
-            reverse('grade', args=[thesis.surrogate_key]), post_data)
-
-        self.assertEqual(302, response.status_code)
-
-        thesis = Thesis.objects.get(surrogate_key=thesis.surrogate_key)
-
-        self.assertEqual(Thesis.GRADED, thesis.status)
-        self.assertEqual(Decimal("1.2"), thesis.grade)
-        self.assertEqual(None, thesis.assessor_grade)
-        self.assertEqual(None, thesis.assessor)
-        self.assertFalse(thesis.restriction_note)
-
-    def test_cannot_omit_assessor_grade_thesis_has_assessor(self):
+    def test_can_not_grade_thesis_without_assessor_grade(self):
         thesis = ThesisStub.applied(self.supervisor)
 
         thesis.save()
@@ -195,8 +168,8 @@ class ViewGradeTests(LoggedInTestCase):
             'assessor': thesis.assessor,
             'restriction_note': False,
             'examination_date': date(2019, 3, 1),
+            'grade': Decimal("1.0"),
             'handed_in_date': date(2019, 2, 1),
-            'grade': Decimal('1.2'),
         }
 
         response = self.client.post(

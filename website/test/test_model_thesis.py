@@ -249,28 +249,6 @@ class ThesisModelTests(TestCase):
                 self.assertEqual(thesis.assessor_grade, None)
                 self.assertFalse(result)
 
-    def test_no_assessor_grade_when_no_assessor(self):
-        thesis = Thesis(student=self.student,
-                        supervisor=self.supervisor,
-                        title="Some title",
-                        thesis_program=self.student.program,
-                        begin_date=date(2018, 1, 30),
-                        due_date=date(2018, 3, 30))
-
-        thesis.save()
-
-        grade = 5.0
-        examination_date = date(2018, 2, 15)
-
-        result = thesis.assign_grade(grade, grade, examination_date)
-        thesis = Thesis.objects.first()
-
-        self.assertEqual(thesis.status, Thesis.GRADED)
-        self.assertEqual(thesis.grade, grade)
-        self.assertEqual(thesis.assessor_grade, None)
-        self.assertTrue(result)
-        self.assertEqual(examination_date, thesis.examination_date)
-
     def test_can_change_a_graded_thesis(self):
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
