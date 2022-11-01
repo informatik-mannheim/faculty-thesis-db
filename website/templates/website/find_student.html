@@ -2,49 +2,109 @@
 {% load static %}
 
 {% block content %}
-<div class="container">
-	<div class="row">
-		<h1>Student suchen</h1>
-	</div>
-	{% if form.is_valid %}
-		<div class="row well">
-			<div class="inline">
-				<strong>Matrikelnummer {{form.student_id.value}}:</strong> {{student.first_name}} {{student.last_name}} ({{student.program}})	
-			</div>
-			<div class="inline space-left">
-				<form action="{% url 'create' student_id=student.id %}" method="get">
-				  	<button class="btn btn-success" type="submit" autofocus>
-						<span class="glyphicon glyphicon-arrow-right"></span> Abschlussarbeit anlegen
-					</button>
-				</form>
-			</div>
-		</div>
-	{% endif %}
-	
-	<br/>
-
-	<div class="row">
-		<form action="" method="post">
-			{% csrf_token %}
-			 <div class="fieldWrapper">
-	            {{ form.student_id.errors }}
-	            {{ form.student_id.label_tag }}
-	            {{ form.student_id }}
-	        </div>
-		    <input class="btn btn-primary" type="submit" value="Matrikelnummer überprüfen" style="float: left; margin-top: 40px;"/>
-		</form>
-        <div style="margin-top: 40px">
-            <form action="{%url 'create_student'%}" method="get">
-                <input class="btn btn-primary space-left-small" type="submit" value="externen Student erstellen"/>
-                <button type="button"  class="btn"
-                        onclick="alert('Studenten anderer Fakultäten müssen manuell erstellt werden, ' +
-                         'da zunächst nur Studenten der Fakultät I in der Datenbank vorhanden sind.');">?</button>
+<div class="col-lg-6">
+    <div class="container">
+        <div class="row col-lg-12">
+            <h1>Studierenden suchen</h1>
+            <h5>Studierende der Fakultät I müssen nicht erstellt werden</h5>
+            <br/>
+        </div>
+        {% if form.is_valid %}
+            <div class="row well col-lg-6">
+                <div class="row inline">
+                    <strong>Matrikelnummer {{form.student_id.value}}:</strong> {{student.first_name}} {{student.last_name}} ({{student.program}})
+                </div>
+                <div class="row space-top-small">
+                    <form action="{% url 'create' student_id=student.id %}" method="get">
+                        <button class="btn btn-success" type="submit" autofocus>
+                            <span class="glyphicon glyphicon-arrow-right"></span> Abschlussarbeit anlegen
+                        </button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+        <div class="row col-lg-12">
+            <form action="" method="post">
+            {% csrf_token %}
+                 <div class="fieldWrapper">
+                    {{ form.student_id.errors }}
+                    {{ form.student_id.label_tag }}
+                    {{ form.student_id }}
+                </div>
+                <input class="btn btn-primary" type="submit" value="Matrikelnummer überprüfen" style="float: left; margin-top: 40px;"/>
             </form>
         </div>
-
-        <form id="form_abort" action="{%url 'overview'%}" method="get">
-            <input id="btn_abort" class="btn btn-danger" type="submit" value="Abbrechen" style="margin-top: 20px;" />
-        </form>
-	</div>
+        <div class="row col-lg-12">
+            <form id="form_abort" action="{%url 'overview'%}" method="get">
+                <input id="btn_abort" class="btn btn-danger" type="submit" value="Abbrechen" style="margin-top: 20px;" />
+            </form>
+        </div>
+    </div>
 </div>
+<div class="col-lg-6">
+    <div class="container">
+        <div class="row col-lg-12">
+            <h1>Studierenden erstellen</h1>
+            <br/>
+        </div>
+        <div class="row col-lg-12">
+            <button class="col-lg-6" onclick="control_visibility();">⌄</button>
+        </div>
+        <div id="create" class="row col-lg-6" style="visibility: hidden">
+            <form action="" method="post">
+                {% csrf_token %}
+                <div class="row" style="margin-top: 20px">
+                    <div class="fieldWrapper col-md-4">
+                        {{ s_form.id.label_tag }}
+                    </div>
+                    <div class="fieldWrapper col-md-8">
+                        {{ s_form.id }}
+                        {{ s_form.id.errors }}
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 20px">
+                    <div class="fieldWrapper col-md-4">
+                        {{ s_form.first_name.label_tag }}
+                    </div>
+                    <div class="fieldWrapper col-md-8">
+                        {{ s_form.first_name }}
+                        {{ s_form.first_name.errors }}
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 20px">
+                    <div class="fieldWrapper col-md-4">
+                        {{ s_form.last_name.label_tag }}
+                    </div>
+                    <div class="fieldWrapper col-md-8">
+                        {{ s_form.last_name }}
+                        {{ s_form.last_name.errors }}
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 20px">
+                    <div class="fieldWrapper col-md-4">
+                        {{ s_form.program.label_tag }}
+                    </div>
+                    <div class="fieldWrapper col-md-8">
+                        {{ s_form.program }}
+                        {{ s_form.program.errors }}
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 20px">
+                    <input class="btn btn-success" style="float: left;" type="submit" value="Studierenden erstellen" />
+                </div>
+                <br/>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function control_visibility(){
+        let vis = document.getElementById('create').getAttribute('style');
+        if (vis === 'visibility: visible') {
+            document.getElementById('create').setAttribute('style','visibility: collapse');
+        } else {
+            document.getElementById('create').setAttribute('style','visibility: visible');
+        }
+    }
+</script>
 {% endblock content %}
