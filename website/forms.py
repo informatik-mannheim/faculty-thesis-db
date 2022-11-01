@@ -75,7 +75,6 @@ class GradeForm(forms.Form):
     assessor_grade = forms.DecimalField(label="Zweitkorrektor-Note",
                                         decimal_places=1,
                                         max_digits=2,
-                                        required=False,
                                         min_value=1.0,
                                         max_value=5.0,
                                         widget=forms.NumberInput(
@@ -104,12 +103,9 @@ class GradeForm(forms.Form):
             if 4 < self.cleaned_data["grade"] < 5.0:
                 raise forms.ValidationError({'grade': 'Ungültige Note'})
 
-        if 'assessor' in self.cleaned_data and 'assessor_grade' in self.cleaned_data \
-                and self.cleaned_data["assessor"] != '':
-            if self.cleaned_data["assessor_grade"] is not None and 4 < self.cleaned_data["assessor_grade"] < 5.0:
+        if 'assessor_grade' in self.cleaned_data:
+            if 4 < self.cleaned_data["assessor_grade"] < 5.0:
                 raise forms.ValidationError({'assessor_grade': 'Ungültige Note'})
-            elif self.cleaned_data["assessor_grade"] is None:
-                raise forms.ValidationError({'assessor_grade': 'Note benötigt'})
 
     @classmethod
     def initialize_from(cls, thesis):

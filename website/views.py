@@ -160,7 +160,7 @@ class Overview(View):
                    "status": request.GET["status"] if "status" in request.GET else "",
                    "title": request.GET["title"] if "title" in request.GET else "",
                    "student": request.GET["student"] if "student" in request.GET else "",
-                   "assessor": request.GET["assessor"] if "assessor" in request.GET else "",}
+                   "assessor": request.GET["assessor"] if "assessor" in request.GET else "", }
 
         return render(request, 'website/overview.html', context)
 
@@ -183,38 +183,6 @@ class PdfView(View):
         pdf_type = kwargs["type"]
 
         return self.send(request, pdf_type(thesis).get())
-
-
-class CreateStudent(View):
-
-    @property
-    def headline(self):
-        return "Externen Studenten anlegen"
-
-    @method_decorator(never_cache)
-    def get(self, request, *args, **kwargs):
-        s_form = StudentForm()
-
-        context = {
-            's_form': s_form,
-            'headline': self.headline}
-
-        return render(request, 'website/create_student.html', context)
-
-    @method_decorator(never_cache)
-    def post(self, request, *args, **kwargs):
-        s_form = StudentForm(request.POST)
-
-        if s_form.is_valid():
-            s_form.create_student()
-
-            return HttpResponseRedirect('/find-student/')
-
-        context = {
-            'headline': self.headline,
-            's_form': s_form}
-
-        return render(request, 'website/create_student.html', context)
 
 
 class CreateThesis(View):
@@ -397,11 +365,19 @@ def find_student(request):
     student, form = None, None
 
     if request.method == 'POST':
-        form = CheckStudentIdForm(request.POST)
+        if request.POST.getlist('student_id') not in ([''], []):
+            form = CheckStudentIdForm(request.POST)
 
-        if form.is_valid():
-            student = form.cleaned_data['student']
+            if form.is_valid():
+                student = form.cleaned_data['student']
 
-    context = {'form': form or CheckStudentIdForm(), 'student': student}
+        s_form = StudentForm(request.POST)
+
+        if s_form.is_valid():
+            s_form.create_student()
+
+    s_form = StudentForm()
+
+    context = {'form': form or CheckStudentIdForm(), 'student': student, 's_form': s_form}
 
     return render(request, 'website/find_student.html', context)

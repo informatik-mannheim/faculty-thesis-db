@@ -264,8 +264,7 @@ class Thesis(models.Model):
     def assign_grade(self, grade, assessor_grade, examination_date, restriction_note=False):
         """Assign grade and set status to GRADED, validation performed in GradeForm"""
         self.grade = grade
-        if self.assessor is not None:
-            self.assessor_grade = assessor_grade
+        self.assessor_grade = assessor_grade
         self.examination_date = examination_date
         self.restriction_note = restriction_note
         self.clean_fields()
@@ -346,8 +345,7 @@ class Thesis(models.Model):
 
         if self.is_prolonged() and self.prolongation_date <= self.due_date:
             raise ValidationError(
-                {'prolongation_date':
-                     'prolongation date must be later than due date'})
+                {'prolongation_date': 'prolongation date must be later than due date'})
 
     def __str__(self):
         return "'{0}' ({1})".format(self.title, self.student)

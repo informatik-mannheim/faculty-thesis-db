@@ -12,7 +12,6 @@ urlpatterns = [
     path('accounts/logout/', LogoutView.as_view(), name='logout'),
     re_path(r'overview/', login_required(views.Overview.as_view()), name='overview'),
     path('find-student/', views.find_student, name='find_student'),
-    path('create_student/', login_required(views.CreateStudent.as_view()), name='create_student'),
     re_path(r'create/(?P<student_id>\d+)',
             login_required(views.CreateThesis.as_view()), name='create'),
     re_path(r'download/application/(?P<key>[0-9a-f\-]+)',
