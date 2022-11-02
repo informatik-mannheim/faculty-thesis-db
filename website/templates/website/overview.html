@@ -26,7 +26,7 @@
                             <button id="sort_status" onclick="setSort('status');" style="background: none; border: none">Status</button>
                         </th>
                         <th>
-                            <button id="sort_student" onclick="setSort('student');" style="background: none; border: none">Student</button>
+                            <button id="sort_student" onclick="setSort('student');" style="background: none; border: none">Studierender</button>
                         </th>
                         <th>
                             <button id="sort_title" onclick="setSort('title');" style="background: none; border: none">Thema</button>
@@ -38,10 +38,10 @@
                     </tr>
                     <tr>
                         <th>
-                            <input type="text" name="due_date" id="due_date" pattern="\d{2}.\d{4}|\d{4}" title="dd.yyyy or yyyy" placeholder="mm.yyyy / yyyy" value="{{ due_date }}" style="max-width: 150px">
+                            <input type="text" name="due_date" id="due_date" pattern="\d{2}\.\d{4}|\d{4}" title="mm.yyyy or yyyy" placeholder="mm.yyyy o. yyyy" value="{{ due_date }}" size="12">
                         </th>
                         <th>
-                            <select name="status" id="status">
+                            <select name="status" id="status" style="height: 32px">
                                 {% if status == "0" %}
                                     <option value="0">Angemeldet</option>
                                     <option value=""></option>
@@ -76,7 +76,7 @@
                             </select>
                         </th>
                         <th>
-                            <input type="text" name="student" id="student" placeholder="MatrNr/Name" size="10" value="{{ student }}">
+                            <input type="text" name="student" id="student" placeholder="MatrNr o. Name" size="12" value="{{ student }}">
                         </th>
                         <th>
                             <input type="text" name="title" id="title" placeholder="Thema" size="10" value="{{ title }}">

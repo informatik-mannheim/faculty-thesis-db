@@ -7,6 +7,7 @@
         <div class="row col-lg-12">
             <h1>Studierenden suchen</h1>
             <br/>
+            <br/>
         </div>
         {% if form.is_valid %}
             <div class="row well col-lg-6">
@@ -44,9 +45,8 @@
     <div class="container">
         <div class="row col-lg-12">
             <h1>Studierenden erstellen</h1>
-            <h5>Zunächst die Suchfunktion nutzen, ob ein Eintrag für den Studierenden bereits existiert</h5>
+            <h5>Zunächst der Suchfunktion überprüfen, ob der Studierende bereits erstellt wurde</h5>
             <h5>Studierende der Fakultät I müssen nicht erstellt werden</h5>
-            <br/>
         </div>
         <div class="row col-lg-12">
             <button class="col-lg-6" onclick="control_visibility();">⌄</button>
@@ -82,7 +82,7 @@
                     </div>
                 </div>
                 <div class="row" style="margin-top: 20px">
-                    <div class="fieldWrapper col-md-4">
+                    <div class="col-md-4">
                         {{ s_form.program.label_tag }}
                     </div>
                     <div class="fieldWrapper col-md-8">
@@ -91,7 +91,7 @@
                     </div>
                 </div>
                 <div class="row" style="margin-top: 20px">
-                    <input class="btn btn-success" style="float: left;" type="submit" value="Studierenden erstellen" />
+                    <input class="btn btn-success space-left-small" type="submit" value="Studierenden erstellen" />
                 </div>
                 <br/>
             </form>
