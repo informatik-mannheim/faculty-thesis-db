@@ -179,7 +179,7 @@ class Thesis(models.Model):
         null=True,
         blank=True)
     student = models.ForeignKey('Student', on_delete=models.CASCADE)
-    thesis_program = models.CharField(max_length=3)
+    thesis_program = models.CharField(max_length=10)
     begin_date = models.DateField()
     due_date = models.DateField()
     external = models.BooleanField(default=False)
