@@ -103,8 +103,10 @@
         let vis = document.getElementById('create').getAttribute('style');
         if (vis === 'visibility: visible') {
             document.getElementById('create').setAttribute('style','visibility: collapse');
+            document.getElementById('create').innerText = "⌄";
         } else {
             document.getElementById('create').setAttribute('style','visibility: visible');
+            document.getElementById('create').innerText = "⌃";
         }
     }
 </script>
