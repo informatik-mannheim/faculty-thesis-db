@@ -79,7 +79,7 @@ class ViewCreateTests(TestCase):
             'Zweitkorrektor unvollständig' in assessor_form.errors['__all__'])
         self.assertFalse(Thesis.objects.count())
 
-    def test_assessor_email_is_optional(self):
+    def test_assessor_email_and_academic_tile_are_optional(self):
         post_data = {
             'first_name': 'Max',
             'last_name': 'Mustermann',
