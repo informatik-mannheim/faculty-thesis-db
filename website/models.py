@@ -412,7 +412,7 @@ class Assessor(models.Model):
         max_length=30, verbose_name="Vorname")
     last_name = models.CharField(
         max_length=30, verbose_name="Nachname")
-    a_title = models.CharField(
+    academic_title = models.CharField(
         max_length=30, verbose_name="akad. Grad", blank=True, null=True)
     email = models.EmailField(
         max_length=80, verbose_name="E-Mail", blank=True, null=True)

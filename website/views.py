@@ -289,7 +289,7 @@ class ChangeView(View):
                 'first_name': assessor.first_name,
                 'last_name': assessor.last_name,
                 'email': assessor.email,
-                'a_title': assessor.a_title
+                'academic_title': assessor.academic_title
             })
         else:
             a_form = AssessorForm()

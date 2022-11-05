@@ -166,7 +166,7 @@ class AssessorForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={'placeholder': 'E-Mail'}))
 
-    a_title = forms.CharField(
+    academic_title = forms.CharField(
         label="akad. Grad",
         max_length=30,
         required=False,
@@ -183,7 +183,7 @@ class AssessorForm(forms.Form):
                     first_name=self.cleaned_data['first_name'],
                     last_name=self.cleaned_data['last_name'],
                     email=self.cleaned_data['email'],
-                    a_title=self.cleaned_data['a_title'])
+                    academic_title=self.cleaned_data['academic_title'])
 
                 assessor.full_clean()
 
