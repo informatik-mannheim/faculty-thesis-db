@@ -49,9 +49,9 @@
             <h5>Studierende der Fakultät I müssen nicht erstellt werden</h5>
         </div>
         <div class="row col-lg-12">
-            <button class="col-lg-6" onclick="control_visibility();">⌄</button>
+            <button id="create_button" class="col-lg-6" onclick="control_visibility();">⌄</button>
         </div>
-        <div id="create" class="row col-lg-6" style="visibility: hidden">
+        <div id="create_form" class="row col-lg-6" style="visibility: hidden">
             <form action="" method="post">
                 {% csrf_token %}
                 <div class="row" style="margin-top: 20px">
@@ -100,13 +100,13 @@
 </div>
 <script type="text/javascript">
     function control_visibility(){
-        let vis = document.getElementById('create').getAttribute('style');
+        let vis = document.getElementById('create_form').getAttribute('style');
         if (vis === 'visibility: visible') {
-            document.getElementById('create').setAttribute('style','visibility: collapse');
-            document.getElementById('create').innerText = "⌄";
+            document.getElementById('create_form').setAttribute('style','visibility: collapse');
+            document.getElementById('create_button').innerText = "⌄";
         } else {
-            document.getElementById('create').setAttribute('style','visibility: visible');
-            document.getElementById('create').innerText = "⌃";
+            document.getElementById('create_form').setAttribute('style','visibility: visible');
+            document.getElementById('create_button').innerText = "⌃";
         }
     }
 </script>
