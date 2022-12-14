@@ -64,7 +64,7 @@ class ProlongationForm(forms.Form):
 
 
 class GradeForm(forms.Form):
-    grade = forms.DecimalField(label="Note",
+    grade = forms.DecimalField(label="Note (Erstkorrektor)",
                                decimal_places=1,
                                max_digits=2,
                                min_value=1.0,
@@ -72,7 +72,7 @@ class GradeForm(forms.Form):
                                widget=forms.NumberInput(
                                    attrs={'autofocus': 'autofocus'}))
 
-    assessor_grade = forms.DecimalField(label="Zweitkorrektor-Note",
+    assessor_grade = forms.DecimalField(label="Note (Zweitkorrektor)",
                                         decimal_places=1,
                                         max_digits=2,
                                         min_value=1.0,
