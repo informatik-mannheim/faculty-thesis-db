@@ -49,11 +49,11 @@ class TestPDF(TestCase):
         self.assertEqual(xfdf.fields["Name Erstprüfer"], supervisor.short_name)
         self.assertEqual(xfdf.fields["Hochschullehrer/in"], supervisor.short_name)
 
-        if thesis.assessor.a_title is not None:
+        if thesis.assessor.academic_title is not None:
             self.assertEqual(xfdf.fields["Name Zweitprüfer"], thesis.assessor.short_name + ", " +
-                             thesis.assessor.a_title)
+                             thesis.assessor.academic_title)
             self.assertEqual(xfdf.fields["Zweitkorrektor/in"], thesis.assessor.short_name + ", " +
-                             thesis.assessor.a_title)
+                             thesis.assessor.academic_title)
         else:
             self.assertEqual(xfdf.fields["Name Zweitprüfer"], thesis.assessor.short_name)
             self.assertEqual(xfdf.fields["Zweitkorrektor/in"], thesis.assessor.short_name)
