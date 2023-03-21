@@ -1,48 +1,21 @@
 from django import forms
 from django.forms import ModelForm
-from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 from datetime import timedelta
-from datetime import datetime
 
 from website.models import *
 
 from website.util import dateutil
 
 # List of years for SelectDateWidget to allow years in the past
-YEARS = [ x for x in range(datetime.now().year - 2, datetime.now().year + 2) ]
+YEARS = [x for x in range(datetime.now().year - 2, datetime.now().year + 2)]
+
 
 class ThesisForm(ModelForm):
-
     class Meta:
         model = Thesis
         fields = ['title', 'student', 'supervisor', 'assessor']
-
-
-class HandInForm(forms.Form):
-    handed_in_date = forms.DateField(label="Abgabedatum",
-                                     required=True,
-                                     widget=forms.SelectDateWidget(years=YEARS))
-
-    restriction_note = forms.BooleanField(label="Sperrvermerk",
-                                          required=False)
-
-    new_title = forms.CharField(label="Neuer Titel",
-                                max_length=300,
-                                required=True,
-                                widget=forms.TextInput(
-                                    attrs={'max_length': '200',
-                                           'class': 'title'})
-                                )
-
-    @classmethod
-    def initialize_from(cls, thesis):
-        # TODO: test new_title defaults
-        initials = {'handed_in_date': thesis.deadline,
-                    'new_title': thesis.title}
-
-        return cls(initial=initials)
 
 
 class ProlongationForm(forms.Form):
@@ -91,13 +64,21 @@ class ProlongationForm(forms.Form):
 
 
 class GradeForm(forms.Form):
-    grade = forms.DecimalField(label="Note",
+    grade = forms.DecimalField(label="Note (Erstkorrektor)",
                                decimal_places=1,
                                max_digits=2,
                                min_value=1.0,
                                max_value=5.0,
                                widget=forms.NumberInput(
                                    attrs={'autofocus': 'autofocus'}))
+
+    assessor_grade = forms.DecimalField(label="Note (Zweitkorrektor)",
+                                        decimal_places=1,
+                                        max_digits=2,
+                                        min_value=1.0,
+                                        max_value=5.0,
+                                        widget=forms.NumberInput(
+                                            attrs={'autofocus': 'autofocus'}))
 
     restriction_note = forms.BooleanField(label="Sperrvermerk", required=False)
 
@@ -110,6 +91,11 @@ class GradeForm(forms.Form):
         label="Abgabedatum",
         required=True)
 
+    assessor = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False
+    )
+
     def clean(self):
         super(GradeForm, self).clean()
 
@@ -117,24 +103,31 @@ class GradeForm(forms.Form):
             if 4 < self.cleaned_data["grade"] < 5.0:
                 raise forms.ValidationError({'grade': 'Ungültige Note'})
 
+        if 'assessor_grade' in self.cleaned_data:
+            if 4 < self.cleaned_data["assessor_grade"] < 5.0:
+                raise forms.ValidationError({'assessor_grade': 'Ungültige Note'})
+
     @classmethod
     def initialize_from(cls, thesis):
         initials = {
             'restriction_note': thesis.restriction_note,
             'examination_date': thesis.handed_in_date or thesis.deadline,
             'handed_in_date': thesis.handed_in_date or thesis.deadline,
+            'grade': thesis.grade or None,
+            'assessor_grade': thesis.assessor_grade or None,
         }
 
         return cls(initial=initials)
 
     def persist(self, thesis):
         grade = self.cleaned_data["grade"]
+        assessor_grade = self.cleaned_data["assessor_grade"]
         examination_date = self.cleaned_data["examination_date"]
         restriction_note = self.cleaned_data["restriction_note"]
         handed_in_date = self.cleaned_data["handed_in_date"]
 
         thesis.hand_in(handed_in_date, restriction_note)
-        thesis.assign_grade(grade, examination_date, restriction_note)
+        thesis.assign_grade(grade, assessor_grade, examination_date, restriction_note)
 
 
 class CheckStudentIdForm(forms.Form):
@@ -157,20 +150,27 @@ class CheckStudentIdForm(forms.Form):
 class AssessorForm(forms.Form):
     first_name = forms.CharField(
         label="Vorname",
-        max_length=300,
+        max_length=30,
         required=False,
         widget=forms.TextInput(attrs={'placeholder': 'Vorname'}))
 
     last_name = forms.CharField(
         label="Nachname",
-        max_length=300,
+        max_length=30,
         required=False,
         widget=forms.TextInput(attrs={'placeholder': 'Nachname'}))
+
     email = forms.CharField(
         label="E-Mail",
-        max_length=300,
+        max_length=80,
         required=False,
         widget=forms.TextInput(attrs={'placeholder': 'E-Mail'}))
+
+    academic_title = forms.CharField(
+        label="akad. Grad",
+        max_length=30,
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'akad. Grad'}))
 
     def clean(self):
         super(AssessorForm, self).clean()
@@ -182,7 +182,8 @@ class AssessorForm(forms.Form):
                 assessor = Assessor(
                     first_name=self.cleaned_data['first_name'],
                     last_name=self.cleaned_data['last_name'],
-                    email=self.cleaned_data['email'])
+                    email=self.cleaned_data['email'],
+                    academic_title=self.cleaned_data['academic_title'])
 
                 assessor.full_clean()
 
@@ -191,9 +192,56 @@ class AssessorForm(forms.Form):
                 raise forms.ValidationError('Zweitkorrektor unvollständig')
 
 
+class StudentForm(forms.Form):
+    id = forms.IntegerField(
+        label="Matrikelnummer")
+
+    first_name = forms.CharField(
+        label="Vorname",
+        max_length=30)
+
+    last_name = forms.CharField(
+        label="Nachname",
+        max_length=30)
+
+    program = forms.CharField(
+        label="Studiengang",
+        min_length=2)
+
+    def clean(self):
+        super(StudentForm, self).clean()
+        manager = StudentManager()
+
+        for field in ["first_name", "last_name", "program"]:
+            if field in self.cleaned_data and False in [char.isalpha() for char in self.cleaned_data[field]]:
+                raise forms.ValidationError(field + ': Zeichen/Ziffern nicht erlaubt')
+
+        if "id" in self.cleaned_data and manager.find(self.cleaned_data["id"]) is not None:
+            raise forms.ValidationError('Matrikelnummer bereits vorhanden')
+
+        if "program" not in self.cleaned_data or self.cleaned_data["program"][-1] not in ["B", "M"]:
+            raise forms.ValidationError('Studiengang muss mit "B" (Bachelor) order "M" (Master) enden')
+
+        if "program" not in self.cleaned_data or self.cleaned_data["program"] in ["IB", "IM", "IMB", "CSB", "UIB"]:
+            raise forms.ValidationError('Studenten der Fakultät I sind bereits in der Datenbank vorhanden')
+
+    def create_student(self):
+        if not self.is_valid():
+            return None
+
+        student = Student(id=self.cleaned_data["id"],
+                          first_name=self.cleaned_data["first_name"],
+                          last_name=self.cleaned_data["last_name"],
+                          program=self.cleaned_data["program"])
+
+        student.save()
+
+        return student
+
+
 class ThesisApplicationForm(forms.Form):
     title = forms.CharField(label="Titel",
-                            max_length=300,
+                            max_length=200,
                             widget=forms.TextInput(
                                 attrs={'placeholder': 'Titel der Arbeit...',
                                        'autofocus': 'autofocus'}))
@@ -205,6 +253,11 @@ class ThesisApplicationForm(forms.Form):
     due_date = forms.DateField(
         widget=forms.SelectDateWidget(years=YEARS),
         label="Abgabe")
+
+    prolongation_date = forms.DateField(
+        label="Verlängerungsdatum",
+        widget=forms.HiddenInput(),
+        required=False)
 
     external = forms.BooleanField(
         label="extern",
@@ -218,17 +271,22 @@ class ThesisApplicationForm(forms.Form):
     )
 
     external_where = forms.CharField(
-        label="bei", max_length=300, required=False)
+        label="bei", max_length=200, required=False)
 
     def clean(self):
         super(ThesisApplicationForm, self).clean()
 
         begin = self.cleaned_data.get('begin_date')
         end = self.cleaned_data.get('due_date')
+        prolong = self.cleaned_data.get('prolongation_date')
 
         if begin is not None and end is not None and begin >= end:
             raise forms.ValidationError(
                 {'due_date': 'Abgabe muss später als der Beginn sein'})
+
+        if prolong is not None and end is not None and prolong < end:
+            raise forms.ValidationError(
+                {'due_date': 'Verlängerung muss später als der Beginn sein'})
 
     def create_thesis(self, assessor, supervisor, student):
         if not self.is_valid():
@@ -247,6 +305,7 @@ class ThesisApplicationForm(forms.Form):
                         due_date=self.cleaned_data['due_date'],
                         assessor=assessor,
                         student=student,
+                        thesis_program=student.program,
                         supervisor=supervisor,
                         external=self.cleaned_data['external'],
                         external_where=self.cleaned_data['external_where'],
@@ -262,6 +321,7 @@ class ThesisApplicationForm(forms.Form):
 
         if assessor:
             assessor.save()
+
         thesis.title = self.cleaned_data['title']
         thesis.begin_date = self.cleaned_data['begin_date']
         thesis.due_date = self.cleaned_data['due_date']
@@ -269,9 +329,11 @@ class ThesisApplicationForm(forms.Form):
         thesis.external = self.cleaned_data['external']
         thesis.external_where = self.cleaned_data['external_where']
         thesis.student_contact = self.cleaned_data[
-            "student_email"] or student.email
+                                     "student_email"] or thesis.student.email
+
         thesis.full_clean()
         thesis.save()
+
         return thesis
 
     @classmethod

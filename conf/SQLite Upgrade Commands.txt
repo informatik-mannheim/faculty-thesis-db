@@ -1,0 +1,16 @@
+Anleitung update DB:
+
+in ordner thesispool-ordner navigieren
+
+>> python3 manage.py makemigrations
+>> python3 manage.py migrate
+
+Bei der Abfrage für den Standardwert des thesis-programms: (ist nur temporär)
+>>	Modus: 1
+>>	Wert: ""
+
+>> sudo apt install sqlite3 
+>> sudo sqlite3 db.sqlite3
+
+>> UPDATE website_thesis SET thesis_program = (SELECT student.program FROM student WHERE student.id = student_id);
+>> UPDATE website_thesis SET assessor_grade = grade;

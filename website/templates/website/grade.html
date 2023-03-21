@@ -8,27 +8,27 @@
 	
 	
 	<div class="row">
-		<div class="col-md-2">
+		<div class="col-md-3">
 	 		Titel:
 	 	</div>
-	 	<div class="col-md-10">
+	 	<div class="col-md-9">
 	 	 	<strong>{{thesis.title}}</strong>
 	 	</div>
 	</div>
 	<br/>
 	<div class="row">
-		<div class="col-md-2">
+		<div class="col-md-3">
 	 		Erstkorrektor:
 	 	</div>
-	 	<div class="col-md-10">
+	 	<div class="col-md-9">
 	 		{{thesis.supervisor}}
 	 	</div>
 	</div>
 	<div class="row">
-		<div class="col-md-2">
+		<div class="col-md-3">
 		 	Zweitkorrektor:
 		 </div>
-		 <div class="col-md-10">
+		 <div class="col-md-9">
 		 	{% if thesis.assessor %}
 		  		{{thesis.assessor}}
 		  	{% else %}
@@ -38,12 +38,12 @@
 	</div>
 	<br/>
 	<div class="row">
-		<div class="col-md-2">Beginn: </div>
-		<div class="col-md-10">{{thesis.begin_date}}</div>
+		<div class="col-md-3">Beginn: </div>
+		<div class="col-md-9">{{thesis.begin_date}}</div>
 	</div>
 	<div class="row">
-		<div class="col-md-2">Abgabe: </div>
-		<div class="col-md-10">
+		<div class="col-md-3">Abgabe: </div>
+		<div class="col-md-9">
 				{% if thesis.is_prolonged %}
 					<span class="glyphicon glyphicon-time"></span>&nbsp;
 					<span>{{ thesis.prolongation_date }}</span>
@@ -57,27 +57,40 @@
 	<form action="/grade/{{thesis.surrogate_key}}" method="post">
 		{% csrf_token %}
 		<div class="row">
-			<div class="col-md-2">
+			<div class="col-md-3">
 				<div class="fieldWrapper">
 		          	{{ form.grade.label_tag }}
-	      		</div>	
+	      		</div>
 			</div>
-			<div class="col-md-10">
+			<div class="col-md-9">
 				<div class="fieldWrapper">
 		            {{ form.grade }}
 		            {{ form.grade.errors }}
 	      		</div>	
 			</div>
-		</div> 
+		</div>
+        <div class="row" style="margin-top: 5px">
+			<div class="col-md-3">
+				<div class="fieldWrapper">
+		          	{{ form.assessor_grade.label_tag }}
+	      		</div>
+			</div>
+			<div class="col-md-9">
+				<div class="fieldWrapper">
+		            {{ form.assessor_grade }}
+		            {{ form.assessor_grade.errors }}
+	      		</div>
+			</div>
+		</div>
 		<br />
 		<div style="display: {{thesis.handed_in_date|yesno:'none,visible'}}">
 			<div class="row">
-				<div class="col-md-2">
+				<div class="col-md-3">
 					<div class="fieldWrapper">
 			          	{{ form.handed_in_date.label_tag }}
 		      		</div>	
 				</div>
-				<div class="col-md-10">
+				<div class="col-md-9">
 					<div class="fieldWrapper">
 			            {{ form.handed_in_date }}
 			            {{ form.handed_in_date.errors }}
@@ -86,12 +99,12 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-md-2">
+			<div class="col-md-3">
 				<div class="fieldWrapper">
 		          	{{ form.examination_date.label_tag }}
 	      		</div>	
 			</div>
-			<div class="col-md-10">
+			<div class="col-md-9">
 				<div class="fieldWrapper">
 		            {{ form.examination_date }}
 		            {{ form.examination_date.errors }}
@@ -100,12 +113,12 @@
 		</div>
 		<br />
 		<div class="row">
-			<div class="col-md-2">
+			<div class="col-md-3">
 				<div class="fieldWrapper">
 		          	{{ form.restriction_note.label_tag }}
 	      		</div>	
 			</div>
-			<div class="col-md-10">
+			<div class="col-md-9">
 				<div class="fieldWrapper">
 		            {{ form.restriction_note }}
 		            {{ form.restriction_note.errors }}

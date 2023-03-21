@@ -2,10 +2,12 @@ import ldap
 from django_auth_ldap.config import *
 import os
 import sys
+from django.urls import reverse_lazy
+from pathlib import Path
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = True
 
@@ -17,7 +19,11 @@ ALLOWED_HOSTS = [
 ]
 
 # Used for sending PDF files
-SENDFILE_BACKEND = 'sendfile.backends.xsendfile'
+SENDFILE_BACKEND = 'django_sendfile.backends.xsendfile'
+SENDFILE_ROOT = '/tmp/thesispool'
+
+# insert generated SECRET_KEY
+SECRET_KEY = ''
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -27,7 +33,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'website.apps.WebsiteConfig',
-    'approvals.apps.ApprovalsConfig'
+    'approvals.apps.ApprovalsConfig', 
+    'django_sendfile'
 ]
 
 MIDDLEWARE = [
@@ -67,7 +74,6 @@ AUTHENTICATION_BACKENDS = [
 
 WSGI_APPLICATION = 'thesispool.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
@@ -75,7 +81,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    },
+    # replace with real faculty-DB data
 }
 
 AUTH_USER_MODEL = 'website.User'
@@ -109,12 +116,10 @@ AUTH_LDAP_CONNECTION_OPTIONS = {
 
 AUTH_LDAP_START_TLS = True
 
-
 AUTH_LDAP_GROUP_SEARCH = LDAPSearch("ou=groups,dc=informatik,dc=hs-mannheim,dc=de",
                                     ldap.SCOPE_SUBTREE, "(objectClass=posixGroup)"
                                     )
 AUTH_LDAP_GROUP_TYPE = PosixGroupType()
-
 
 # LDAP connection data
 AUTH_LDAP_SERVER_URI = "ldap://ldap-master.sv.hs-mannheim.de"
@@ -122,7 +127,6 @@ AUTH_LDAP_USER_DN_TEMPLATE = "uid=%(user)s,ou=Users,dc=informatik,dc=hs-mannheim
 AUTH_LDAP_USER_ATTR_MAP = {"first_name": "givenName",
                            "last_name": "sn",
                            "initials": "initials"}
-
 
 AUTH_LDAP_PROF_DN = "cn=profI,ou=groups,dc=informatik,dc=hs-mannheim,dc=de"
 
@@ -138,9 +142,8 @@ AUTH_LDAP_ALWAYS_UPDATE_USER = True
 AUTH_LDAP_FIND_GROUP_PERMS = True
 
 # Simple group restrictions
-#AUTH_LDAP_REQUIRE_GROUP = "cn=enabled,ou=django,ou=groups,dc=example,dc=com"
+# AUTH_LDAP_REQUIRE_GROUP = "cn=enabled,ou=django,ou=groups,dc=example,dc=com"
 AUTH_LDAP_DENY_GROUP = "cn=students,ou=groups,dc=informatik,dc=hs-mannheim,dc=de"
-
 
 LOGIN_REDIRECT_URL = '/overview/'
 
@@ -166,7 +169,7 @@ STATICFILES_DIRs = [
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-from .settings_secret import *  # noqa
+# from .settings_secret import *  #noqa
 
 # For testing purposes, let faculty be a sqlite3 file to allow setup / teardown
 if 'test' in sys.argv:
@@ -174,3 +177,6 @@ if 'test' in sys.argv:
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'students.sqlite3'),
     }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+LOGOUT_REDIRECT_URL = reverse_lazy('login')

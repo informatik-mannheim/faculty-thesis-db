@@ -29,7 +29,7 @@
                 </p>                
             </div>
             <div class="col-md-6">
-                 <div><strong>Student</strong></div>
+                 <div><strong>Studierender</strong></div>
                 
                     <span class="inline">{{student}} &nbsp;</span>
                     <div class="fieldWrapper inline">
@@ -51,11 +51,15 @@
                     {{ a_form.first_name.errors }}
                     {{ a_form.first_name }}
                 </div>
-                   <div class="fieldWrapper inline space-left-small space-top-small">
+                <div class="fieldWrapper inline space-left-small space-top-small">
+                    {{ a_form.academic_title.errors }}
+                    {{ a_form.academic_title }}
+                </div>
+                <div class="fieldWrapper inline space-left-small space-top-small">
                     {{ a_form.last_name.errors }}
                     {{ a_form.last_name }}
                 </div>
-                   <div class="fieldWrapper inline space-left-small space-top-small">
+                <div class="fieldWrapper inline space-left-small space-top-small">
                     {{ a_form.email.errors }}
                     {{ a_form.email }}
                 </div>
@@ -65,11 +69,10 @@
         <div class="row">
             <div class="fieldWrapper">
                 <div class="col-md-1">
-                    
                     {{ form.begin_date.label_tag }}
                 </div>
                 <div class="col-md-8">
-                {{ form.begin_date.errors }}
+                    {{ form.begin_date.errors }}
                     {{ form.begin_date }}
                 </div>
             </div>
@@ -88,6 +91,15 @@
                 </div>
             </div>
         </div>
+
+        <div class="row">
+            <div class="fieldWrapper">
+                <div class="col-md-8">
+                    {{ form.prolongation_date }}
+                </div>
+            </div>
+        </div>
+
         <br />
         <div class="row">
             <div class="col-md-12">
@@ -106,20 +118,46 @@
         <br/>
           
         <input class="btn btn-success" style="float: left;" type="submit" value="Speichern" />
-
     </form>
-    
-    <form id="form_abort" id="btn_abort" action="{%url 'overview'%}" method="get">
-            <input class="btn btn-danger space-left-small" type="submit" value="Abbrechen"/>
-    </form>
-</div>
 
-<script type="text/javascript">
-    var external_checkbox = document.getElementById("id_external")
-    var external_textfield = document.getElementById("id_external_where")
-    
-    external_textfield.addEventListener("keyup", function() {
-        external_checkbox.checked = (external_textfield.value !== "");
-    });
-</script>
+    <table>
+            <th>
+                <form id="form_abort" id="btn_abort" action="{%url 'overview'%}" method="get">
+                    <input class="btn btn-danger space-left-small" type="submit" value="Abbrechen"/>
+                </form>
+            </th>
+            <!-- add no delete button in create thesis -->
+            {% if thesis.status_changed %}
+            <th>
+                <form action="{% url 'delete' thesis.surrogate_key|slugify %}" method="get">
+                    <input class="btn btn-primary space-left-small" type="submit" value="Thesis löschen"/>
+                </form>
+            </th>
+            {% endif %}
+        </table>
+
+    </div>
+
+    <script type="text/javascript">
+        var external_checkbox = document.getElementById("id_external")
+        var external_textfield = document.getElementById("id_external_where")
+
+        external_textfield.addEventListener("keyup", function() {
+            external_checkbox.checked = (external_textfield.value !== "");
+        });
+
+        document.getElementById("id_begin_date_day").setAttribute("onchange","calcMonthsThenDate.call(this);");
+        document.getElementById("id_begin_date_month").setAttribute("onchange","calcMonthsThenDate.call(this);");
+        document.getElementById("id_begin_date_year").setAttribute("onchange","calcMonthsThenDate.call(this);");
+
+        function calcMonthsThenDate() {
+            if ("{{ thesis.is_master }}" === "True" ||
+                ("{{ thesis.is_master }}" === "" && "{{ student.is_master }}" === "True")) {
+                calculateDueDate(5);
+            } else {
+                calculateDueDate(2);
+            }
+        }
+    </script>
+
 {% endblock %}

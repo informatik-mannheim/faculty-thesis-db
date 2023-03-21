@@ -3,123 +3,209 @@
 
 {% block content %}
 	<div class="col-md-10 col-md-offset-1">
-		<div style="height:40px; margin-bottom: 30px">
-			<div style="display: inline-block; vertical-align: middle">
+		<div style="height:40px; display: inline">
+			<div style="display: inline-block; vertical-align: middle; margin-right: 10px">
 				<h2>Laufende Abschlussarbeiten</h2>
-			</div>	
-			<div style="display: inline-block; vertical-align: middle; margin-top:12px; margin-left: 10px;">
+			</div>
+			<div style="display: inline-block; vertical-align: middle; margin-top:12px">
 				<a href="{% url 'find_student' %}" id="create_new_thesis">
 					<span class="btn-sm btn-success glyphicon glyphicon-plus"></span>
-				</a>	
+				</a>
 			</div>
 		</div>
 
-		<table class="ui celled table">
-			<thead>
-				<tr>
-					<th>Abgabedatum</span></th>
-					<th>Status</th>
-					<th>Student</th>
-					<th>Thema</th>
-					<th>Zweitkorrektor</th>
-					<th>Dokumente</th>
-				</tr>
-			</thead>
-			
+		<table class="ui celled table" style="margin-top: 10px">
+            <form name="search_and_sort" action="" method="GET">
+                <thead>
+                    <tr>
+                        <input type="hidden" name="sort_by" id="sort" value="{{ sort_by }}">
+                        <th>
+                            <button id="sort_due_date" onclick="setSort('due_date');" style="background: none; border: none">Abgabedatum</button>
+                        </th>
+                        <th>
+                            <button id="sort_status" onclick="setSort('status');" style="background: none; border: none">Status</button>
+                        </th>
+                        <th>
+                            <button id="sort_student" onclick="setSort('student');" style="background: none; border: none">Studierender</button>
+                        </th>
+                        <th>
+                            <button id="sort_title" onclick="setSort('title');" style="background: none; border: none">Thema</button>
+                        </th>
+                        <th>
+                            <button id="sort_assessor" onclick="setSort('assessor');" style="background: none; border: none">Zweitkorrektor</button>
+                        </th>
+                        <th>Dokumente</th>
+                    </tr>
+                    <tr>
+                        <th>
+                            <input type="text" name="due_date" id="due_date" pattern="\d{2}\.\d{4}|\d{4}" title="mm.yyyy or yyyy" placeholder="mm.yyyy o. yyyy" value="{{ due_date }}" size="12">
+                        </th>
+                        <th>
+                            <select name="status" id="status" style="height: 32px">
+                                {% if status == "0" %}
+                                    <option value="0">Angemeldet</option>
+                                    <option value=""></option>
+                                    <option value="1">Verlängert</option>
+                                    <option value="2">Abgegeben</option>
+                                    <option value="3">Benotet</option>
+                                {% elif status == "1" %}
+                                    <option value="1">Verlängert</option>
+                                    <option value=""></option>
+                                    <option value="0">Angemeldet</option>
+                                    <option value="2">Abgegeben</option>
+                                    <option value="3">Benotet</option>
+                                {% elif status == "2" %}
+                                    <option value="2">Abgegeben</option>
+                                    <option value=""></option>
+                                    <option value="0">Angemeldet</option>
+                                    <option value="1">Verlängert</option>
+                                    <option value="3">Benotet</option>
+                                {% elif status == "3" %}
+                                    <option value="3">Benotet</option>
+                                    <option value=""></option>
+                                    <option value="0">Angemeldet</option>
+                                    <option value="1">Verlängert</option>
+                                    <option value="2">Abgegeben</option>
+                                {% else %}
+                                    <option value=""></option>
+                                    <option value="0">Angemeldet</option>
+                                    <option value="1">Verlängert</option>
+                                    <option value="2">Abgegeben</option>
+                                    <option value="3">Benotet</option>
+                                {% endif %}
+                            </select>
+                        </th>
+                        <th>
+                            <input type="text" name="student" id="student" placeholder="MatrNr o. Name" size="12" value="{{ student }}">
+                        </th>
+                        <th>
+                            <input type="text" name="title" id="title" placeholder="Thema" size="10" value="{{ title }}">
+                        </th>
+                        <th>
+                            <input type="text" name="assessor" id="assessor" placeholder="Name" size="10" value="{{ assessor }}">
+                        </th>
+                        <th>
+                            <input class="btn btn-primary" type="submit" value="Suchen" >
+                        </th>
+                    </tr>
+                </thead>
+			</form>
 			<tbody>
-					{% for thesis in theses %}
+                {% for thesis in theses %}
 				
-					<tr class="{% cycle 'row1' 'row2' %} {{thesis.is_graded|yesno:'tr-inactive,,'}}" style="height: 80px;">
-						<td>{{thesis.due_date}}</td>
-						<td>
-							<span>{{thesis.get_status_display}}</span>
-							
-							{% if thesis.is_graded %}
-								<span class="badge">
-									{{thesis.grade}}
-								</span>
-							{% elif thesis.is_prolonged %}
-								<div style="margin-top: 10px; font-size: 16px;">
-									<span class="glyphicon glyphicon-time"></span>&nbsp;
-									<span>{{thesis.prolongation_date}}</span>
-								</div>
-							{% endif %}
+                <tr class="{% cycle 'row1' 'row2' %} {{thesis.is_graded|yesno:'tr-inactive,,'}}" style="height: 80px;">
+                    <td>{{thesis.due_date}}</td>
+                    <td>
+                        <span>{{thesis.get_status_display}}</span>
 
+                        {% if thesis.is_graded %}
+                            <span class="badge">
+                                {{ thesis.grade }}
+                                {% if thesis.assessor_grade is not None %}
+                                | {{ thesis.assessor_grade }}
+                                {% endif %}
+                            </span>
+                        {% elif thesis.is_prolonged %}
+                            <div style="margin-top: 10px; font-size: 16px;">
+                                <span class="glyphicon glyphicon-time"></span>&nbsp;
+                                <span>{{thesis.prolongation_date}}</span>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>{{thesis.student}}</td>
+                    <td style="max-width: 300px">{{thesis.title}}</td>
+                    {% if thesis.assessor %}
+                        <td>{{thesis.assessor.first_name}} {{thesis.assessor.last_name}}</td>
+                    {% else %}
+                        <td> <i>nicht festgelegt</i></td>
+                    {% endif %}
 
-						</td>
-						<td>{{thesis.student}}</td>
-						<td>{{thesis.title}}</td>
-						{% if thesis.assessor %}
-							<td>{{thesis.assessor.first_name}} {{thesis.assessor.last_name}}</td>
-						{% else %}
-							<td> <i>nicht festgelegt</i></td>
-						{% endif %}
-						
-						<td rowspan="2">
-							<a class="document-link" target="_blank" href="/download/application/{{thesis.surrogate_key}}">
-								<span class="glyphicon glyphicon-file"></span>&nbsp; Anmeldung
-							</a>
-							<br />
-							<a class="document-link" target="_blank" href="/download/prolongation/{{thesis.surrogate_key}}">
-								<span class="glyphicon glyphicon-file"></span>&nbsp; Verlängerung
-							</a>
-							<br />
-							<a class="document-link" target="_blank" href="/download/grading/{{thesis.surrogate_key}}">
-								<span class="glyphicon glyphicon-file"></span>&nbsp; Bewertung
-							</a>
-						</td>
-						
-					</tr>
-					
-					<tr class="{% cycle 'row1' 'row2' %}">
-						{% if not thesis.is_graded %}
+                    <td rowspan="2">
+                        <a class="document-link" target="_blank" href="/download/application/{{thesis.surrogate_key}}">
+                            <span class="glyphicon glyphicon-file"></span></br>Anmeldung
+                        </a>
+                        <br />
+                        <a class="document-link" target="_blank" href="/download/prolongation/{{thesis.surrogate_key}}">
+                            <span class="glyphicon glyphicon-file"></span></br>Verlängerung
+                        </a>
+                        <br />
+                        <a class="document-link" target="_blank" href="/download/prolong_illness/{{thesis.surrogate_key}}">
+                            <span class="glyphicon glyphicon-file"></span></br>Krankheitsfall
+                        </a>
+                        <br />
+                        <a class="document-link" target="_blank" href="/download/grading/{{thesis.surrogate_key}}">
+                            <span class="glyphicon glyphicon-file"></span></br>Bewertung
+                        </a>
+                    </td>
 
-							<!-- actions for thesis -->
+                </tr>
 
-							<td class="info-row" colspan="1"  style="border-bottom: 1px solid #ddd; border-top:0px">
-								<a href="{%  url 'change' thesis.surrogate_key|slugify %}" class="icon-link">
-									<span class="glyphicon glyphicon-pencil" title="Ändern" style="margin-left: 2px;"></span>
-								</a>
-								{% if not thesis.is_handed_in %}
-								<a href="{% url 'prolong' thesis.surrogate_key|slugify %}" class="icon-link">
-									<span class="glyphicon glyphicon-hourglass" title="Verlängern" style="margin-left: 20px;"></span>
-								</a>
-								<a href="{% url 'handin' thesis.surrogate_key|slugify %}" class="icon-link">
-									<span class="glyphicon glyphicon-envelope" title="Einreichen" style="margin-left: 20px;"></span>
-								</a>
-								{% endif %}
-								<a href="{% url 'grade' thesis.surrogate_key|slugify %}" class="icon-link">
-									<span class="glyphicon glyphicon-education" title="Benoten" style="margin-left: 20px;"></span>
-								</a>
-							</td>
+                <tr class="{% cycle 'row1' 'row2' %}">
+                    <!-- actions for thesis -->
 
-							<!-- excom status line -->
+                    <td class="info-row" colspan="1"  style="border-bottom: 1px solid #ddd; border-top:0px">
+                        <a href="{%  url 'change' thesis.surrogate_key|slugify %}" class="icon-link">
+                            <span class="glyphicon glyphicon-pencil" title="Ändern" style="margin-left: 2px;"></span>
+                        </a>
+                        {% if not thesis.is_handed_in %}
+                        <a href="{% url 'prolong' thesis.surrogate_key|slugify %}" class="icon-link">
+                            <span class="glyphicon glyphicon-hourglass" title="Verlängern" style="margin-left: 20px;"></span>
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'grade' thesis.surrogate_key|slugify %}" class="icon-link">
+                            <span class="glyphicon glyphicon-education" title="Benoten" style="margin-left: 20px;"></span>
+                        </a>
+                    </td>
 
-							<td colspan="5" style="border-bottom: 1px solid #ddd; border-top:0px">
-								{% if thesis.is_approved %}
-										<span class="green italic">angenommen</span>
-								{% elif thesis.is_rejected %}
-										<span class="red italic">abgelehnt:&nbsp;</span>
-										<span class="italic">{{thesis.excom_reject_reason}}</span>
-								{% else %}
-										<span class="italic">offen</span>
-								{% endif %}
-							</td>
-						{% endif %}
-					</tr>
-					{% endfor %}
+                    <!-- excom status line -->
+                    {% if not thesis.is_graded %}
+                        <td colspan="5" style="border-bottom: 1px solid #ddd; border-top:0px">
+                            {% if thesis.is_approved %}
+                                    <span class="green italic">angenommen</span>
+                            {% elif thesis.is_rejected %}
+                                    <span class="red italic">abgelehnt:&nbsp;</span>
+                                    <span class="italic">{{thesis.excom_reject_reason}}</span>
+                            {% else %}
+                                    <span class="italic">offen</span>
+                            {% endif %}
+                        </td>
+                    {% else %}
+                        <td colspan="5" style="border-bottom: 1px solid #ddd; border-top:0px"></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
 			</tbody>
 		</table>
 	</div>
 
 	<script type="text/javascript">
 		document.body.addEventListener("keydown", function(event) {
-			var plus_key = 171;
-			var plus_key_numpad = 107;
+            const plus_key = 171;
+            const plus_key_numpad = 107;
 
-			if(event.which === plus_key || event.which === plus_key_numpad) {
+            if(event.which === plus_key || event.which === plus_key_numpad) {
 				document.getElementById("create_new_thesis").click();
 			}
-		});		
+		})
+        // mark the current sort param an the sort order
+        let sort_by = "";
+        let arrow = "";
+        if('{{ sort_by }}'.includes('r_')) {
+            sort_by = '{{ sort_by }}'.split('r_')[1];
+            arrow = "↑";
+        } else {
+            sort_by = '{{ sort_by }}';
+            arrow = "↓";
+        }
+        const element = document.getElementById('sort_' + sort_by);
+        element.innerText = element.innerText + arrow;
+        function setSort(param) {
+            if(document.search_and_sort.sort_by.value === param) {
+                // r_ translates in code to reverse
+                document.search_and_sort.sort_by.value = ("r_" + param);
+            } else {
+                document.search_and_sort.sort_by.value = (param);
+            }
+        }
 	</script>
 {% endblock content %}

@@ -3,6 +3,7 @@
 import subprocess
 import tempfile
 import os
+import math
 from thesispool.settings import BASE_DIR
 from datetime import datetime
 
@@ -34,12 +35,11 @@ class XFDF(object):
 
     def _header(self):
         header = '<?xml version="1.0" encoding="UTF-8"?>\n' \
-            '<xfdf xmlns="http://ns.adobe.com/xfdf/" xml:space="preserve">\n' \
-            '<fields>\n'
+                 '<xfdf xmlns="http://ns.adobe.com/xfdf/" xml:space="preserve">\n' \
+                 '<fields>\n'
         return header
 
     def _fields(self):
-
         field_str = '<field name="{0}">\n' \
                     '<value>{1}</value>\n' \
                     '</field>'
@@ -47,13 +47,10 @@ class XFDF(object):
         return "\n".join(fields)
 
     def add_field(self, key, value):
+        """adds value to field; convert xml-used chars to their entity-equivalents"""
+        value = str(value).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        value = value.replace("'", "&apos;").replace("\"", "&quot;")
         self.fields[key] = value
-
-    def check(self, field):
-        self.fields[field] = self._checkbox_yes
-
-    def uncheck(self, field):
-        self.fields[field] = "Off"
 
     def generate(self):
         return self._header() + self._fields() + self._footer()
@@ -110,84 +107,108 @@ class AbstractPDF(object):
         """Generate XFDF data used in PDF form data population"""
         xfdf = XFDF("On")
 
-        xfdf.add_field("NameVorname", self.thesis.student.last_name + ", " + self.thesis.student.first_name)
-        xfdf.add_field("BeginnDerArbeit",
+        # certain fields are similar, field names in pdfs differ individually
+        xfdf.add_field("Name, Vorname", self.thesis.student.last_name + ", " + self.thesis.student.first_name)
+        xfdf.add_field("Beginn der Arbeit",
                        self.__date_format(self.thesis.begin_date))
-        xfdf.add_field("AbgabeDerArbeit",
+        xfdf.add_field("Beginn_Arbeit",
+                       self.__date_format(self.thesis.begin_date))
+        xfdf.add_field("Abgabedatum",
                        self.__date_format(self.thesis.due_date))
-        xfdf.add_field("MatrNr", self.thesis.student.id)
-        xfdf.add_field("Titel", self.thesis.title)
-        xfdf.add_field("EMail", self.thesis.student_contact)
-        xfdf.add_field("Studiengang", "Fakultät für Informatik / " + self.thesis.student.program)
-        xfdf.add_field("KürzelErstkorrektor", self.thesis.supervisor.initials)
-        xfdf.add_field("NameErstkorrektor", self.thesis.supervisor.short_name)
+        xfdf.add_field("Ende_Arbeit",
+                       self.__date_format(self.thesis.due_date))
+        xfdf.add_field("Datum_urspruengliche_Abgabe",
+                       self.__date_format(self.thesis.due_date))
+        xfdf.add_field("Matrikelnr", self.thesis.student.id)
+        xfdf.add_field("Matrikelnummer", self.thesis.student.id)
+        xfdf.add_field("Thema_der_Arbeit", self.thesis.title)
+        xfdf.add_field("Kurztitel der Arbeit", self.thesis.title)
+        xfdf.add_field("Email", self.thesis.student_contact)
 
-        # Todo: Check why self.thesis.student.is_master does not work here
-        if self.thesis.student.program == 'IM':
-            xfdf.check("MasterThesis")
-            xfdf.uncheck("BachelorThesis")
+        if self.thesis.thesis_program in ["IB", "CSB", "UIB", "IMB", "IM"]:
+            xfdf.add_field("Fakultät Studiengang", "Fakultät für Informatik / " + self.thesis.thesis_program)
+            xfdf.add_field("Fakultät_Studiengang", "Fakultät für Informatik / " + self.thesis.thesis_program)
+            xfdf.add_field("Kurzzeichen_Fakultät", "I")
+            xfdf.add_field("Fakultät", "I")
+
+        xfdf.add_field("Kurzzeichen1", self.thesis.supervisor.initials)
+        xfdf.add_field("Kurzzeichen_erst", self.thesis.supervisor.initials)
+        xfdf.add_field("Kurzzeichen_Prof", self.thesis.supervisor.initials)
+        xfdf.add_field("Name Erstprüfer", self.thesis.supervisor.short_name)
+        xfdf.add_field("Hochschullehrer/in", self.thesis.supervisor.short_name)
+
+        if self.thesis.is_master():
+            xfdf.add_field("Auswahl_Arbeit", "1")
+            xfdf.add_field("Wahlt_Arbeit", "Masterarbeit")
         else:
-            xfdf.check("BachelorThesis")
-            xfdf.uncheck("MasterThesis")
+            xfdf.add_field("Auswahl_Arbeit", "0")
+            xfdf.add_field("Wahlt_Arbeit", "Bachelor")
 
         if self.thesis.assessor:
-            xfdf.add_field("NameZweitkorrektor",
-                           self.thesis.assessor.short_name)
+            xfdf.add_field("Name Zweitprüfer", self.thesis.assessor.short_name)
+            xfdf.add_field("Zweitkorrektor/in", self.thesis.assessor.short_name)
+            if self.thesis.assessor.academic_title is not None:
+                xfdf.add_field("Zweitkorrektor/in", self.thesis.assessor.academic_title + ' ' +
+                               self.thesis.assessor.short_name)
+                xfdf.add_field("Name Zweitprüfer", self.thesis.assessor.academic_title + ' ' +
+                               self.thesis.assessor.short_name)
 
         if self.thesis.external:
-            xfdf.check("AnfertigungFirma")
+            if self.form_name == "bewertung":
+                xfdf.add_field("Ort_der_Arbeit", "0")
+            else:
+                xfdf.add_field("Ort_der_Arbeit", "außer_Hause")
+
         else:
-            xfdf.uncheck("AnfertigungFirma")
-            xfdf.check("AnfertigungHS")
+            if self.form_name == "bewertung":
+                xfdf.add_field("Ort_der_Arbeit", "1")
+            else:
+                xfdf.add_field("Ort_der_Arbeit", "im Hause")
+
         if self.thesis.grade:
             grade = ('%.1f' % self.thesis.grade).replace('.', ',')
-            xfdf.add_field("Note", grade)
+            xfdf.add_field("Note Erstprüfer", grade)
+            if self.thesis.assessor_grade is not None:
+                assessor_grade = ('%.1f' % self.thesis.assessor_grade).replace('.', ',')
+                xfdf.add_field("Note Zweitprüfer", assessor_grade)
+                grade = math.floor(((self.thesis.grade + self.thesis.assessor_grade) / 2) * 10) / 10
+                grade = str(grade).replace('.', ',')
+            xfdf.add_field("Gesamtnote", grade)
+
         if self.thesis.external_where:
-            xfdf.add_field("Firma", self.thesis.external_where)
+            xfdf.add_field("Adresse_der_Firma", self.thesis.external_where)
 
         if self.thesis.is_prolonged():
-            xfdf.check("AbgabeMitVerlängerung")
-
-            xfdf.add_field("BegründungVerlängerung",
+            xfdf.add_field("Begründung_Antrag",
                            self.thesis.prolongation_reason)
-            xfdf.add_field("VerlängerungUmWochen",
+            # Typo in "Syomtome" is intentional
+            xfdf.add_field("Symtome / Auswirkung",
+                           self.thesis.prolongation_reason)
+            xfdf.add_field("Zeitraum_Verlängerung",
                            self.thesis.prolongation_weeks)
-            xfdf.check("ZeitraumWochen")
-            xfdf.uncheck("ZeitraumTage")
-            xfdf.uncheck("ZeitraumMonate")
-            xfdf.check("ZustimmungProfJa")
-            xfdf.uncheck("ZustimmungProfNein")
-            xfdf.add_field("DatumAbgabeNeu", self.__date_format(
+            xfdf.add_field("Zeitraum", "Wochen")
+            xfdf.add_field("Datum_neue_Abgabe", self.__date_format(
                 self.thesis.prolongation_date))
-        else:
-            xfdf.uncheck("AbgabeMitVerlängerung")
+            xfdf.add_field("Datum_neuer Abgabetermin", self.__date_format(
+                self.thesis.prolongation_date))
 
-        if self.thesis.is_approved():
-            xfdf.add_field("DatumPA", self.__date_format(
-                self.thesis.excom_approval_date))
-            xfdf.add_field("KürzelPA", self.thesis.excom_chairman.initials)
+            if self.form_name == "bewertung":
+                xfdf.add_field("Datum", self.__date_format(self.thesis.prolongation_date))
+
+            # "mit verlängerung"
+            xfdf.add_field("auswählen", "1")
+        else:
+            # "termingerecht"
+            xfdf.add_field("auswählen", "0")
 
         if self.thesis.is_late():
-            xfdf.check("AbgabeVerspätet")
-            xfdf.uncheck("AbgabeTermingerecht")
-        else:
-            xfdf.uncheck("AbgabeVerspätet")
-            xfdf.check("AbgabeTermingerecht")
-
-        if self.thesis.handed_in_date:
-            xfdf.add_field("DatumAbgabe",
-                           self.__date_format(self.thesis.handed_in_date))
+            # "verspätet"
+            xfdf.add_field("auswählen", "2")
 
         if self.thesis.examination_date:
-            xfdf.add_field("DatumKolloquium",
-                           self.__date_format(self.thesis.examination_date))
-            xfdf.check("KolloquiumErfolgreich")
-            xfdf.uncheck("KolloquiumErfolgreichMitNote")
-
-        if self.thesis.restriction_note:
-            xfdf.check("Sperrvermerk")
-        else:
-            xfdf.uncheck("Sperrvermerk")
+            xfdf.add_field("Datum Kolloquium", self.__date_format(self.thesis.examination_date))
+            # "mit Erfolg gehalten"
+            xfdf.add_field("Mit Note", "1")
 
         return xfdf
 
@@ -244,3 +265,10 @@ class ProlongationPDF(AbstractPDF):
 
     def __init__(self, thesis):
         super(ProlongationPDF, self).__init__(thesis, 'verlaengerung')
+
+
+class ProlongIllnessPDF(AbstractPDF):
+    """PDF in case of illness"""
+
+    def __init__(self, thesis):
+        super(ProlongIllnessPDF, self).__init__(thesis, 'verlaengerung_krankheit')

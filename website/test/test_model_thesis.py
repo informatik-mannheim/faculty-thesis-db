@@ -1,7 +1,6 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-from django.utils import timezone
-from datetime import datetime, date
+from datetime import date
 
 from website.models import *
 from decimal import Decimal
@@ -13,10 +12,9 @@ class ThesisModelTests(TestCase):
         """
         Create dependencies to reduce redundancy in tests
         """
-        self.student = Student(first_name="Eva", last_name="Maier", id=123456)
+        self.student = Student(first_name="Eva", last_name="Maier", id=123456, program="IB")
         self.assessor = Assessor(first_name="Peter", last_name="Müller")
-        self.supervisor = Supervisor(first_name="Thomas",
-                                     last_name="Smits", id="t.smits")
+        self.supervisor = Supervisor(first_name="Thomas", last_name="Smits", id="t.smits")
 
         self.assessor.save()
         self.supervisor.save()
@@ -30,8 +28,9 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title=title,
-                        begin_date=datetime.now().date(),
-                        due_date=datetime(2019, 1, 30),
+                        thesis_program=self.student.program,
+                        begin_date=date(2017, 11, 30),
+                        due_date=date(2018, 1, 30),
                         external=True,
                         external_where="John Deere")
 
@@ -42,8 +41,9 @@ class ThesisModelTests(TestCase):
         self.assertEqual(self.assessor, Thesis.objects.first().assessor)
         self.assertEqual(self.student, Thesis.objects.first().student)
         self.assertEqual(title, Thesis.objects.first().title)
+        self.assertEqual("IB", Thesis.objects.first().thesis_program)
         self.assertEqual("John Deere", Thesis.objects.first().external_where)
-        self.assertEqual(True, Thesis.objects.first().external)
+        self.assertTrue(Thesis.objects.first().external)
 
     def test_cascading_delete_assessor(self):
         """If assessor is deleted, the assessor field on the thesis
@@ -56,8 +56,9 @@ class ThesisModelTests(TestCase):
                         supervisor=self.supervisor,
                         student=self.student,
                         title=title,
-                        begin_date=datetime.now().date(),
-                        due_date=datetime(2019, 1, 30))
+                        thesis_program=self.student.program,
+                        begin_date=date(2019, 1, 30),
+                        due_date=date(2019, 3, 30))
         thesis.save()
 
         self.assertEqual(1, Thesis.objects.count())
@@ -75,8 +76,9 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title=title,
-                        begin_date=datetime.now().date(),
-                        due_date=datetime(2019, 1, 30))
+                        thesis_program=self.student.program,
+                        begin_date=date(2019, 1, 30),
+                        due_date=date(2019, 3, 30))
         thesis.save()
 
         self.assertEqual(1, Thesis.objects.count())
@@ -93,8 +95,9 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title=title,
-                        begin_date=datetime.now().date(),
-                        due_date=datetime(2019, 1, 30))
+                        thesis_program=self.student.program,
+                        begin_date=date(2019, 1, 30),
+                        due_date=date(2019, 3, 30))
         thesis.save()
 
         self.assertEqual(Thesis.objects.first().status, Thesis.APPLIED)
@@ -110,22 +113,25 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title=title,
-                        begin_date=datetime.now().date(),
-                        due_date=datetime(2018, 1, 30))
+                        thesis_program=self.student.program,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 3, 30))
 
         newest = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title=title,
-                        begin_date=datetime.now().date(),
-                        due_date=datetime(2019, 1, 30))
+                        thesis_program=self.student.program,
+                        begin_date=date(2019, 1, 30),
+                        due_date=date(2019, 3, 30))
 
         oldest = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title=title,
-                        begin_date=datetime.now().date(),
-                        due_date=datetime(2017, 1, 30))
+                        thesis_program=self.student.program,
+                        begin_date=date(2017, 1, 30),
+                        due_date=date(2017, 3, 30))
 
         supervisor = Supervisor(first_name="Peter",
                                 last_name="Müller",
@@ -137,8 +143,9 @@ class ThesisModelTests(TestCase):
                                   assessor=self.assessor,
                                   supervisor=supervisor,
                                   title=title,
-                                  begin_date=datetime.now().date(),
-                                  due_date=datetime(2017, 1, 30))
+                                  thesis_program=self.student.program,
+                                  begin_date=date(2017, 1, 30),
+                                  due_date=date(2017, 3, 30))
 
         middle.save()
         newest.save()
@@ -154,8 +161,8 @@ class ThesisModelTests(TestCase):
         self.assertTrue(other_supervisor not in theses)
 
     def test_can_have_no_assessor(self):
-        """ThesisManager should return all theses for given supervisor
-        ordered by due date ascending
+        """
+        Thesis can be created without an Assessor
         """
         title = "Smart thesis title"
 
@@ -163,185 +170,123 @@ class ThesisModelTests(TestCase):
                         assessor=None,
                         supervisor=self.supervisor,
                         title=title,
-                        begin_date=datetime.now().date(),
-                        due_date=datetime(2018, 1, 30))
+                        thesis_program=self.student.program,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 3, 30))
 
         thesis.save()
 
         self.assertEqual(None, thesis.assessor)
 
-    def test_can_grade_a_thesis_with_best_grade(self):
-        title = "My thesis"
-        grade = 1.0
-        examination_date = date(2018, 2, 15)
-
-        thesis = Thesis(student=self.student,
-                        assessor=self.assessor,
-                        supervisor=self.supervisor,
-                        title=title,
-                        status=Thesis.APPLIED,
-                        begin_date=datetime(2017, 11, 30).date(),
-                        due_date=datetime(2018, 1, 30).date())
-
-        thesis.save()
-
-        self.assertEqual(thesis.status, Thesis.APPLIED)
-
-        result = thesis.assign_grade(grade, examination_date)
-
-        thesis = Thesis.objects.first()
-
-        self.assertEqual(thesis.status, Thesis.GRADED)
-        self.assertEqual(float(thesis.grade), grade)
-        self.assertTrue(result)
-        self.assertEqual(examination_date, thesis.examination_date)
-
-    def test_can_grade_a_thesis_with_average_grade(self):
-        title = "My thesis"
-        grade = Decimal("2.3")
-        examination_date = date(2018, 2, 15)
-
-        thesis = Thesis(student=self.student,
-                        assessor=self.assessor,
-                        supervisor=self.supervisor,
-                        title=title,
-                        status=Thesis.APPLIED,
-                        begin_date=timezone.now().date(),
-                        due_date=datetime(2018, 1, 30))
-
-        thesis.save()
-
-        self.assertEqual(thesis.status, Thesis.APPLIED)
-
-        result = thesis.assign_grade(grade, examination_date)
-
-        thesis = Thesis.objects.first()
-
-        self.assertEqual(thesis.status, Thesis.GRADED)
-        self.assertEqual(thesis.grade, grade)
-        self.assertTrue(result)
-        self.assertEqual(examination_date, thesis.examination_date)
-
-    def test_can_grade_a_thesis_with_worst_grade(self):
-        title = "My thesis"
-        grade = Decimal("5.0")
-        examination_date = date(2018, 2, 15)
-
-        thesis = Thesis(student=self.student,
-                        assessor=self.assessor,
-                        supervisor=self.supervisor,
-                        title=title,
-                        status=Thesis.APPLIED,
-                        begin_date=timezone.now().date(),
-                        due_date=datetime(2018, 1, 30))
-
-        thesis.save()
-
-        self.assertEqual(thesis.status, Thesis.APPLIED)
-
-        result = thesis.assign_grade(grade, examination_date)
-
-        thesis = Thesis.objects.first()
-
-        self.assertEqual(thesis.status, Thesis.GRADED)
-        self.assertEqual(thesis.grade, grade)
-        self.assertTrue(result)
-        self.assertEqual(examination_date, thesis.examination_date)
-
-    def test_can_not_grade_a_thesis_with_grade_above_best(self):
-        title = "My thesis"
-        grade = Decimal("0.9")
-        examination_date = date(2018, 3, 29)
-
-        thesis = Thesis(student=self.student,
-                        assessor=self.assessor,
-                        supervisor=self.supervisor,
-                        title=title,
-                        status=Thesis.APPLIED,
-                        begin_date=datetime.now().date(),
-                        due_date=datetime(2018, 1, 30))
-
-        thesis.save()
-
-        self.assertEqual(thesis.status, Thesis.APPLIED)
-        with self.assertRaises(ValidationError):
-            result = thesis.assign_grade(grade, examination_date)
-
-            thesis = Thesis.objects.first()
-
-            self.assertEqual(thesis.status, Thesis.APPLIED)
-            self.assertFalse(result)
-
-    def test_can_not_grade_a_thesis_with_invalid_grade(self):
+    def test_garde_highest_value(self):
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
-                        status=Thesis.APPLIED,
-                        begin_date=datetime.now().date(),
-                        due_date=datetime(2018, 1, 30))
+                        thesis_program=self.student.program,
+                        begin_date=date(2017, 11, 30),
+                        due_date=date(2018, 1, 30))
 
         thesis.save()
 
-        self.assertEqual(thesis.status, Thesis.APPLIED)
+        grade = 1.0
+        examination_date = date(2018, 2, 15)
 
-        grades = ["-1000", "0.0", "0.5", "0.9", "0.99",
-                  "0.999", "1.01", "5.1", "10", "100", "1000"]
+        result = thesis.assign_grade(grade, grade, examination_date)
+        thesis = Thesis.objects.first()
 
-        examination_date = date(2018, 3, 29)
+        self.assertEqual(thesis.status, Thesis.GRADED)
+        self.assertEqual(float(thesis.grade), grade)
+        self.assertEqual(float(thesis.assessor_grade), grade)
+        self.assertTrue(result)
+        self.assertEqual(examination_date, thesis.examination_date)
+
+    def test_grade_lowest_value(self):
+        thesis = Thesis(student=self.student,
+                        assessor=self.assessor,
+                        supervisor=self.supervisor,
+                        title="Some title",
+                        thesis_program=self.student.program,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 3, 30))
+
+        thesis.save()
+
+        grade = 5.0
+        examination_date = date(2018, 2, 15)
+
+        result = thesis.assign_grade(grade, grade, examination_date)
+        thesis = Thesis.objects.first()
+
+        self.assertEqual(thesis.status, Thesis.GRADED)
+        self.assertEqual(thesis.grade, grade)
+        self.assertEqual(thesis.assessor_grade, grade)
+        self.assertTrue(result)
+        self.assertEqual(examination_date, thesis.examination_date)
+
+    def test_invalid_grades(self):
+        thesis = Thesis(student=self.student,
+                        assessor=self.assessor,
+                        supervisor=self.supervisor,
+                        title="Some title",
+                        thesis_program=self.student.program,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 3, 30))
+
+        thesis.save()
+
+        grades = [-1, 0.9, 5.1, 2.22]
+        examination_date = date(2018, 2, 15)
 
         for grade in grades:
             with self.assertRaises(ValidationError):
-                result = thesis.assign_grade(Decimal(grade), examination_date)
+                result = thesis.assign_grade(Decimal(grade), Decimal(grade), examination_date)
 
                 thesis = Thesis.objects.first()
 
                 self.assertEqual(thesis.status, Thesis.APPLIED)
                 self.assertEqual(thesis.grade, None)
+                self.assertEqual(thesis.assessor_grade, None)
                 self.assertFalse(result)
 
-    def test_can_not_grade_a_graded_thesis_again(self):
+    def test_can_change_a_graded_thesis(self):
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
-                        status=Thesis.APPLIED,
-                        begin_date=datetime.now().date(),
-                        due_date=datetime(2018, 1, 30))
+                        thesis_program=self.student.program,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 3, 30))
 
         thesis.save()
-
-        self.assertEqual(thesis.grade, None)
 
         grade = Decimal("1.1")
-        examination_date = date(2018, 3, 29)
+        grade2 = Decimal("5.0")
+        examination_date = date(2018, 2, 15)
+        examination_date2 = date(2018, 2, 16)
 
-        result = thesis.assign_grade(grade, examination_date)
+        result = thesis.assign_grade(grade, grade, examination_date)
+        result = thesis.assign_grade(grade2, grade2, examination_date2)
 
-        self.assertEqual(Thesis.objects.first().grade, grade)
-        self.assertEqual(Thesis.objects.first().status, Thesis.GRADED)
+        thesis = Thesis.objects.first()
+
+        self.assertEqual(thesis.grade, grade2)
+        self.assertEqual(thesis.examination_date, examination_date2)
+        self.assertEqual(thesis.status, Thesis.GRADED)
         self.assertTrue(result)
 
-        result = thesis.assign_grade(Decimal("5.0"), examination_date)
-
-        self.assertEqual(Thesis.objects.first().grade, grade)
-        self.assertEqual(Thesis.objects.first().status, Thesis.GRADED)
-        self.assertFalse(result)
-
     def test_can_prolong_a_thesis(self):
-        prolongation_date = datetime(2019, 1, 1).date()
+        prolongation_date = date(2019, 1, 1)
 
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
-                        status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30),
-                        due_date=datetime(2018, 6, 30))
+                        thesis_program=self.student.program,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30))
 
         thesis.save()
-
-        self.assertEqual(Thesis.objects.first().prolongation_date, None)
 
         result = thesis.prolong(prolongation_date, "aus gutem Grund", 4)
 
@@ -349,23 +294,24 @@ class ThesisModelTests(TestCase):
 
         self.assertEqual(prolongation_date, thesis.prolongation_date)
         self.assertEqual(Thesis.PROLONGED, thesis.status)
+        self.assertEqual(4, thesis.prolongation_weeks)
         self.assertTrue(result)
 
     def test_can_prolong_a_thesis_twice(self):
-        first_prolongation = datetime(2019, 1, 1).date()
-        second_prolongation = datetime(2019, 3, 1).date()
+        first_prolongation = date(2019, 1, 1)
+        second_prolongation = date(2019, 3, 1)
 
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30),
-                        due_date=datetime(2018, 6, 30))
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30),
+                        restriction_note = False)
 
         thesis.save()
-
-        self.assertEqual(Thesis.objects.first().prolongation_date, None)
 
         result = thesis.prolong(first_prolongation, "aus gutem Grund", 4)
 
@@ -373,24 +319,27 @@ class ThesisModelTests(TestCase):
 
         self.assertEqual(first_prolongation, thesis.prolongation_date)
         self.assertEqual(Thesis.PROLONGED, thesis.status)
+        self.assertEqual(4, thesis.prolongation_weeks)
         self.assertTrue(result)
 
-        result = thesis.prolong(second_prolongation, "aus gutem Grund", 4)
+        result = thesis.prolong(second_prolongation, "aus neuem Grund", 4)
 
         self.assertEqual(second_prolongation, thesis.prolongation_date)
         self.assertEqual(Thesis.PROLONGED, thesis.status)
+        self.assertEqual(4, thesis.prolongation_weeks)
         self.assertTrue(result)
 
     def test_can_not_prolong_a_handed_in_thesis(self):
-        prolongation_date = datetime(2019, 1, 1).date()
+        prolongation_date = date(2019, 1, 1)
 
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.HANDED_IN,
-                        begin_date=datetime(2018, 1, 30),
-                        due_date=datetime(2018, 6, 30))
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30))
 
         thesis.save()
 
@@ -405,15 +354,16 @@ class ThesisModelTests(TestCase):
         self.assertFalse(result)
 
     def test_can_not_prolong_a_graded_thesis(self):
-        prolongation_date = datetime(2019, 1, 1).date()
+        prolongation_date = date(2019, 1, 1)
 
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.GRADED,
-                        begin_date=datetime(2018, 1, 30),
-                        due_date=datetime(2018, 6, 30))
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30))
 
         thesis.save()
 
@@ -434,9 +384,10 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30),
-                        due_date=datetime(2018, 6, 30))
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30))
 
         thesis.save()
 
@@ -446,71 +397,71 @@ class ThesisModelTests(TestCase):
             thesis.prolong(prolongation_date, "aus gutem Grund", 4)
 
     def test_can_not_prolong_thesis_with_date_before_due_date(self):
-        prolongation_date = datetime(2018, 6, 29).date()
+        prolongation_date = date(2018, 6, 29)
 
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30),
-                        due_date=datetime(2018, 6, 30))
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30))
 
         thesis.save()
-
-        self.assertEqual(Thesis.objects.first().prolongation_date, None)
 
         with self.assertRaises(ValidationError):
             thesis.prolong(prolongation_date, "aus gutem Grund", 4)
 
     def test_can_not_prolong_thesis_with_date_equal_due_date(self):
-        prolongation_date = datetime(2018, 6, 30).date()
+        prolongation_date = date(2018, 6, 30)
 
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30),
-                        due_date=datetime(2018, 6, 30))
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30))
 
         thesis.save()
-
-        self.assertEqual(Thesis.objects.first().prolongation_date, None)
 
         with self.assertRaises(ValidationError):
             thesis.prolong(prolongation_date, "aus gutem Grund", 4)
 
-    def test_thesis_is_not_late_if_graded_on_due_date(self):
+    def test_thesis_without_handed_in_date_is_never_late(self):
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30))
+
+        self.assertFalse(thesis.is_late())
+
+    def test_thesis_is_not_late_if_handed_in_on_due_date(self):
+        thesis = Thesis(student=self.student,
+                        assessor=self.assessor,
+                        supervisor=self.supervisor,
+                        title="Some title",
+                        thesis_program=self.student.program,
+                        status=Thesis.HANDED_IN,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30),
                         handed_in_date=date(2018, 6, 30))
 
         self.assertFalse(thesis.is_late())
 
-    def test_thesis_is_not_late_if_handed_in_before_due_date(self):
+    def test_thesis_is_late_if_handed_in_after_due_date(self):
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
-                        status=Thesis.APPLIED,
-                        begin_date=date(2018, 1, 30),
-                        due_date=date(2018, 6, 30),
-                        handed_in_date=date(2018, 6, 25))
-
-        self.assertFalse(thesis.is_late())
-
-    def test_thesis_is_late_if_handed_in_before_after_due_date(self):
-        thesis = Thesis(student=self.student,
-                        assessor=self.assessor,
-                        supervisor=self.supervisor,
-                        title="Some title",
-                        status=Thesis.APPLIED,
+                        thesis_program=self.student.program,
+                        status=Thesis.HANDED_IN,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30),
                         handed_in_date=date(2018, 7, 1))
@@ -522,23 +473,12 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
-                        status=Thesis.APPLIED,
+                        thesis_program=self.student.program,
+                        status=Thesis.HANDED_IN,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30),
-                        handed_in_date=date(2018, 6, 30))
-
-        self.assertFalse(thesis.is_late())
-
-    def test_thesis_is_not_late_if_handed_in_before_prolongation_date(self):
-        thesis = Thesis(student=self.student,
-                        assessor=self.assessor,
-                        supervisor=self.supervisor,
-                        title="Some title",
-                        status=Thesis.APPLIED,
-                        begin_date=datetime(2018, 1, 30).date(),
-                        due_date=datetime(2018, 6, 30).date(),
-                        prolongation_date=datetime(2018, 9, 30).date(),
-                        handed_in_date=datetime(2018, 9, 29).date())
+                        prolongation_date=date(2018, 7, 30),
+                        handed_in_date=date(2018, 7, 30))
 
         self.assertFalse(thesis.is_late())
 
@@ -547,7 +487,8 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
-                        status=Thesis.APPLIED,
+                        thesis_program=self.student.program,
+                        status=Thesis.HANDED_IN,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30),
                         prolongation_date=date(2018, 9, 30),
@@ -560,6 +501,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30))
@@ -572,19 +514,19 @@ class ThesisModelTests(TestCase):
         self.assertEqual(Thesis.HANDED_IN, thesis.status)
         self.assertTrue(thesis.is_handed_in())
 
-    def test_can_hand_in_an_applied_thesis_with_restriction_note(self):
+    def test_can_hand_in_with_restriction_note(self):
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30))
 
         handed_in_date = date(2018, 6, 30)
-        restriction_note = True
 
-        thesis.hand_in(handed_in_date, restriction_note)
+        thesis.hand_in(handed_in_date, True)
 
         self.assertEqual(thesis.handed_in_date, handed_in_date)
         self.assertEqual(Thesis.HANDED_IN, thesis.status)
@@ -596,6 +538,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.PROLONGED,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30),
@@ -609,11 +552,12 @@ class ThesisModelTests(TestCase):
         self.assertEqual(Thesis.HANDED_IN, thesis.status)
         self.assertTrue(thesis.is_handed_in())
 
-    def test_can_not_hand_in_a_handed_in_thesis(self):
+    def test_can_not_hand_in_thesis_again(self):
         thesis = Thesis(student=self.student,
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.HANDED_IN,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30),
@@ -624,7 +568,6 @@ class ThesisModelTests(TestCase):
         success = thesis.hand_in(handed_in_date)
 
         self.assertFalse(success)
-
         self.assertNotEqual(thesis.handed_in_date, handed_in_date)
         self.assertEqual(Thesis.HANDED_IN, thesis.status)
         self.assertTrue(thesis.is_handed_in())
@@ -634,8 +577,9 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.GRADED,
-                        grade=Decimal("1.3"),
+                        grade=1.3,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30),
                         examination_date=date(2018, 6, 30))
@@ -645,7 +589,6 @@ class ThesisModelTests(TestCase):
         success = thesis.hand_in(handed_in_date)
 
         self.assertTrue(success)
-
         self.assertEqual(thesis.handed_in_date, handed_in_date)
         self.assertEqual(Thesis.GRADED, thesis.status)
         self.assertTrue(thesis.is_handed_in())
@@ -655,6 +598,7 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.APPLIED,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30))
@@ -666,9 +610,52 @@ class ThesisModelTests(TestCase):
                         assessor=self.assessor,
                         supervisor=self.supervisor,
                         title="Some title",
+                        thesis_program=self.student.program,
                         status=Thesis.PROLONGED,
                         begin_date=date(2018, 1, 30),
                         due_date=date(2018, 6, 30),
                         prolongation_date=date(2018, 9, 30))
 
         self.assertEqual(thesis.prolongation_date, thesis.deadline)
+
+    def test_bachelor_thesis(self):
+        thesis = Thesis(student=self.student,
+                        assessor=self.assessor,
+                        supervisor=self.supervisor,
+                        title="Some title",
+                        thesis_program=self.student.program,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30))
+
+        self.assertTrue(thesis.is_bachelor())
+
+    def test_master_thesis(self):
+        self.student.program = "IM"
+
+        thesis = Thesis(student=self.student,
+                        assessor=self.assessor,
+                        supervisor=self.supervisor,
+                        title="Some title",
+                        thesis_program=self.student.program,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30))
+
+        self.assertTrue(thesis.is_master())
+
+    def test_student_is_now_master(self):
+        """id stays the same after the student changed his program.
+        The program of old theses has to stay the same."""
+        thesis = Thesis(student=self.student,
+                        assessor=self.assessor,
+                        supervisor=self.supervisor,
+                        title="Some title",
+                        thesis_program=self.student.program,
+                        status=Thesis.PROLONGED,
+                        begin_date=date(2018, 1, 30),
+                        due_date=date(2018, 6, 30),
+                        prolongation_date=date(2018, 9, 30))
+
+        self.student.program = "IM"
+
+        self.assertEqual(self.student.program, "IM")
+        self.assertEqual(thesis.thesis_program, "IB")

@@ -26,8 +26,20 @@ class FormThesisApplicationTests(TestCase):
 
         self.assertTrue(form.is_valid())
 
-    def testdue_date_must_be_after_begin_date(self):
+    def test_due_date_must_be_after_begin_date(self):
         """Due date can not before begin date"""
+        data = {
+            'title': 'A title',
+            'begin_date': date(2017, 1, 1),
+            'due_date': date(2016, 3, 1)
+        }
+
+        form = ThesisApplicationForm(data)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('due_date', form.errors)
+
+    def test_must_contain_title(self):
         data = {
             'begin_date': date(2017, 1, 1),
             'due_date': date(2017, 3, 1)
@@ -39,7 +51,6 @@ class FormThesisApplicationTests(TestCase):
         self.assertIn('title', form.errors)
 
     def test_must_contain_begin_and_due_date(self):
-        """Due date can not before begin date"""
         data = {
             'title': 'OK title'
         }
@@ -73,7 +84,6 @@ class FormThesisApplicationTests(TestCase):
             'external': True,
             'external_where': 'John Deere',
             'student_email': 'l.langzeit@example.com'
-
         }
 
         form = ThesisApplicationForm(data)
@@ -156,3 +166,29 @@ class FormThesisApplicationTests(TestCase):
         self.assertEqual(changed_thesis.external, data["external"])
         self.assertEqual(changed_thesis.external_where, data["external_where"])
         self.assertEqual(changed_thesis.student_contact, data["student_email"])
+
+    def test_new_due_date_cannot_be_later_than_prolongation_date(self):
+        supervisor = Supervisor(
+            first_name="Max",
+            last_name="Mustermann",
+            id="mmuster")
+
+        supervisor.save()
+
+        thesis = ThesisStub.applied(supervisor)
+        thesis.prolongation_date = date(2021, 4, 1)
+        thesis.save()
+
+        data = {
+            'thesis': thesis.title,
+            'begin_date': thesis.begin_date,
+            'due_date': date(2021, 5, 1),
+        }
+
+        form = ThesisApplicationForm(data)
+        form.full_clean()
+
+        changed_thesis = form.change_thesis(thesis, assessor=None)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('due_date', form.errors)

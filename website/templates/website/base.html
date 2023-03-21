@@ -2,32 +2,33 @@
 
 <!DOCTYPE html>
 <html lang="de">
-	<head>
-		<title>Thesispool</title>
-		<link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet"> 
-		
-		<link rel="stylesheet" type="text/css" href="{% static 'website/bootstrap-3.3.7-dist/css/bootstrap.min.css' %}">
-		<link rel="stylesheet" type="text/css" href="{% static 'website/bootstrap-3.3.7-dist/css/bootstrap-theme.css' %}">
-		<link rel="stylesheet" href="{% static 'website/style.css' %}">
+    <head>
+        <title>Thesispool</title>
+        <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
 
-		<meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="{% static 'website/bootstrap-3.3.7-dist/css/bootstrap.min.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'website/bootstrap-3.3.7-dist/css/bootstrap-theme.css' %}">
+        <link rel="stylesheet" href="{% static 'website/style.css' %}">
+        <script type="text/javascript" src="{% static 'website/bootstrap-3.3.7-dist/js/calculate-end-date.min.js' %}"></script>
 
-		{% block header %}
-		{% endblock header %}
+        <meta charset="utf-8">
+
+        {% block header %}
+        {% endblock header %}
 	</head>
 	<body>
 		<div class="row">
-			<div class="col-md-12 dark-primary-color" style="height: 80px;">
+			<div class="col-xs-12 col-md-12 dark-primary-color" style="height: 80px;">
 				<h1 class="text-primary-color header" style="margin-top: 20px">Thesispool</h1>
 			</div>	
 		</div>
 		{% if user.is_authenticated %}
-			<div class="col-md-12 light-primary-color ribbon">
-			        <span class="text-secondary-color" style="margin-top: 25px;">Angemeldet als <strong>{{ user.first_name }} {{ user.last_name }}</strong>
-			        </span> 
-			        <span>
-			            <a href="/accounts/logout">(logout)</a>
-			        </span>
+			<div class="col-xs-12 col-md-12 light-primary-color ribbon">
+                <span class="text-secondary-color" style="margin-top: 25px;">Angemeldet als <strong>{{ user.first_name }} {{ user.last_name }}</strong>
+                </span>
+                <span>
+                    <a href="/accounts/logout">(logout)</a>
+                </span>
 			</div>
 		{% endif %}
 

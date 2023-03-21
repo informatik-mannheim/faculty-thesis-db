@@ -14,7 +14,8 @@ class ThesisStub(object):
     def applied(cls, supervisor):
         student = Student(id=987654,
                           first_name="Larry",
-                          last_name="Langzeitstudent")
+                          last_name="Langzeitstudent",
+                          program="IB")
 
         assessor = Assessor(first_name="Hansi",
                             last_name="Schmidt",
@@ -27,9 +28,11 @@ class ThesisStub(object):
                         assessor=assessor,
                         supervisor=supervisor,
                         title="Eine einzelne Thesis",
+                        thesis_program=student.program,
                         begin_date=datetime.now().date(),
                         due_date=date(2018, 1, 30),
-                        status=Thesis.APPLIED)
+                        status=Thesis.APPLIED,
+                        restriction_note = False)
 
         return thesis
 
@@ -37,7 +40,8 @@ class ThesisStub(object):
     def small(cls, supervisor):
         student = Student(id=123456,
                           first_name="Max",
-                          last_name="Musterstudent")
+                          last_name="Musterstudent",
+                          program="IB")
 
         assessor = Assessor(first_name="Peter",
                             last_name="Maier",
@@ -50,6 +54,7 @@ class ThesisStub(object):
                    assessor=assessor,
                    supervisor=supervisor,
                    title="Eine Thesis",
+                   thesis_program=student.program,
                    begin_date=datetime.now().date(),
                    due_date=date(2018, 1, 30),
                    status=Thesis.PROLONGED)
@@ -58,6 +63,7 @@ class ThesisStub(object):
                    assessor=assessor,
                    supervisor=supervisor,
                    title="Eine andere Thesis",
+                   thesis_program=student.program,
                    begin_date=datetime.now().date(),
                    due_date=date(2019, 1, 30),
                    status=Thesis.APPLIED)
@@ -66,6 +72,7 @@ class ThesisStub(object):
                    assessor=assessor,
                    supervisor=supervisor,
                    title="Eine weitere Thesis",
+                   thesis_program=student.program,
                    begin_date=datetime.now().date(),
                    due_date=date(2017, 1, 30),
                    status=Thesis.GRADED)
@@ -80,19 +87,19 @@ class ThesisStub(object):
 class LoggedInTestCase(TestCase):
 
     def setUp(self):
-        user = User(username="prof", password="pass", initials="PPP")
-        user.save()
+        self.user = User(username="prof", password="pass", initials="PPP")
+        self.user.save()
 
         self.student = Student(
-            id=123456, first_name="Larry", last_name="Langzeitstudent")
+            id=123456, first_name="Larry", last_name="Langzeitstudent", program="IB")
         self.assessor = Assessor(
-            first_name="Max", last_name="Mustermann", email="mm@example.com")
+            first_name="Max", last_name="Mustermann", email="mm@example.com", academic_title="Dr.")
         self.supervisor = Supervisor(
-            first_name="Peter", last_name="Professpr", id=user.username)
+            first_name="Peter", last_name="Professpr", id=self.user.username)
 
         self.supervisor.save()
         self.student.save()
         self.assessor.save()
 
         self.client = Client()
-        self.client.force_login(user)
+        self.client.force_login(self.user)

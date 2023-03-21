@@ -20,7 +20,7 @@
 		<br/>
 		<div class="row">
 			<div class="col-md-2">
-		 		Student:
+		 		Studierender:
 		 	</div>
 		 	<div class="col-md-10">
 		 		{{thesis.student.first_name}}&nbsp;{{thesis.student.last_name}}
@@ -110,7 +110,7 @@
 			</div> 
 
 			<div class="fieldWrapper">
-			          	{{ form.due_date }}
+                {{ form.due_date }}
 		    </div>	
 			<br />
 			<input class="btn btn-success" style="float: left;" type="submit" value="Speichern" />
@@ -120,6 +120,9 @@
             <input id="btn_abort" class="btn btn-danger space-left-small" type="submit" value="Abbrechen"/>
     	</form>
 	</div>
-	
+
+    <script type="text/javascript">
+        document.getElementById("id_weeks").setAttribute("onchange","calculateProlongationDate.call(this);");
+    </script>
 
 {% endblock content %}

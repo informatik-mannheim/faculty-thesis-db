@@ -17,6 +17,7 @@ class User(AbstractUser):
     is_prof = models.BooleanField(default=False)
     is_secretary = models.BooleanField(default=False)
     is_excom = models.BooleanField(default=False)
+    is_head = models.BooleanField(default=False)
 
 
 class ThesisManager(models.Manager):
@@ -35,7 +36,12 @@ class SupervisorManager(models.Manager):
 
         if not con:
             con = ldap.initialize(AUTH_LDAP_SERVER_URI, trace_level=0)
-            con.start_tls_s()
+            # start_tls_s() throws: "connection already established"
+            # tests work without start_tls_s()
+            try:
+                con.start_tls_s()
+            except:
+                pass
             need_unbind = True
 
         dn = AUTH_LDAP_USER_DN_TEMPLATE % {'user': uid}
@@ -58,17 +64,18 @@ class SupervisorManager(models.Manager):
     def fetch_supervisors_from_ldap(self):
         con = ldap.initialize(AUTH_LDAP_SERVER_URI, trace_level=0)
 
-        con.start_tls_s()
+        try:
+            con.start_tls_s()
+        finally:
+            _, entry = con.search_s(AUTH_LDAP_PROF_DN, ldap.SCOPE_BASE)[0]
 
-        _, entry = con.search_s(AUTH_LDAP_PROF_DN, ldap.SCOPE_BASE)[0]
+            uids = [uid.decode() for uid in entry['memberUid']]
 
-        uids = [uid.decode() for uid in entry['memberUid']]
+            supervisors = [self.fetch_supervisor(uid, con) for uid in uids]
 
-        supervisors = [self.fetch_supervisor(uid, con) for uid in uids]
+            con.unbind()
 
-        con.unbind()
-
-        return [s for s in supervisors if s is not None]
+            return [s for s in supervisors if s is not None]
 
 
 class StudentManager(models.Manager):
@@ -85,14 +92,18 @@ class StudentManager(models.Manager):
                 from student where id = %s"""
 
         cursor = connections['faculty'].cursor()
-        cursor.execute(sql, [matnr],)
+        cursor.execute(sql, [matnr], )
         row = cursor.fetchone()
 
-        return None if not row else Student.from_raw(row)
+        try:
+            student = Student.objects.get(id=matnr)
+            return student
+        except:
+            return None if not row else Student.from_raw(row)
 
 
 class Student(models.Model):
-    """Model for students. Model is a little bit tricky as students are read from
+    """Model for students. Model is a little tricky as students are read from
     a read-only MySQL DB (a.k.a. the faculty DB) and saved to the internal
     database. In order to make it testable the table name and all column names
     need to be the same internally and externally so that all mappings work
@@ -117,7 +128,7 @@ class Student(models.Model):
 
     def is_master(self):
         """Checks if the student is a master student"""
-        return self.program == 'IM'
+        return self.program[-1] == 'M'
 
     def is_bachelor(self):
         """Checks if the student is a bachelor student"""
@@ -139,7 +150,6 @@ class Student(models.Model):
 
 
 class Thesis(models.Model):
-
     class Meta:
         verbose_name_plural = "theses"
 
@@ -169,6 +179,7 @@ class Thesis(models.Model):
         null=True,
         blank=True)
     student = models.ForeignKey('Student', on_delete=models.CASCADE)
+    thesis_program = models.CharField(max_length=10)
     begin_date = models.DateField()
     due_date = models.DateField()
     external = models.BooleanField(default=False)
@@ -198,6 +209,13 @@ class Thesis(models.Model):
                                 validators=[
                                     MinValueValidator(1.0),
                                     MaxValueValidator(5.0)])
+    assessor_grade = models.DecimalField(max_digits=2,
+                                         decimal_places=1,
+                                         blank=True,
+                                         null=True,
+                                         validators=[
+                                             MinValueValidator(1.0),
+                                             MaxValueValidator(5.0)])
     prolongation_date = models.DateField(blank=True, null=True)
     prolongation_reason = models.CharField(
         blank=True,
@@ -206,7 +224,7 @@ class Thesis(models.Model):
     prolongation_weeks = models.IntegerField(blank=True, null=True)
     examination_date = models.DateField(blank=True, null=True)
     handed_in_date = models.DateField(blank=True, null=True)
-    restriction_note = models.NullBooleanField(blank=True)
+    restriction_note = models.BooleanField(blank=True, null=True)
 
     objects = ThesisManager()
 
@@ -243,13 +261,10 @@ class Thesis(models.Model):
 
         return True
 
-    def assign_grade(self, grade, examination_date, restriction_note=False):
-        """Assign grade and set status to GRADED
-        if grade is valid and thesis hasn't been graded yet"""
-        if self.status >= Thesis.GRADED:
-            return False
-
+    def assign_grade(self, grade, assessor_grade, examination_date, restriction_note=False):
+        """Assign grade and set status to GRADED, validation performed in GradeForm"""
         self.grade = grade
+        self.assessor_grade = assessor_grade
         self.examination_date = examination_date
         self.restriction_note = restriction_note
         self.clean_fields()
@@ -292,8 +307,11 @@ class Thesis(models.Model):
     def deadline(self):
         return self.prolongation_date if self.is_prolonged() else self.due_date
 
+    def status_changed(self):
+        return self.status == 0 and self.excom_status == 0
+
     def is_handed_in(self):
-        return self.handed_in_date
+        return self.handed_in_date is not None
 
     def is_graded(self):
         return self.status == Thesis.GRADED
@@ -316,13 +334,18 @@ class Thesis(models.Model):
     def is_rejected(self):
         return self.excom_status == Thesis.EXCOM_REJECTED
 
+    def is_master(self):
+        return self.thesis_program[-1] == 'M'
+
+    def is_bachelor(self):
+        return not self.is_master()
+
     def clean(self):
         self.clean_fields()
 
         if self.is_prolonged() and self.prolongation_date <= self.due_date:
             raise ValidationError(
-                {'prolongation_date':
-                    'prolongation date must be later than due date'})
+                {'prolongation_date': 'prolongation date must be later than due date'})
 
     def __str__(self):
         return "'{0}' ({1})".format(self.title, self.student)
@@ -389,16 +412,21 @@ class Assessor(models.Model):
         max_length=30, verbose_name="Vorname")
     last_name = models.CharField(
         max_length=30, verbose_name="Nachname")
+    academic_title = models.CharField(
+        max_length=30, verbose_name="akad. Grad", blank=True, null=True)
     email = models.EmailField(
-        max_length=80, verbose_name="E-Mail")
+        max_length=80, verbose_name="E-Mail", blank=True, null=True)
 
     @property
     def short_name(self):
         return "{0}.{1}".format(self.first_name[0], self.last_name)
 
     def __str__(self):
-        return "{0} {1} ({2})".format(self.first_name,
-                                      self.last_name,
-                                      self.email)
+        if self.email != "":
+            return "{0} {1} ({2})".format(self.first_name,
+                                          self.last_name,
+                                          self.email)
+        return "{0} {1}".format(self.first_name,
+                                self.last_name)
 
     __repr__ = __str__
