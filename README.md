@@ -1,6 +1,6 @@
 # Datenbank für Abschlussarbeiten
 
-## Installation (für Ubuntu 16.04.2 LTS)
+## Installation (für Ubuntu 22.04 LTS)
 ## aktualisierte Version für django4
 
 1. Per ssh auf Zielserver einloggen
