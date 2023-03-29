@@ -112,7 +112,7 @@ function calculateDueDate(months) {
     }
 
     begin_month = (parseInt(begin_month) + months) % 12;
-    let due_date = new Date(begin_year, begin_month, begin_day);
+    let due_date = new Date(begin_year, begin_month, begin_day - 1);
 
     while (due_date.getDay() === 6 || due_date.getDay() === 0 || isHolidayForDate(due_date)) {
         due_date.setDate(due_date.getDate() + 1);
@@ -137,7 +137,7 @@ function calculateProlongationDate() {
         prolong_date.setDate(prolong_date.getDate() + 1);
     }
 
-    document.getElementById("id_prolongation_date_day").value = prolong_date.getDate();
+    document.getElementById("id_prolongation_date_day").value = prolong_date.getDate() - 1;
     document.getElementById("id_prolongation_date_month").value = prolong_date.getMonth() + 1;
     document.getElementById("id_prolongation_date_year").value = prolong_date.getFullYear();
 }
