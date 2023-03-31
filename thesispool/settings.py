@@ -9,10 +9,10 @@ from pathlib import Path
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
-    'aphrodite.informatik.hs-mannheim.de',
+    '141.19.140.11',
     'thesis.informatik.hs-mannheim.de',
     'localhost',
     '127.0.0.1',
@@ -82,7 +82,13 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     },
-    # replace with real faculty-DB data
+    'faculty': {
+        'ENGINE': 'django.db.backends.mysql',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': 'intern.informatik.hs-mannheim.de',
+        'NAME': 'sl',
+    },
 }
 
 AUTH_USER_MODEL = 'website.User'
@@ -122,7 +128,7 @@ AUTH_LDAP_GROUP_SEARCH = LDAPSearch("ou=groups,dc=informatik,dc=hs-mannheim,dc=d
 AUTH_LDAP_GROUP_TYPE = PosixGroupType()
 
 # LDAP connection data
-AUTH_LDAP_SERVER_URI = "ldap://ldap-master.sv.hs-mannheim.de"
+AUTH_LDAP_SERVER_URI = "ldap://141.19.140.62"
 AUTH_LDAP_USER_DN_TEMPLATE = "uid=%(user)s,ou=Users,dc=informatik,dc=hs-mannheim,dc=de"
 AUTH_LDAP_USER_ATTR_MAP = {"first_name": "givenName",
                            "last_name": "sn",
@@ -152,7 +158,7 @@ LOGIN_REDIRECT_URL = '/overview/'
 
 LANGUAGE_CODE = 'de-DE'
 
-TIME_ZONE = 'CET'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
