@@ -131,13 +131,13 @@ function calculateProlongationDate() {
 
     let prolong_date = new Date(parseInt(year), month - 1, parseInt(day));
     let weeks = document.getElementById("id_weeks").value;
-    prolong_date.setDate(prolong_date.getDate() + weeks * 7);
+    prolong_date.setDate(prolong_date.getDate() + weeks * 7 - 1);
 
     while (prolong_date.getDay() === 6 || prolong_date.getDay() === 0 || isHolidayForDate(prolong_date)) {
         prolong_date.setDate(prolong_date.getDate() + 1);
     }
 
-    document.getElementById("id_prolongation_date_day").value = prolong_date.getDate() - 1;
+    document.getElementById("id_prolongation_date_day").value = prolong_date.getDate();
     document.getElementById("id_prolongation_date_month").value = prolong_date.getMonth() + 1;
     document.getElementById("id_prolongation_date_year").value = prolong_date.getFullYear();
 }
