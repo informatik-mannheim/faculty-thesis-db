@@ -148,10 +148,10 @@ class AbstractPDF(object):
             xfdf.add_field("Name Zweitprüfer", self.thesis.assessor.short_name)
             xfdf.add_field("Zweitkorrektor/in", self.thesis.assessor.short_name)
             if self.thesis.assessor.academic_title is not None:
-                xfdf.add_field("Zweitkorrektor/in", self.thesis.assessor.academic_title + ' ' +
-                               self.thesis.assessor.short_name)
-                xfdf.add_field("Name Zweitprüfer", self.thesis.assessor.academic_title + ' ' +
-                               self.thesis.assessor.short_name)
+                xfdf.add_field("Zweitkorrektor/in", self.thesis.assessor.short_name + ', ' + 
+                		self.thesis.assessor.academic_title)
+                xfdf.add_field("Name Zweitprüfer", self.thesis.assessor.short_name + ', ' +
+                               self.thesis.assessor.academic_title)
 
         if self.thesis.external:
             if self.form_name == "bewertung":
