@@ -49,15 +49,6 @@ class TestPDF(TestCase):
         self.assertEqual(xfdf.fields["Name Erstprüfer"], supervisor.short_name)
         self.assertEqual(xfdf.fields["Hochschullehrer/in"], supervisor.short_name)
 
-        if thesis.assessor.academic_title is not None:
-            self.assertEqual(xfdf.fields["Name Zweitprüfer"], thesis.assessor.short_name + ", " +
-                             thesis.assessor.academic_title)
-            self.assertEqual(xfdf.fields["Zweitkorrektor/in"], thesis.assessor.short_name + ", " +
-                             thesis.assessor.academic_title)
-        else:
-            self.assertEqual(xfdf.fields["Name Zweitprüfer"], thesis.assessor.short_name)
-            self.assertEqual(xfdf.fields["Zweitkorrektor/in"], thesis.assessor.short_name)
-
         self.assertEqual(xfdf.fields["Ort_der_Arbeit"], "außer_Hause")
         self.assertEqual(xfdf.fields["Adresse_der_Firma"], thesis.external_where)
 
@@ -91,6 +82,18 @@ class TestPDF(TestCase):
         self.assertNotIn("Name Zweitprüfer", xfdf.fields)
         self.assertNotIn("Zweitkorrektor/in", xfdf.fields)
         self.assertNotIn("assessor_grade", xfdf.fields)
+        
+    def test_has_assessor_with_title(self):
+        supervisor = Supervisor(
+            first_name="Max", last_name="Muster", initials="MMU")
+        thesis = ThesisStub.applied(supervisor)
+        thesis.assessor = Assessor(
+            first_name="Meier", last_name="Mannfred", email="m.mannfred@example.com", academic_title="Dr.")
+
+        xfdf = AbstractPDF(thesis, "gibtsnich")._generate_xfdf()
+        
+        self.assertEqual(xfdf.fields["Name Zweitprüfer"], thesis.assessor.short_name + ', ' + thesis.assessor.academic_title)
+        self.assertEqual(xfdf.fields["Zweitkorrektor/in"], thesis.assessor.short_name + ', ' + thesis.assessor.academic_title)
 
     def test_no_grade(self):
         supervisor = Supervisor(
