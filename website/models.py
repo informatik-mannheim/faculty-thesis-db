@@ -97,7 +97,13 @@ class StudentManager(models.Manager):
 
         try:
             student = Student.objects.get(id=matnr)
-            return student
+            if getattr(student, 'firstname') == row[1] and getattr(student, 'lastname') == row[2] and getattr(student, 'program') == row[3]:
+            	return student
+            else:
+            	setattr(student, 'firstname', row[1])
+            	setattr(student, 'lastname', row[2])
+            	setattr(student, 'program', row[3])
+            	return student
         except:
             return None if not row else Student.from_raw(row)
 
