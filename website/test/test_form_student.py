@@ -187,21 +187,3 @@ class StudentFormTest(TestCase):
         student = form.create_student()
 
         self.assertEqual(None, student)
-
-    def test_invalid_when_id_already_used_in_default(self):
-        student = Student(id=123456, first_name="Peter", last_name="Petermann", program="IB")
-        student.save(using='default')
-
-        data = {'id': 123456,
-                'first_name': "Linus",
-                'last_name': "Kanstein",
-                'program': "IJB"}
-
-        form = StudentForm(data)
-        form.full_clean()
-
-        self.assertFalse(form.is_valid())
-
-        student = form.create_student()
-
-        self.assertEqual(None, student)

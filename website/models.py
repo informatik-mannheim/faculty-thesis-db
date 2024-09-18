@@ -93,19 +93,19 @@ class StudentManager(models.Manager):
 
         cursor = connections['faculty'].cursor()
         cursor.execute(sql, [matnr], )
-        row = cursor.fetchone()
+        row_faculty = cursor.fetchone()
 
         try:
             student = Student.objects.get(id=matnr)
-            if getattr(student, 'firstname') == row[1] and getattr(student, 'lastname') == row[2] and getattr(student, 'program') == row[3]:
-            	return student
+            if getattr(student, 'firstname') == row_faculty[1] and getattr(student, 'lastname') == row_faculty[2] and getattr(student, 'program') == row_faculty[3]:
+                return student
             else:
-            	setattr(student, 'firstname', row[1])
-            	setattr(student, 'lastname', row[2])
-            	setattr(student, 'program', row[3])
-            	return student
+                setattr(student, 'firstname', row_faculty[1])
+                setattr(student, 'lastname', row_faculty[2])
+                setattr(student, 'program', row_faculty[3])
+                return student
         except:
-            return None if not row else Student.from_raw(row)
+            return None if not row_faculty else Student.from_raw(row_faculty)
 
 
 class Student(models.Model):
@@ -134,7 +134,7 @@ class Student(models.Model):
 
     def is_master(self):
         """Checks if the student is a master student"""
-        return self.program[-1] == 'M'
+        return str(self.program).upper()[-1] == 'M'
 
     def is_bachelor(self):
         """Checks if the student is a bachelor student"""
@@ -341,7 +341,7 @@ class Thesis(models.Model):
         return self.excom_status == Thesis.EXCOM_REJECTED
 
     def is_master(self):
-        return self.thesis_program[-1] == 'M'
+        return str(self.thesis_program).upper()[-1] == 'M'
 
     def is_bachelor(self):
         return not self.is_master()
@@ -393,7 +393,7 @@ class Supervisor(models.Model):
 
     @classmethod
     def from_user(cls, user):
-        initials = user.initials if hasattr(user, 'initials') else ""
+        initials = user.initials if hasattr(user, 'initials') else ''
 
         return cls(id=user.username,
                    first_name=user.first_name,
@@ -402,7 +402,7 @@ class Supervisor(models.Model):
 
     @property
     def short_name(self):
-        return "{0}.{1}".format(self.first_name[0], self.last_name)
+        return "{0}.{1}".format(str(self.first_name)[0], self.last_name)
 
     def __str__(self):
         return "{0} {1} ({2})".format(

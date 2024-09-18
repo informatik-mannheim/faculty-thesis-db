@@ -199,8 +199,7 @@ class CreateThesis(View):
 
     @property
     def headline(self):
-        prefix = ("Master", "Bachelor")[self.student.is_bachelor()]
-        return "%sthesis anlegen" % prefix
+        return f"{'Bachelor' if self.student.is_bachelor() else 'Master'}thesis anlegen"
 
     @method_decorator(never_cache)
     def get(self, request, *args, **kwargs):
@@ -255,8 +254,7 @@ class ChangeView(View):
 
     def dispatch(self, request, *args, **kwargs):
         self.thesis = get_object_or_404(Thesis, surrogate_key=kwargs["key"])
-        self.headline = "{0}thesis ändern".format(
-            "Master" if self.thesis.is_master() else "Bachelor")
+        self.headline = f"{'Bachelor' if self.thesis.is_bachelor() else 'Master'}thesis ändern"
         return super(ChangeView, self).dispatch(request, *args, **kwargs)
 
     @method_decorator(never_cache)
@@ -329,8 +327,7 @@ class DeleteThesis(View):
 
     def dispatch(self, request, *args, **kwargs):
         self.thesis = get_object_or_404(Thesis, surrogate_key=kwargs["key"])
-        self.headline = "{0}thesis löschen".format(
-            "Master" if self.thesis.is_master() else "Bachelor")
+        self.headline =  f"{'Bachelor' if self.thesis.is_bachelor() else 'Master'}thesis löschen"
         return super(DeleteThesis, self).dispatch(request, *args, **kwargs)
 
     @method_decorator(never_cache)
