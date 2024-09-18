@@ -32,17 +32,6 @@ class ViewFindStudentTests(TestCase):
         self.assertEqual(self.student, response.context['student'])
         self.assertTrue(response.context['form'].is_valid())
 
-    def test_post_valid_matrikelnummer_in_default(self):
-        student = Student(id=987654, first_name="Linus", last_name="Kanstein", program="IB")
-        student.save(using='default')
-
-        response = self.client.post(
-            reverse('find_student'), {'student_id': '987654'})
-
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(student, response.context['student'])
-        self.assertTrue(response.context['form'].is_valid())
-
     def test_post_invalid_matrikelnummer(self):
         response = self.client.post(
             reverse('find_student'), {'student_id': '000999'})

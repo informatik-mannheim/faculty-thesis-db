@@ -17,10 +17,7 @@ tests/.coverage
 build/
 tests/report/
 
-# sqlite databases
 *.sqlite3
 
-# secret settings file for local overrides
-settings_secret.py
-
 /static/
+env/
