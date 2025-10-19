@@ -21,3 +21,4 @@ tests/report/
 
 /static/
 env/
+thesispool/settings_secret.py
