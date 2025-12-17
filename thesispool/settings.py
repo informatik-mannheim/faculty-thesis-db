@@ -14,6 +14,7 @@ DEBUG = False
 ALLOWED_HOSTS = [
     '141.19.140.11',
     'thesis.informatik.hs-mannheim.de',
+    'thesis.informatik.th-mannheim.de',
     'localhost',
     '127.0.0.1',
 ]
