@@ -33,7 +33,7 @@ class StudentTests(TestCase):
 
     def test_email(self):
         student = self.create_test_student("IB")
-        self.assertEqual("{0}@stud.hs-mannheim.de".format(student.id), student.email)
+        self.assertEqual("{0}@stud.th-mannheim.de".format(student.id), student.email)
 
     def test_from_raw(self):
         raw = [123456, 'peter', 'mustermann', 'IM']

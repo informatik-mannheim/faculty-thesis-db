@@ -130,7 +130,7 @@ class Student(models.Model):
     @property
     def email(self):
         """Generate email address using the default pattern"""
-        return "{0}@stud.hs-mannheim.de".format(self.id)
+        return "{0}@stud.th-mannheim.de".format(self.id)
 
     def is_master(self):
         """Checks if the student is a master student"""
