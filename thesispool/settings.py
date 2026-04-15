@@ -87,7 +87,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'USER': '',
         'PASSWORD': '',
-        'HOST': 'intern.informatik.hs-mannheim.de',
+        'HOST': 'HOSTNAME',
         'NAME': 'sl',
     },
 }
