@@ -193,7 +193,7 @@ class AbstractPDF(object):
                 self.thesis.prolongation_date))
 
             if self.form_name == "bewertung":
-                xfdf.add_field("Datum", self.__date_format(self.thesis.prolongation_date))
+                xfdf.add_field("Datum", self.__date_format(self.thesis.handed_in_date))
 
             # "mit verlängerung"
             xfdf.add_field("auswählen", "1")
